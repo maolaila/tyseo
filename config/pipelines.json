@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "current_task": "workflow-hardening",
+  "scheduling_enabled": false,
+  "pipelines": {
+    "z-review": {
+      "state": "implemented_first_pass_only",
+      "entrypoint": "src/z_review.py",
+      "scope": "read-only real application z1-z21; external artifacts",
+      "writes_business": false,
+      "steps": [
+        "source inventory",
+        "process-only template selection",
+        "route/sample discovery",
+        "390/1280 light browser observations",
+        "screenshots and findings",
+        "AI review and triage"
+      ],
+      "not_covered": [
+        "full dark-mode interactions",
+        "all no-JS cases",
+        "unreachable route samples",
+        "automatic business fixes"
+      ],
+      "output": "runs/z-review/"
+    },
+    "template-workflow": {
+      "state": "partially_implemented_deferred_by_latest_task",
+      "entrypoint": "workflow.py",
+      "scope": "external tool and drafts; no allocated business template id",
+      "steps": [
+        "validate",
+        "audit",
+        "design",
+        "external generation",
+        "fixture/real matrix",
+        "review",
+        "evidence-linked repair",
+        "boundary check",
+        "handoff"
+      ],
+      "not_covered": [
+        "complete rule handlers",
+        "complete page/interaction acceptance",
+        "automatic repair convergence",
+        "formal business artifact installation"
+      ],
+      "output": "runs/bootstrap/"
+    },
+    "domain-selection": {
+      "state": "existing_agent_workflow_do_not_reimplement",
+      "source": "C:/tyseo/cms-sport-tpl-bing/.local-records/domains/WORKFLOW.md",
+      "steps": [
+        "select/check assigned number of domains",
+        "deduplicate and update purchase-pending sheet",
+        "read back and confirm saved"
+      ],
+      "enabled_in_current_task": false
+    },
+    "site-launch": {
+      "state": "documented_only_requires_separate_explicit_task",
+      "steps": [
+        "verify purchase and transfer to launch sheet",
+        "prepare TDK from assigned keyword research",
+        "verify generated launch script",
+        "authorized backend execution",
+        "read back deployed state"
+      ],
+      "enabled_in_current_task": false
+    },
+    "git-delivery": {
+      "state": "documented_only_disabled_in_current_task",
+      "steps": [
+        "reference team branch style",
+        "scoped commit",
+        "push and verify ref",
+        "PR targeting main",
+        "request human review when authorized",
+        "merge by authorized reviewer",
+        "eligible for deployment"
+      ],
+      "enabled_in_current_task": false
+    },
+    "acceptance": {
+      "state": "implemented_planning_and_evidence_gates_partial_rule_execution",
+      "entrypoint": "workflow.py plan-acceptance / assess-acceptance",
+      "writes_business": false,
+      "robot_integration": "reserved_disabled"
+    }
+  },
+  "execution_mode": "semi_automatic"
+}

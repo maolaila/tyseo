@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+runs/
+drafts/
+*.pyc
+restored/
+private/
+*.key
+.playwright/
+.playwright-cli/
+node_modules/
+.runtime-cli/
+tasks/local.json

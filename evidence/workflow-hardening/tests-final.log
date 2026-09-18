@@ -1,0 +1,48 @@
+test_changed_artifact_rejects_pass (test_acceptance.AcceptanceTests) ... ok
+test_failure_schema_has_context (test_acceptance.AcceptanceTests) ... ok
+test_fixture_not_real (test_acceptance.AcceptanceTests) ... ok
+test_fixture_states_separate (test_acceptance.AcceptanceTests) ... ok
+test_full_matrix_and_nojs_not_dropped (test_acceptance.AcceptanceTests) ... ok
+test_meta_and_header_separate (test_acceptance.AcceptanceTests) ... ok
+test_missing_cases_and_reviews_block_delivery (test_acceptance.AcceptanceTests) ... ok
+test_stale_input_rejected (test_acceptance.AcceptanceTests) ... ok
+test_tdk_multiple_configurations_and_homepage_leak (test_acceptance.AcceptanceTests) ... ok
+test_theme_emulation_not_verification (test_acceptance.AcceptanceTests) ... ok
+test_wrong_provenance_rejected (test_acceptance.AcceptanceTests) ... ok
+test_F12_long_names_and_score_clipping (test_browser.BrowserFailures) ... ok
+test_F13_failed_image_layout (test_browser.BrowserFailures) ... ok
+test_F14_dark_text_visibility_detector (test_browser.BrowserFailures) ... ok
+test_F15_storage_failure (test_browser.BrowserFailures) ... ok
+test_F18_close_scroll (test_browser.BrowserFailures) ... ok
+test_F19_disclosure_focus_restore (test_browser.BrowserFailures) ... ok
+test_F20_top_overlap (test_browser.BrowserFailures) ... ok
+test_round_trip_and_wrong_key (test_migration.MigrationTests) ... ok
+test_F01_python_env_requirements (test_workflow.Gates) ... ok
+test_F02_other_template (test_workflow.Gates) ... ok
+test_F03_traversal_and_link (test_workflow.Gates) ... ok
+test_F04_dirty_baseline_preserved (test_workflow.Gates) ... ok
+test_F05_id_missing_conflict (test_workflow.Gates) ... ok
+test_F06_private_reference (test_workflow.Gates) ... ok
+test_F07_F31_coverage_denominator (test_workflow.Gates) ... ok
+test_F08_strict_variable (test_workflow.Gates) ... ok
+test_F09_F10_F11_score_mapping (test_workflow.Gates) ... ok
+test_F16_F17_search_scope (test_workflow.Gates) ... ok
+test_F21_empty_shell (test_workflow.Gates) ... ok
+test_F22_real_href (test_workflow.Gates) ... ok
+test_F23_F24_canonical_policy (test_workflow.Gates) ... ok
+test_F25_F26_robots_policy (test_workflow.Gates) ... ok
+test_F27_head_binding (test_workflow.Gates) ... ok
+test_F28_fixture_leak (test_workflow.Gates) ... ok
+test_F29_design_difference (test_workflow.Gates) ... ok
+test_F30_no_score_mask (test_workflow.Gates) ... ok
+test_F32_evidence (test_workflow.Gates) ... ok
+test_F33_environment (test_workflow.Gates) ... ok
+test_F34_stale_checkpoint (test_workflow.Gates) ... ok
+test_F35_F36_forbidden_actions (test_workflow.Gates) ... ok
+test_F37_not_synthetic_crawl (test_workflow.Gates) ... ok
+test_F38_no_relaxation (test_workflow.Gates) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 7.556s
+
+OK

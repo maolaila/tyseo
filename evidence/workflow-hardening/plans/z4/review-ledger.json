@@ -1,0 +1,1517 @@
+{
+  "input_hash": "027fa9d3bc6b5abc0a431610dd3d0f4e74eec40809b9cfb5985f7fd1cbbaa8df",
+  "reviews": [
+    {
+      "page_type_id": "index",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "index",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "index",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "index",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "hot_tag_detail",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "hot_tag_detail",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "hot_tag_detail",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "hot_tag_detail",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "hot_tag_detail_pinyin",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "hot_tag_detail_pinyin",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "hot_tag_detail_pinyin",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "hot_tag_detail_pinyin",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_hot_tag",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_hot_tag",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_hot_tag",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_hot_tag",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "allmatch",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "allmatch",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "allmatch",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "allmatch",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "five_leagues",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "five_leagues",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "five_leagues",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "five_leagues",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "search",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "search",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "search",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "search",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_match_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_match_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_match_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_match_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_match_list_folder",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_match_list_folder",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_match_list_folder",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_match_list_folder",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_paihangbang",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_paihangbang",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_paihangbang",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_paihangbang",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_zb_show",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_zb_show",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_zb_show",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_zb_show",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_zb",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_zb",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_zb",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_zb",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_match_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_match_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_match_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_match_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_info",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_info",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_info",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_info",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_info",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_info",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_info",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_info",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_honor_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_honor_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_honor_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_honor_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_data",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_data",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_data",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_data",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_transfer",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_transfer",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_transfer",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_transfer",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_rank",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_rank",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_rank",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "team_player_rank",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_video",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_video",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_video",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "detail_video",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "match_all_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "match_all_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "match_all_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "match_all_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "article_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "article_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "article_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "article_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_type_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_type_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_type_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_type_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_detail",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_detail",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_detail",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tv_detail",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tag_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tag_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tag_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "tag_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "video_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "video_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "video_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "video_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_video_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_video_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_video_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_video_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_luxiang_all",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_luxiang_all",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_luxiang_all",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_luxiang_all",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_jijin_all",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_jijin_all",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_jijin_all",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "list_jijin_all",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_home_lq",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_home_lq",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_home_lq",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_home_lq",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_home_zq",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_home_zq",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_home_zq",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_home_zq",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_detail_lq",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_detail_lq",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_detail_lq",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "material_detail_lq",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "zhuanti_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "zhuanti_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "zhuanti_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "zhuanti_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "picture_list",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "picture_list",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "picture_list",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "picture_list",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "picture_detail",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "picture_detail",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "picture_detail",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "picture_detail",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "zhuanti_detail",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "zhuanti_detail",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "zhuanti_detail",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "zhuanti_detail",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_teams",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_teams",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_teams",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_teams",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_rank",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_rank",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_rank",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_rank",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_rank_team_summary",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_rank_team_summary",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_rank_team_summary",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_rank_team_summary",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_jifen",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_jifen",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_jifen",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_jifen",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_winner",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_winner",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_winner",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_winner",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_player_rank",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_player_rank",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_player_rank",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_player_rank",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_team_rank",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_team_rank",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_team_rank",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_team_rank",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_best_lineup",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_best_lineup",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_best_lineup",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "league_best_lineup",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "sitemap",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "sitemap",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "sitemap",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "sitemap",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "aboutus",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "aboutus",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "aboutus",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "aboutus",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "mz",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "mz",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "mz",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "mz",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "about",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "about",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "about",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "about",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "about_cnt",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "about_cnt",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "about_cnt",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "about_cnt",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "contact_cnt",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "contact_cnt",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "contact_cnt",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "contact_cnt",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "feedback",
+      "width": 390,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "feedback",
+      "width": 390,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "feedback",
+      "width": 1280,
+      "theme": "light",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    },
+    {
+      "page_type_id": "feedback",
+      "width": 1280,
+      "theme": "dark",
+      "visual": "needs_review",
+      "seo": "needs_review"
+    }
+  ]
+}

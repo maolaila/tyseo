@@ -1,0 +1,44 @@
+{
+  "schema_version": "2.0",
+  "task_id": "pony-workflow-bootstrap-20260918",
+  "mode": "bootstrap",
+  "repo_root": "C:/tyseo/cms-sport-tpl-bing",
+  "workflow_root": "C:/tyseo/pony-template-workflow",
+  "reference_template_id": "r62",
+  "target_template_id": null,
+  "target_id_confirmed": false,
+  "page_contract_path": null,
+  "design_spec_path": null,
+  "preview_base_url": "http://127.0.0.1:5000",
+  "expected_page_type_count": null,
+  "repair_round_limit": 3,
+  "browser_matrix": {
+    "primary_engine": "chromium",
+    "widths": [
+      360,
+      390,
+      768,
+      1280,
+      1920
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "no_js_widths": [
+      390,
+      1280
+    ],
+    "secondary_engines": [
+      "webkit",
+      "firefox"
+    ]
+  },
+  "remote_writes_enabled": false,
+  "deployment_enabled": false,
+  "site_tdk_generation_enabled": false,
+  "domain_workflow_mutation_enabled": false,
+  "indexnow_enabled": false,
+  "scheduler_enabled": false,
+  "notes": "只初始化工作流并审计现有r62；实际页面清单由本地发现。目标编号尚未确认，不能写业务模板目录。首批20个域名已按用户记录入表，不重做，不把20当永久每日数量。"
+}

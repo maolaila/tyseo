@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pony Bing SEO Workflow TaskSpec v2",
+  "description": "结构验证示例；目录真实路径、模板编号分配、接口证据和副作用边界还必须由运行时检查。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "mode",
+    "repo_root",
+    "workflow_root",
+    "reference_template_id",
+    "target_template_id",
+    "target_id_confirmed",
+    "page_contract_path",
+    "design_spec_path",
+    "preview_base_url",
+    "expected_page_type_count",
+    "repair_round_limit",
+    "browser_matrix",
+    "remote_writes_enabled",
+    "deployment_enabled",
+    "site_tdk_generation_enabled",
+    "domain_workflow_mutation_enabled",
+    "indexnow_enabled",
+    "scheduler_enabled"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+    },
+    "mode": {
+      "enum": [
+        "bootstrap",
+        "new-template",
+        "repair-template",
+        "verify-template"
+      ]
+    },
+    "repo_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workflow_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reference_template_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+    },
+    "target_template_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+    },
+    "target_id_confirmed": {
+      "type": "boolean"
+    },
+    "page_contract_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "design_spec_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "preview_base_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "expected_page_type_count": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "repair_round_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "browser_matrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_engine",
+        "widths",
+        "themes",
+        "no_js_widths",
+        "secondary_engines"
+      ],
+      "properties": {
+        "primary_engine": {
+          "const": "chromium"
+        },
+        "widths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 3840
+          }
+        },
+        "themes": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "light",
+              "dark"
+            ]
+          }
+        },
+        "no_js_widths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 3840
+          }
+        },
+        "secondary_engines": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "webkit",
+              "firefox"
+            ]
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "remote_writes_enabled": {
+      "const": false
+    },
+    "deployment_enabled": {
+      "const": false
+    },
+    "site_tdk_generation_enabled": {
+      "const": false
+    },
+    "domain_workflow_mutation_enabled": {
+      "const": false
+    },
+    "indexnow_enabled": {
+      "const": false
+    },
+    "scheduler_enabled": {
+      "const": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "enum": [
+              "new-template",
+              "repair-template",
+              "verify-template"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "target_template_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_id_confirmed": {
+            "const": true
+          }
+        }
+      }
+    }
+  ]
+}

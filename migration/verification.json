@@ -1,0 +1,7 @@
+{
+  "authenticated": true,
+  "zip_crc_valid": true,
+  "env_roundtrip_equal": true,
+  "files": 6244,
+  "encrypted_parts": 46
+}

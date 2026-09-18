@@ -1,0 +1,19 @@
+{
+  "expected_version": "0.1.20",
+  "session": "tyseo-acceptance",
+  "checks": {
+    "version": {
+      "returncode": 0,
+      "expected_version_seen": true
+    },
+    "help": {
+      "returncode": 0,
+      "expected_version_seen": false
+    },
+    "run-code-help": {
+      "returncode": 0,
+      "expected_version_seen": false
+    }
+  },
+  "status": "pass"
+}

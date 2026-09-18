@@ -1,0 +1,635 @@
+{
+  "schema_version": "2.0",
+  "artifact_type": "declarative_requirements_not_an_executable_validator",
+  "description": "Codex需实现检查器和失败用例。存在本文件不代表规则已执行，handler_implemented初始均为false。严重度按真实适用条件、baseline与新回归分类执行。",
+  "status_values": [
+    "pass",
+    "fail",
+    "blocked",
+    "needs_review",
+    "not_applicable"
+  ],
+  "default_policy": {
+    "pass_requires_evidence": true,
+    "not_applicable_requires_reason": true,
+    "missing_dependency_is_not_pass": true,
+    "fixture_pass_is_not_real_app_pass": true,
+    "new_p0_p1_prevent_delivery": true,
+    "human_acceptance_is_separate": true,
+    "unknown_production_state_stays_unknown": true
+  },
+  "rules": [
+    {
+      "id": "PATH-01",
+      "title": "实际解析写入路径仅落在目标两个目录",
+      "severity": "P0",
+      "method": "runtime_guard",
+      "scope": "business_write",
+      "prd_section": "3",
+      "required_evidence": [
+        "resolved_path",
+        "task_spec",
+        "guard_decision"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "PATH-02",
+      "title": "用户已有工作树与受保护文件保持完整",
+      "severity": "P0",
+      "method": "diff_audit",
+      "scope": "all",
+      "prd_section": "3",
+      "required_evidence": [
+        "baseline_manifest",
+        "changed_files",
+        "protected_fingerprints"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "PATH-03",
+      "title": "目标编号已确认、无未授权占用",
+      "severity": "P0",
+      "method": "runtime_guard",
+      "scope": "new-template",
+      "prd_section": "4.4",
+      "required_evidence": [
+        "id_allocation_evidence",
+        "directory_inventory"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "PATH-04",
+      "title": "外部工具/夹具/秘密未混入业务提交",
+      "severity": "P0",
+      "method": "artifact_scan",
+      "scope": "handoff",
+      "prd_section": "3/13",
+      "required_evidence": [
+        "business_manifest",
+        "scan_findings"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "PATH-05",
+      "title": "域名旧流程不改写且无后续副作用",
+      "severity": "P0",
+      "method": "action_audit",
+      "scope": "all",
+      "prd_section": "2",
+      "required_evidence": [
+        "workflow_file_hash",
+        "action_log"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "PATH-06",
+      "title": "没有未授权远程Git/发布/定时操作",
+      "severity": "P0",
+      "method": "action_audit",
+      "scope": "all",
+      "prd_section": "2/13",
+      "required_evidence": [
+        "task_spec",
+        "action_log"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "CON-01",
+      "title": "全部实际页面类型已发现并覆盖",
+      "severity": "P0",
+      "method": "contract_compare",
+      "scope": "all_pages",
+      "prd_section": "4",
+      "required_evidence": [
+        "route_evidence",
+        "template_graph",
+        "page_manifest"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "CON-02",
+      "title": "Jinja变量/宏/过滤器/上下文契约保留",
+      "severity": "P0",
+      "method": "contract_and_render",
+      "scope": "all_pages",
+      "prd_section": "4/6",
+      "required_evidence": [
+        "source_locations",
+        "render_results"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "CON-03",
+      "title": "只重排当前页已有数据",
+      "severity": "P0",
+      "method": "contract_compare",
+      "scope": "all_pages",
+      "prd_section": "4.3",
+      "required_evidence": [
+        "page_data_dependencies",
+        "backend_requests"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "CON-04",
+      "title": "模板预览选择确实生效",
+      "severity": "P0",
+      "method": "real_app_probe",
+      "scope": "real_app",
+      "prd_section": "4.4",
+      "required_evidence": [
+        "selection_evidence",
+        "http_samples"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "CON-05",
+      "title": "没有依赖其他模板私有实现",
+      "severity": "P1",
+      "method": "dependency_scan",
+      "scope": "target_template",
+      "prd_section": "5/6",
+      "required_evidence": [
+        "dependency_map",
+        "asset_requests"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "CON-06",
+      "title": "真实绑定与测试夹具隔离",
+      "severity": "P0",
+      "method": "source_and_artifact_scan",
+      "scope": "all_pages",
+      "prd_section": "6",
+      "required_evidence": [
+        "data_origins",
+        "business_manifest"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "UI-01",
+      "title": "每页RWD无严重溢出/裁切/遮挡",
+      "severity": "P0",
+      "method": "browser_and_visual",
+      "scope": "all_pages",
+      "prd_section": "7.1/10",
+      "required_evidence": [
+        "matrix_results",
+        "screenshots",
+        "layout_assertions"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "UI-02",
+      "title": "每页light/dark覆盖且可读",
+      "severity": "P1",
+      "method": "browser_and_visual",
+      "scope": "all_pages",
+      "prd_section": "7.2",
+      "required_evidence": [
+        "theme_results",
+        "contrast_results",
+        "screenshots"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "UI-03",
+      "title": "主题跨页持久化且存储失败可回退",
+      "severity": "P1",
+      "method": "interaction_test",
+      "scope": "shared_ui_each_page",
+      "prd_section": "7.2",
+      "required_evidence": [
+        "interaction_trace",
+        "error_logs"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "UI-04",
+      "title": "搜索按真实能力完成结果链路",
+      "severity": "P0",
+      "method": "contract_and_interaction",
+      "scope": "search",
+      "prd_section": "7.3",
+      "required_evidence": [
+        "search_contract",
+        "interaction_trace",
+        "result_html"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "UI-05",
+      "title": "返回顶部可操作且无遮挡",
+      "severity": "P1",
+      "method": "interaction_test",
+      "scope": "applicable_content_pages",
+      "prd_section": "7.4",
+      "required_evidence": [
+        "interaction_trace",
+        "screenshots"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "UI-06",
+      "title": "手机导航展开关闭/焦点/断点正确",
+      "severity": "P1",
+      "method": "interaction_test",
+      "scope": "all_pages",
+      "prd_section": "7.5",
+      "required_evidence": [
+        "interaction_trace",
+        "screenshots"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "UI-07",
+      "title": "原有分页筛选等功能不回归",
+      "severity": "P1",
+      "method": "contract_and_interaction",
+      "scope": "contract_defined_features",
+      "prd_section": "7.6",
+      "required_evidence": [
+        "baseline_behaviors",
+        "interaction_results"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "UI-08",
+      "title": "不同模板不只换色/类名",
+      "severity": "P1",
+      "method": "ai_and_human_review",
+      "scope": "design",
+      "prd_section": "5",
+      "required_evidence": [
+        "design_spec",
+        "matched_content_comparisons",
+        "difference_report"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SP-01",
+      "title": "0与null/undefined语义区分正确",
+      "severity": "P0",
+      "method": "render_assertion",
+      "scope": "score_components",
+      "prd_section": "8",
+      "required_evidence": [
+        "fixture_inputs",
+        "visible_score_assertions"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SP-02",
+      "title": "主客队与比分映射正确",
+      "severity": "P0",
+      "method": "render_assertion",
+      "scope": "score_components",
+      "prd_section": "8",
+      "required_evidence": [
+        "field_mapping",
+        "visible_score_assertions"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SP-03",
+      "title": "长队名/三位数比分不破坏排版",
+      "severity": "P0",
+      "method": "browser_and_visual",
+      "scope": "score_components",
+      "prd_section": "8",
+      "required_evidence": [
+        "fixture_inputs",
+        "layout_assertions",
+        "screenshots"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SP-04",
+      "title": "赛事状态/附加比分遵循真实字段",
+      "severity": "P0",
+      "method": "contract_and_render",
+      "scope": "match_components",
+      "prd_section": "8",
+      "required_evidence": [
+        "state_contract",
+        "state_assertions"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SP-05",
+      "title": "赛事时区日期不擅自改变",
+      "severity": "P1",
+      "method": "contract_and_render",
+      "scope": "match_components",
+      "prd_section": "8",
+      "required_evidence": [
+        "timezone_contract",
+        "date_assertions"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SP-06",
+      "title": "图片失败与空态布局稳定",
+      "severity": "P1",
+      "method": "browser_and_visual",
+      "scope": "data_components",
+      "prd_section": "8",
+      "required_evidence": [
+        "failure_fixtures",
+        "screenshots",
+        "request_logs"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SP-07",
+      "title": "关键比分区域没有用mask隐藏",
+      "severity": "P0",
+      "method": "test_config_audit",
+      "scope": "visual_tests",
+      "prd_section": "8/10",
+      "required_evidence": [
+        "screenshot_options",
+        "test_diff"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-01",
+      "title": "初始HTML包含主体及详情分页入口",
+      "severity": "P0",
+      "method": "raw_http_parse",
+      "scope": "all_pages",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "raw_html",
+        "content_assertions"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-02",
+      "title": "主要跳转为真实a href",
+      "severity": "P1",
+      "method": "raw_link_parse",
+      "scope": "all_pages",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "link_inventory",
+        "resolved_routes"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-03",
+      "title": "TDK保留正确绑定而非首页硬编码",
+      "severity": "P1",
+      "method": "head_contract_compare",
+      "scope": "all_pages",
+      "prd_section": "2.3/9.1",
+      "required_evidence": [
+        "head_snapshots",
+        "binding_contract"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-04",
+      "title": "标题层级/主内容/语言结构清楚",
+      "severity": "P1",
+      "method": "html_and_review",
+      "scope": "all_pages",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "semantic_report",
+        "raw_html"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-05",
+      "title": "URL与分页参数遵循项目契约",
+      "severity": "P1",
+      "method": "route_contract_compare",
+      "scope": "all_pages",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "url_contract",
+        "link_and_page_samples"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-06",
+      "title": "canonical符合站点/页面既定政策",
+      "severity": "P1",
+      "method": "head_contract_compare",
+      "scope": "canonical_applicable",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "canonical_policy",
+        "head_snapshots"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-07",
+      "title": "分页可直接获取且内容对应",
+      "severity": "P1",
+      "method": "http_and_interaction",
+      "scope": "paginated_pages",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "pagination_contract",
+        "page_responses"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-08",
+      "title": "无JS手机/桌面仍有主体和主要链接",
+      "severity": "P0",
+      "method": "browser_no_js",
+      "scope": "all_pages",
+      "prd_section": "9.1/10",
+      "required_evidence": [
+        "no_js_results",
+        "screenshots"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-09",
+      "title": "关键文本不只存在于图片或伪元素",
+      "severity": "P1",
+      "method": "raw_html_and_visual",
+      "scope": "all_pages",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "text_inventory",
+        "screenshots"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-10",
+      "title": "索引指令符合逐页策略",
+      "severity": "P0",
+      "method": "headers_and_html",
+      "scope": "all_pages",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "indexing_policy",
+        "headers",
+        "meta_tags"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-11",
+      "title": "无占位符且结构化数据真实一致",
+      "severity": "P1",
+      "method": "parse_and_review",
+      "scope": "all_pages",
+      "prd_section": "9.1/9.2",
+      "required_evidence": [
+        "placeholder_scan",
+        "jsonld_results",
+        "content_evidence"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "SEO-12",
+      "title": "无隐藏关键词/爬虫专属内容/人工堆词",
+      "severity": "P1",
+      "method": "source_and_ai_review",
+      "scope": "all_pages",
+      "prd_section": "9.1",
+      "required_evidence": [
+        "source_findings",
+        "ai_seo_review"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "QA-01",
+      "title": "每页每个必测组合有执行记录",
+      "severity": "P0",
+      "method": "coverage_audit",
+      "scope": "all_tests",
+      "prd_section": "10",
+      "required_evidence": [
+        "expected_matrix",
+        "actual_results"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "QA-02",
+      "title": "PASS有真实证据且N/A有依据",
+      "severity": "P0",
+      "method": "report_validation",
+      "scope": "all_tests",
+      "prd_section": "10/12",
+      "required_evidence": [
+        "report_json",
+        "evidence_manifest"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "QA-03",
+      "title": "fixture与real_app状态不混同",
+      "severity": "P0",
+      "method": "report_validation",
+      "scope": "all_tests",
+      "prd_section": "10",
+      "required_evidence": [
+        "environment_labels",
+        "run_logs"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "QA-04",
+      "title": "自动修复不删除测试或放宽标准",
+      "severity": "P0",
+      "method": "repair_audit",
+      "scope": "repair",
+      "prd_section": "11",
+      "required_evidence": [
+        "test_diff",
+        "repair_history"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "QA-05",
+      "title": "续跑检查输入版本与文件哈希",
+      "severity": "P1",
+      "method": "resume_test",
+      "scope": "workflow",
+      "prd_section": "11",
+      "required_evidence": [
+        "checkpoint",
+        "current_hashes",
+        "invalidated_stages"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "QA-06",
+      "title": "每页都有AI视觉/SEO复核记录",
+      "severity": "P1",
+      "method": "coverage_and_review",
+      "scope": "all_pages",
+      "prd_section": "9.4/10",
+      "required_evidence": [
+        "ai_visual_review",
+        "ai_seo_review",
+        "review_index"
+      ],
+      "handler_implemented": false
+    },
+    {
+      "id": "QA-07",
+      "title": "交付状态未冒充人工验收/发布/抓取",
+      "severity": "P0",
+      "method": "report_and_action_audit",
+      "scope": "handoff",
+      "prd_section": "10/13/14",
+      "required_evidence": [
+        "handoff",
+        "action_log",
+        "status_evidence"
+      ],
+      "handler_implemented": false
+    }
+  ]
+}

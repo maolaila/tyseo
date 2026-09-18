@@ -1,0 +1,14 @@
+{
+  "execution_mode": "semi_automatic",
+  "rs_assistant": {
+    "enabled": false,
+    "status": "reserved_not_implemented",
+    "reference_workspace": "C:/RS",
+    "allowed_actions": [],
+    "entry_contract": "validated TaskSpec + current input_hash + evidence report; no implicit authority",
+    "activation_requires": "Separate user task after robot optimization; review auth, idempotency and cancellation"
+  },
+  "scheduler_enabled": false,
+  "remote_side_effects_default": false,
+  "playwright_cli_version": "0.1.20"
+}
