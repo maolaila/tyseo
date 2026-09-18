@@ -19,7 +19,7 @@ SPORT_STATES = ['number_zero','string_zero','zero_zero','zero_one','one_zero','n
 
 def input_stamp(task, contract_path):
     repo=Path(task['repo_root']); names={repo/'run.py',repo/'config.py',repo/'cache/cache_data.py',Path(contract_path),
-        ROOT/'requirements-lock.txt',ROOT/'AGENTS.md',ROOT/'PRD.md',ROOT/'docs/ACCEPTANCE.md',ROOT/'docs/ACCEPTANCE_INCREMENT.md',repo/'AGENTS.md'}
+        ROOT/'requirements-lock.txt',ROOT/'AGENTS.md',ROOT/'PRD.md',ROOT/'docs/ACCEPTANCE.md',ROOT/'docs/ACCEPTANCE_INCREMENT.md',ROOT/'docs/TEMPLATE_ACCEPTANCE_STANDARD.md',repo/'AGENTS.md'}
     names.update([ROOT/'workflow.py',ROOT/'pipeline.py'])
     for directory in ('src','scripts','config','schemas','fixtures'):
         names.update(p for p in (ROOT/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts)

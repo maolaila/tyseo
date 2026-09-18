@@ -84,7 +84,7 @@ cd C:\tyseo\pony-template-workflow
 
 ## 当前半自动增量入口
 
-详见 `docs/ACCEPTANCE_INCREMENT.md`。使用 `workflow.py plan-acceptance` 建立完整矩阵与待复核账本，再用 `assess-acceptance` 检查执行证据、输入hash和未完成槽位；计划不等于执行。RS接口只预留，不启用。跨电脑迁移与已授权工具库推送的范围见 `docs/MIGRATION.md`。
+详见 `docs/ACCEPTANCE_INCREMENT.md`。后续每套Pony整站模板按 `docs/TEMPLATE_ACCEPTANCE_STANDARD.md` 判定交付；使用 `workflow.py plan-acceptance` 建立完整矩阵与待复核账本，再用 `assess-acceptance` 检查执行证据、输入hash和未完成槽位；计划不等于执行，工具就绪也不代替真实交互、代码及SEO语义复核。RS接口只预留，不启用。跨电脑迁移与已授权工具库推送的范围见 `docs/MIGRATION.md`。
 
 ## 本地工作台（现行范围）
 

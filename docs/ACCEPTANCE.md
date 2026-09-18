@@ -1,5 +1,7 @@
 # 验收、失败用例与需求追踪
 
+后续Pony整站模板的固定交付判定见 [TEMPLATE_ACCEPTANCE_STANDARD.md](TEMPLATE_ACCEPTANCE_STANDARD.md)。本文件继续作为细项与失败用例清单。
+
 本文是PRD的执行清单；测试需要Codex实现并在真实本地项目运行。本包只提供规范，未执行以下业务测试。
 
 ## 1. 团队要求映射

@@ -1,5 +1,9 @@
 # Pony · 体育Bing SEO整站模板工作流需求包 v2.0
 
+当前模板制作节奏以用户2026-09-18晚间要求为准：每周由用户发起四套整站模板任务。全量源码参考库见 [catalog/README.md](catalog/README.md)，组件复用、差异化及验收规则见 [docs/PONY_TEMPLATE_LIBRARY.md](docs/PONY_TEMPLATE_LIBRARY.md)。下文“每两天一套”为早期背景，不再作为当前产量规则。
+
+每套模板的固定交付门槛见 [docs/TEMPLATE_ACCEPTANCE_STANDARD.md](docs/TEMPLATE_ACCEPTANCE_STANDARD.md)。
+
 **日期：2026-09-18。** 这是供Codex实施的需求包，不是已经开发完成的模板生成器。
 
 ## 适配的真实工作
