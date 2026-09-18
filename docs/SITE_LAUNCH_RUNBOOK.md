@@ -56,3 +56,11 @@ Google Sheets匿名CSV访问实测401；已有Chrome缺少Playwright扩展。当
 
 
 用户浏览器要求：表格/后台连接使用普通持久化窗口，不用无痕或访客模式。已实际点击工作台“连接 Google 表格”，程序以private/launch-browser启动并到达Google登录页；进程命令含user-data-dir、不含--incognito/--guest。当前待用户首次登录，不能标为认证成功。
+
+## 连接状态修复（2026-09-18）
+
+用户反馈已能打开Google表格但工作台仍显示“程序专用浏览器未连接”。实测根因为SheetConnector使用相对目录，同时将包含该目录的相对脚本路径传入切换了cwd的CLI，形成重复路径并ENOENT；统一错误文案又把文件错误当作登录问题。已将连接目录/脚本路径解析为绝对路径，区分脚本错误与连接错误。
+
+连接按钮现在打开浏览器后立即读表并清除旧错误；等待首次Google登录时最多5分钟每15秒复查，成功后回到正常30分钟采购检查。保留普通持久化配置和已有登录，未关闭浏览器或清除cookies。
+
+真实回读：待购买表Pony=0，上站表Pony=20；工作台API connection_state=connected、last_error=null、待处理20；UI已显示“表格已连接”。状态仍是awaiting_tdk_worker，不代表已完成上站。新增4个回归用例，连接器与工作台共10个相关测试通过。

@@ -24,7 +24,7 @@ def parse_rows(text,kind):
 
 class SheetConnector:
     def __init__(self,folder):
-        self.folder=Path(folder);self.folder.mkdir(parents=True,exist_ok=True)
+        self.folder=Path(folder).resolve();self.folder.mkdir(parents=True,exist_ok=True)
     def call(self,args,timeout=75):
         executable=cli_executable()
         if not executable:raise RuntimeError('浏览器工具不可用，请检查程序安装')
@@ -32,7 +32,11 @@ class SheetConnector:
                          creationflags=subprocess.CREATE_NO_WINDOW if __import__('os').name=='nt' else 0)
         text=r.stdout+'\n'+r.stderr
         (self.folder/'latest-cli.log').write_text(text,encoding='utf-8')
-        if r.returncode or '### Error' in text:raise RuntimeError('程序专用浏览器未连接，请打开登录窗口')
+        if r.returncode or '### Error' in text:
+            if 'ENOENT' in text:raise RuntimeError('读表脚本文件未找到，请检查程序路径；不是登录失败')
+            if 'No browser' in text or 'not open' in text or 'not found' in text and 'session' in text:
+                raise RuntimeError('程序浏览器会话不可用，请点击连接 Google 表格')
+            raise RuntimeError('浏览器读表操作失败，详情已记录；不能据此判断未登录')
         return text
     def connect(self):
         profile=ROOT/'private/launch-browser';profile.mkdir(parents=True,exist_ok=True)
