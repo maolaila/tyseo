@@ -53,6 +53,20 @@ class ZScoreContract(unittest.TestCase):
                 html = BeautifulSoup(hero({**item, "Score": score}, "站名"), "html.parser")
                 self.assertEqual(html.select_one(".z14-dash-hero__matchline em").get_text(strip=True), expected)
 
+    def test_z4_hero_preserves_zero_and_separate_links(self):
+        template = self.env.get_template("z4/widgets/live_focus.html")
+        item = {"MatchPinYin": "yingchao", "MatchID": 123, "IsHotMatch": True,
+                "MatchTypePinYinFlag": "zuqiu", "MatchName": "英超",
+                "HTeamName": "主队", "ATeamName": "客队", "HTeamLogo": "", "ATeamLogo": "",
+                "MatchTime": "2026-09-19 12:00:00", "StatusUpName": "直播中"}
+        for score, expected in ((0, "0"), ("0", "0"), ("0-0", "0-0"), (None, "VS")):
+            with self.subTest(score=score):
+                html = BeautifulSoup(template.render(list_hot_match=[{**item, "Score": score}],
+                                                 page_ext_info=None), "html.parser")
+                self.assertEqual(html.select_one(".z4-hero-num").get_text(strip=True), expected)
+                self.assertEqual(len(html.select(".z4-hero-host a[href]")), 2)
+                self.assertFalse(html.select("a a"))
+
     def test_z13_live_focus_does_not_invent_zero_zero(self):
         template = self.env.get_template("z13/widgets/sport_hub_focus.html")
         item = {"pinyin": "yingchao", "id": 123, "is_hot_match": True,

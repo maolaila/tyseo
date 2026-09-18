@@ -14,7 +14,7 @@ z1–z21 检查与修复是团队临时插入任务，不属于每日固定工�
 .\.venv\Scripts\python.exe src\z_matrix_report.py --run runs/z-full-next --contract-run runs/z-review-next
 ```
 
-这些步骤只是本地检查。源码变更后使用新的 run 目录，不复用旧 `summary.json`；`needs_review`、`blocked`、公司验收和上线分别记录。
+这些步骤只是本地检查。源码变更后使用新的 run 目录，不在原目录覆盖旧 `summary.json`；`needs_review`、`blocked`、公司验收和上线分别记录。若只改了个别模板，可仅重采集这些模板，再用 `z_matrix_report.py --reuse-run <旧完整矩阵> --reuse-commit <旧提交 SHA>` 汇总；多轮证据可重复传入成对的 `--reuse-run`、`--reuse-commit`。工具会对每套旧结果以旧提交参数和**当前输入文件**重算哈希；不匹配的模板保持未完成，不能借复用跳过测试。共享输入、配置或浏览器检查脚本变化时，需要重跑所有受影响模板。
 
 ## A. z 系列已有模板检查（历史首轮采集）
 

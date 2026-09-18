@@ -2,7 +2,7 @@
 
 这次是 Leo 指定的 **z1–z21 全部检查与修复**，不进入每日域名或模板生产流水线。公司仓库工作分支为 `fix/pony-z1-z21-layout`；业务改动限于 `templates/z1`–`templates/z21` 和 `static/z1`–`static/z21`。没有改 Python、`.env`、共享模板、其他模板或上站表。
 
-本地业务提交 `6719632b4` 后已合并当时最新 `origin/main`（合并提交 `60a43fbe3`），逐页复核的追加修复提交为 `9415e4893`。相对 `origin/main` 的 PR 差异为 477 个目标 z 文件、范围外 0 个，本地工作树干净。远端 `fix/pony-z1-z21-layout` 已推送并核对为 `9415e4893`，公司仓库 [草稿 PR #1657](https://github.com/shuoqiudi/cms-sport-tpl-bing/pull/1657) 已建立，等待 code review；尚未合并或部署。主分支带来的共享缓存代码变化及追加提交使早期证据失效；下表均指向当前提交的重新运行结果，除明确标为历史/补充的证据外。
+业务分支已合并当时最新 `origin/main`（合并提交 `60a43fbe3`），后续修复提交截至 `bd7a69d0f`。相对 `origin/main` 的 PR 差异为 477 个目标 z 文件、范围外 0 个，本地工作树干净。远端 `fix/pony-z1-z21-layout` 已核对为 `bd7a69d0f`，公司仓库 [草稿 PR #1657](https://github.com/shuoqiudi/cms-sport-tpl-bing/pull/1657) 已建立，等待 code review；尚未合并或部署。初始全量证据来自 `9415e4893`；此后只有 z1、z4、z11 的输入文件改变，按下述文件哈希重测/复用，其他历史证据不自动继承。
 
 ## 已修复
 
@@ -15,23 +15,27 @@
 - 修正已复现的 z4、z5、z6、z7、z14、z18、z19、z20 移动端比分、队名、头部与组件布局问题。
 - 逐张明暗截图又修正 z11 亮色横幅标题、z17/z20 暗色比分对比、z17 PC 焦点按钮与轮播点重叠、z18 PC 首个导航项被裁掉、z21 PC 导航被旧位移挤掉。当前修复后的局部复测分别见 `runs/z11-contrast-20260919/`、`runs/z17-dark-score-20260919/`、`runs/z17-pc-dots-20260919/`、`runs/z20-dark-score-20260919/`、`runs/z18-pc-nav2-20260919/` 和 `runs/z21-desktop-nav-20260919/`。
 - 21 套 `detail_zb.html` 已改为明确判断比分字段是否存在，避免数值 `0` 被 Jinja 真值判断吞掉；z1、z4、z5 亮色比分横幅恢复队名/时间对比，z1 手机横幅改为对称三列。局部证据见 `runs/z-detail-contrast-zero-20260919/`、`runs/z1-detail-layout-20260919/`、`runs/z4-detail-time-contrast-20260919/`；z11 非首页菜单/搜索与 z19 暗色面包屑的复测分别见 `runs/z11-inner-nav-20260919/`、`runs/z19-dark-crumb-20260919/`。
+- 本轮首屏看图又修正 z11 亮色首页横幅的标签/队名对比，以及 z4 暗色直播详情“本场密报”正文与标签的深字残留。z1、z4 详情的旧倒计时会将格式化字符串与 0 比较；现仅在开赛时间有效且仍在未来时显示，已开赛的真实页面不再显示空倒计时。局部复测见 `runs/z11-home-contrast-final2-20260919/`、`runs/z4-detail-qb-final2-20260919/`、`runs/z-detail-countdown-final2-20260919/`。
+- z4 首页在 320px 时主推卡按钮被截断；窄屏让更新时间与按钮换行。主推卡原先有嵌套 `<a>`，现拆为独立比赛/联赛链接；合法数值 `0` 的主推比分不再回退成 `VS`。真实 320/390/1280 截图见 `runs/z4-hero-320-final2-20260919/`，0 分夹具见 `tests/test_z_score_contract.py`。
 
 ## 证据等级
 
 | 项目 | 已有证据 | 状态边界 |
 |---|---|---|
-| 工具与静态检查 | Playwright CLI `0.1.20`；外部 `unittest` 74 项通过；2,238 个 z Jinja 文件解析通过；JS 语法与 PR 差异空白检查通过 | 工具可运行、夹具通过 |
-| 原始首页 | `runs/z-raw-home-final-9415e-20260919/`：当前提交 21/21 个真实首页 HTTP 200，head 字段非空，main 和 H1 存在 | 只验证一套本地站点配置；不证明生产 TDK 或收录 |
-| 可达页面首轮 | `runs/z-review-final-9415e-20260919/`：当前提交 21 套、1,693 条记录，自动几何 fail 0，blocked 617，needs_review 1,076；21 套输入哈希均匹配 | Chromium 390/1280、真实 light；不是完整验收 |
-| 原始 HTML 规则 | `runs/z-review-final-9415e-20260919/overview.json`：当前提交的 z 模板可达页面确定性规则发现 0；共享 `/play` 单列 blocked；4 组联赛页同标题/双 canonical 待政策复核。21 套首页无误 noindex，21 套搜索页均有 noindex | 依赖真实样例 URL；不等于 AI SEO 复核完成 |
+| 工具与静态检查 | Playwright CLI `0.1.20`；当前源码外部 `unittest` 75 项通过；2,238 个 z Jinja 文件解析通过；PR 差异空白检查通过 | 工具可运行、夹具通过 |
+| 原始首页 | `runs/z-raw-home-final-9415e-20260919/`：21/21 个真实首页 HTTP 200，head 字段非空，main 和 H1 存在；本轮 z1/z4/z11 见 `runs/z-raw-home-final-d6cb2-20260919/`，最终 z4 再见 `runs/z-raw-home-final-bd7a6-20260919/` | 只验证一套本地站点配置；不证明生产 TDK 或收录 |
+| 可达页面首轮 | `runs/z-review-final-9415e-20260919/`：基线 21 套、1,693 条记录，自动几何 fail 0，blocked 617，needs_review 1,076；当时 21 套输入哈希均匹配 | Chromium 390/1280、真实 light；后续变更页以当前完整矩阵为准 |
+| 原始 HTML 规则 | `runs/z-review-final-9415e-20260919/overview.json`：基线 z 模板可达页面确定性规则发现 0；共享 `/play` 单列 blocked；4 组联赛页同标题/双 canonical 待政策复核。21 套首页无误 noindex，21 套搜索页均有 noindex | 后续变更未改 head/索引策略，但仍需正式站点配置与 SEO 复核 |
 | 球队转会 TDK | `runs/z-transfer-tdk-20260919/` 与 `runs/z-transfer-extra-20260919/`：21 套真实转会页 HTTP 200，Title/Description/Keywords 均与转会主题一致，Title 不再等于球队介绍；z8–z10 复用了其他模板真实响应里已验证的球队 URL | 21 套当前本地站点配置通过；仍需生产配置复核 |
-| 首页功能 | `runs/z-functional-final-9415e-20260919/`：当前提交 21 套手机菜单、主题刷新与跨搜索页保持、返回顶部、按钮提交 `nba`、Enter 中文和特殊字符提交均实测无异常且哈希匹配；较早逐页响应中的 21 套未知词均有无结果文案 | 任意词搜索仍受后端白名单限制；各内页功能仍需逐页回归 |
-| 320px 补充 | `runs/z-key320-final-9415e-20260919/` 覆盖 z4/z7/z14/z18/z21 首页，`runs/z1-detail320-final-9415e-20260919/` 覆盖 z1 直播详情，`runs/z16-soccer320-final-9415e-20260919/` 覆盖 z16 足球赛程；各项无自动 fail | 关键页抽样，不能替代全页人工查看或真机 |
-| 完整自动矩阵 | `runs/z-full-final-9415e-20260919/`：当前提交 21/21 套、13,944 条记录、源码哈希匹配 21/21、规则 fail 0、needs_review 6,792、blocked 7,152；blocked 中 6,900 为无真实文档/样例，252 为共享 `/play`。`matrix-report.md` 与 `matrix-screenshots.html` 可定位原图 | 已完整执行自动矩阵，但 `needs_review` 和 `blocked` 均不算 PASS；逐页 AI 与公司验收待办 |
+| 首页功能 | `runs/z-functional-final-9415e-20260919/`：21 套手机菜单、主题刷新与跨搜索页保持、返回顶部、按钮提交 `nba`、Enter 中文和特殊字符提交均实测无异常；变更过的 z1/z4/z11 在 `runs/z-functional-final-d6cb2-20260919/` 重测，最终 z4 又见 `runs/z-functional-final-bd7a6-20260919/` | 任意词搜索仍受后端白名单限制；各内页功能仍需逐页回归 |
+| 320px 补充 | 基线 `runs/z-key320-final-9415e-20260919/` 等覆盖 z4/z7/z14/z18/z21 首页、z1 直播详情、z16 足球赛程；本轮 z1/z11 的首页与直播详情见 `runs/z-key320-final-d6cb2-20260919/`，最终 z4 见 `runs/z4-key320-final-bd7a6-20260919/` 与详情独立复测 `runs/z4-detail320-retry-bd7a6-20260919/` | z4 首轮详情亮色一次 `TimeoutError` 保留 blocked 原记录，独立复测 7 项均 needs_review；仍非真机或人工验收 |
+| 完整自动矩阵 | `runs/z-full-final-bd7a6-20260919/`：21/21 套、13,944 条记录、逐套输入文件哈希匹配 21/21、规则 fail 0、needs_review 6,792、blocked 7,152。z4 按当前提交重采集，z1/z11 复用 `runs/z-full-final-d6cb2-20260919/`，其余 18 套复用 `runs/z-full-final-9415e-20260919/`；均以证据提交参数及当前输入文件重算哈希。blocked 中 6,900 为无真实文档/样例、252 为共享 `/play`；6,792 个原图链接均存在 | 完整覆盖的自动矩阵汇总，不是 21 套都重新采集；`needs_review`、`blocked` 均不算 PASS |
 
 自动规则的 `needs_review` 不写成 PASS。旧截图/结果在模板、工具或数据改变后必须按输入哈希失效。Firefox/WebKit 的 z2、z3 超长整页截图曾受 32,767px 浏览器限制阻断；工具现按 12,000px 分片保存，独立复测已有 `needs_review` 记录，仍须人工看图。
 
-全量矩阵第一次运行中 z3 的 Windows JSON 原子替换曾遇短暂文件锁；中断前证据保存在 `runs/z3-interrupted-20260919/`。`src/core.py` 现对该锁做有界重试，并有单测；上述当前提交矩阵是重新运行后完整的 21/21，不借用中断文件。矩阵失败记录已包含规则、页面/视口/主题、预期/实际、严重度、责任层和截图路径。
+全量矩阵第一次运行中 z3 的 Windows JSON 原子替换曾遇短暂文件锁；中断前证据保存在 `runs/z3-interrupted-20260919/`。`src/core.py` 现对该锁做有界重试，并有单测；本次完整矩阵仅复用该故障修复后正式完成的旧运行，不借用中断文件。矩阵失败记录已包含规则、页面/视口/主题、预期/实际、严重度、责任层和截图路径。
+
+首屏图像粗复核已逐一查看 21 套首页的手机/PC、明/暗主题及 21 套直播详情的手机明/暗主题，拼图索引在 `runs/z-visual-contact-20260919/`；发现 z4、z11 对比问题后又打开原图、修复并局部重测。拼图是定位工具，不能替代所有内页原图和逐页最终视觉/SEO 复核。
 
 ## 待 Leo / Rechard 确认
 
