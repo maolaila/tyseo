@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import re
 import uuid
+import time
 from concurrent.futures import ThreadPoolExecutor
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -21,7 +22,14 @@ def save_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     temp=path.with_name(path.name+'.'+uuid.uuid4().hex+'.tmp')
     temp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
-    os.replace(temp,path)
+    for attempt in range(8):
+        try:
+            os.replace(temp,path)
+            return
+        except PermissionError:
+            if attempt == 7:
+                raise
+            time.sleep(0.05 * (attempt + 1))
 
 def digest(path):
     h = hashlib.sha256()

@@ -13,6 +13,43 @@ from browser_checks import execute_matrix
 from core import ROOT, fingerprint, git, read_json, save_json
 
 
+def decorate_failures(records, contract):
+    urls = {page["page_type_id"]: next((sample["path"] for sample in page.get("http_samples", [])
+            if sample["status"] == 200), "unknown") for page in contract["pages"]}
+    for record in records:
+        if record.get("status") != "fail":
+            continue
+        metrics = record.get("metrics", {})
+        width = record.get("width")
+        evidence = record.get("evidence_paths", [])
+        common = {"page": urls.get(record.get("page_type_id"), "unknown"), "viewport": width,
+                  "theme": record.get("theme"), "data_state": record.get("environment"),
+                  "engine": record.get("engine"), "evidence_paths": evidence}
+        findings = []
+        def add(rule_id, selector, expected, actual, severity="high", owner="template_or_asset"):
+            findings.append({**common, "rule_id": rule_id, "selector": selector,
+                             "expected": expected, "actual": actual, "severity": severity,
+                             "owner_layer": owner})
+        if width and metrics.get("scrollWidth", 0) > width + 2:
+            add("LAYOUT-PAGE-OVERFLOW", "document.documentElement", f"scrollWidth <= {width + 2}", metrics["scrollWidth"])
+        if not metrics.get("bodyText"):
+            add("CONTENT-EMPTY-BODY", "body", "server-rendered readable body", metrics.get("bodyText", 0), "critical")
+        if record.get("clipped_scores"):
+            add("LAYOUT-CLIPPED-SCORE", ".score", "score remains inside viewport", record["clipped_scores"][:5])
+        if record.get("errors"):
+            add("JS-PAGE-ERROR", "window", "no page errors", record["errors"][:5], owner="template_or_external_needs_triage")
+        state = record.get("theme_state", {})
+        if record.get("javascript") and state.get("state_matches") is False:
+            add("THEME-STATE-MISMATCH", "html[data-theme]", state.get("requested"), state.get("observed"))
+        failed_interactions = {key: value for key, value in record.get("interactions", {}).items() if value is False}
+        if failed_interactions:
+            add("FUNCTION-INTERACTION", "relevant control", "all exercised interactions succeed", failed_interactions)
+        if not findings:
+            add("MATRIX-UNCLASSIFIED", "unknown", "no unresolved failure", record.get("reason", "unknown"), owner="tool_needs_triage")
+        record["findings"] = findings
+    return records
+
+
 def run_one(number, output, page_types=None, widths=None, no_js_widths=None, contract_root=None):
     name = f"z{number}"
     repo = Path(read_json(ROOT / "tasks/bootstrap.json")["repo_root"])
@@ -70,7 +107,8 @@ def run_one(number, output, page_types=None, widths=None, no_js_widths=None, con
             selection = requests.get(base + "/", timeout=25)
             if selection.status_code != 200 or f"/static/{name}/" not in selection.text:
                 raise RuntimeError(f"{name}: selected template not observed")
-            records = execute_matrix(task, contract, out)
+            records = decorate_failures(execute_matrix(task, contract, out), contract)
+            save_json(out / "matrix-results.json", records)
             counts = Counter(item["status"] for item in records)
             summary = {"template": name, "input_hash": stamp, "environment": "real_app",
                        "page_types": len(contract["pages"]), "status_counts": dict(counts),

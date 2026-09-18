@@ -8,8 +8,10 @@ z1–z21 检查与修复是团队临时插入任务，不属于每日固定工�
 ```powershell
 .\.venv\Scripts\python.exe src\z_review.py --output runs/z-review-next
 .\.venv\Scripts\python.exe src\z_acceptance.py --contract-run runs/z-review-next --page-types index --output runs/z-home-next
+.\.venv\Scripts\python.exe src\z_acceptance.py --contract-run runs/z-review-next --output runs/z-full-next
 .\.venv\Scripts\python.exe src\z_raw_home.py --output runs/z-raw-home-next
 .\.venv\Scripts\python.exe src\z_report.py --run runs/z-review-next
+.\.venv\Scripts\python.exe src\z_matrix_report.py --run runs/z-full-next --contract-run runs/z-review-next
 ```
 
 这些步骤只是本地检查。源码变更后使用新的 run 目录，不复用旧 `summary.json`；`needs_review`、`blocked`、公司验收和上线分别记录。

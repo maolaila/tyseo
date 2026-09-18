@@ -1,5 +1,6 @@
 """Numeric zero must remain a score in every active z score component."""
 import sys
+import re
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,6 +17,7 @@ class ZScoreContract(unittest.TestCase):
     def setUpClass(cls):
         task = ROOT / "tasks/local.json"
         repo = Path(read_json(task if task.exists() else ROOT / "tasks/bootstrap.json")["repo_root"])
+        cls.repo = repo
         cls.env = Environment(loader=FileSystemLoader(str(repo / "templates")))
 
     def test_match_status_macros(self):
@@ -61,6 +63,16 @@ class ZScoreContract(unittest.TestCase):
             with self.subTest(score=score):
                 html = BeautifulSoup(template.render(hub=SimpleNamespace(flat=[{**item, "score": score}])), "html.parser")
                 self.assertEqual(html.select_one(".z13-fb-focus-vs strong").get_text(strip=True), expected)
+
+    def test_detail_zb_preserves_zero_score(self):
+        for number in range(1, 22):
+            source = (self.repo / "templates" / f"z{number}" / "detail_zb.html").read_text(encoding="utf-8")
+            statement = re.search(r"{% set has_match_score = .*? %}", source)
+            self.assertIsNotNone(statement, f"z{number}")
+            probe = self.env.from_string(statement.group(0) + "{% if has_match_score %}shown{% else %}hidden{% endif %}")
+            for score, expected in ((0, "shown"), ("0", "shown"), (None, "hidden"), ("", "hidden")):
+                with self.subTest(template=number, score=score):
+                    self.assertEqual(probe.render(match_detail={"score": score}), expected)
 
 
 if __name__ == "__main__":
