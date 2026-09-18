@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "template_id": "r62",
+  "source": "User-assigned launch keywords and audited r62 navigation/content contract; Leo review required before launch",
+  "requires_review_by": "Leo",
+  "forbidden_claims": [
+    "官网",
+    "官方",
+    "全网第一",
+    "保证收录",
+    "零延迟",
+    "永久免费观看"
+  ],
+  "supported_terms": [
+    "足球直播",
+    "篮球直播",
+    "NBA直播",
+    "CBA直播",
+    "英超直播",
+    "西甲直播",
+    "比赛赛程",
+    "赛事比分",
+    "比赛录像",
+    "赛事集锦",
+    "体育资讯"
+  ],
+  "title_patterns": [
+    "{keyword}-NBA直播_足球直播_篮球赛事与赛程",
+    "{keyword}-足球直播_NBA直播_英超西甲赛事资讯",
+    "{keyword}-篮球直播_足球直播_比赛赛程与录像"
+  ],
+  "description_patterns": [
+    "{keyword}整理足球与篮球赛事信息，涵盖NBA、CBA、英超和西甲等联赛的赛程、比分及直播入口，并提供比赛录像、赛事集锦与体育资讯，方便按联赛和比赛时间查找相关内容。",
+    "在{keyword}查看足球、篮球比赛赛程与比分，按NBA、CBA、英超、西甲等栏目查找赛事直播入口，同时浏览比赛录像、精彩集锦和相关资讯，了解赛前安排与赛后动态。",
+    "{keyword}提供足球和篮球赛事导航，汇集NBA、CBA及英超、西甲等比赛的赛程、比分、直播入口、录像与集锦，让赛事安排、比赛进展和体育资讯集中呈现。"
+  ],
+  "keyword_terms": [
+    "足球直播",
+    "篮球直播",
+    "NBA直播",
+    "CBA直播",
+    "英超直播",
+    "西甲直播",
+    "体育直播"
+  ],
+  "search_reference_scope": "Representative competitor wording only; do not copy official/quality/rights claims or assume Bing ranking",
+  "authoring_mode": "AI-authored original draft patterns based on representative competitor references and r62 capabilities; deterministic local generation; no live model call or competitor TDK copy",
+  "reference_workbook_role": "keyword and template-group reference only; never launch-data write target"
+}
