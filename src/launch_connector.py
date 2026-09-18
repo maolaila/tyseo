@@ -67,11 +67,13 @@ class SheetConnector:
           const url='''+json.dumps(ADMIN_URL)+''';
           let admin=page.context().pages().find(p=>p.url()===url);
           if(!admin)admin=await page.context().newPage();
-          await admin.goto(url,{waitUntil:'domcontentloaded'});await admin.bringToFront();
+          if(admin.url()!==url)await admin.goto(url,{waitUntil:'domcontentloaded',timeout:20000});await admin.bringToFront();
           if(await admin.locator('#optdata001').count()!==1)return {prefilled:false,submitted:false,reason:'backend_login_required'};
-          const value='''+json.dumps(script,ensure_ascii=False)+''';
+          const value='''+json.dumps(script.replace('\r\n','\n'),ensure_ascii=False)+''';
+          const previous=await admin.locator('#optdata001').inputValue();
+          if(previous.trim()&&previous!==value)return {prefilled:false,submitted:false,reason:'existing_admin_draft'};
           await admin.locator('#optdata001').fill(value);
-          return {prefilled:await admin.locator('#optdata001').inputValue()===value,submitted:false,lines:value.split('\\r\\n').length};
+          return {prefilled:await admin.locator('#optdata001').inputValue()===value,submitted:false,lines:value.split('\\n').length};
         }''')
 
 def classify(domains,snapshot):

@@ -42,6 +42,8 @@
     "rotation": "pending_current_assignment_verification",
     "admin_url": "https://s213016.abcd-cms.com/mgradm/optdata.html",
     "admin_entry_confirmed_by": "user_2026-09-18",
-    "preferred_browser_driver": "playwright-cli_0.1.20_normal_persistent"
+    "preferred_browser_driver": "playwright-cli_0.1.20_normal_persistent",
+    "script_generation": "local_verified_sheet_formula_14_fields",
+    "script_contract": "config/launch-script-contract.json"
   }
 }

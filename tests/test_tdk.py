@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
-from tdk import generate_tdk,prepare_drafts,require_leo_approval,backend_script
+from tdk import generate_tdk,prepare_drafts,require_leo_approval,backend_script,build_script_row
 from workbench import Monitor
 
 class TdkTests(unittest.TestCase):
@@ -29,9 +29,9 @@ class TdkTests(unittest.TestCase):
         with self.assertRaises(ValueError):require_leo_approval(item)
     def test_admin_entry_is_independent_of_assigned_server(self):
         draft=generate_tdk('球帝直播');item={'domain':'example.com','keyword':'球帝直播','tdk':draft,'leo_review':{'reviewer':'Leo','status':'approved','revision':draft['revision'],'evidence':'user_report'}}
-        cells=['']*17;cells[4:8]=[draft[k] for k in ('template','title','description','keywords')];cells[12]='s213017'
-        cells[16]='$'.join(['example.com','球帝直播',draft['title'],draft['description'],draft['keywords'],'r62',*(['']*8)])
-        row={'domain':'example.com','owner':'Pony','cells':cells}
+        cells=['']*17;cells[4:8]=[draft[k] for k in ('template','title','description','keywords')];cells[12]='s213017';cells[13]='203.0.113.1';cells[9]='1'
+        cells[16]='$'.join(['example.com','球帝直播',draft['title'],draft['description'],draft['keywords'],'r62','203.0.113.1','1','','','','s213017','',''])
+        row={'domain':'example.com','owner':'Pony','keyword':'球帝直播','cells':cells}
         self.assertEqual(backend_script([item],{'launch':[row]}),cells[16])
         cells[12]=''
         with self.assertRaisesRegex(ValueError,'服务器缺失'):backend_script([item],{'launch':[row]})
@@ -59,10 +59,24 @@ class TdkTests(unittest.TestCase):
             self.assertFalse(hasattr(SheetConnector,'write_tdk'))
     def test_local_script_does_not_require_writing_reference_tdk(self):
         draft=generate_tdk('球帝直播');item={'domain':'example.com','keyword':'球帝直播','tdk':draft,'leo_review':{'status':'approved','reviewer':'Leo','revision':draft['revision'],'evidence':'user_report'}}
-        cells=['']*17;cells[12]='s213017';cells[16]='$'.join(['example.com','球帝直播','old title','old desc','old keywords','old template',*(['config']*8)])
-        snapshot={'pending':[],'launch':[{'domain':'example.com','owner':'Pony','cells':cells}]};before=copy.deepcopy(snapshot)
+        cells=['']*17;cells[12]='s213017';cells[13]='203.0.113.2';cells[9]='0';cells[8]='header';cells[10]='footer';cells[14]='seo';cells[15]='sub' # Q and E:H deliberately remain empty
+        snapshot={'pending':[],'launch':[{'domain':'example.com','owner':'Pony','keyword':'球帝直播','cells':cells}]};before=copy.deepcopy(snapshot)
         result=backend_script([item],snapshot).split('$')
         self.assertEqual(result[2:6],[draft[k] for k in ('title','description','keywords','template')]);self.assertEqual(snapshot,before)
-        self.assertEqual(result[6:],['config']*8)
+        self.assertEqual(result[6:],['203.0.113.2','0','','header','footer','s213017','seo','sub'])
         item['tdk']['title']='changed without revision update'
         with self.assertRaisesRegex(ValueError,'changed'):backend_script([item],snapshot)
+
+    def test_formula_limits_required_config_and_delimiters(self):
+        row={'domain':'example.com','keyword':'球帝直播','cells':['']*17}
+        row['cells'][9]='1';row['cells'][12]='s213017';row['cells'][13]='203.0.113.3'
+        draft=generate_tdk('球帝直播')
+        for index in [9,12,13]:
+            bad=copy.deepcopy(row);bad['cells'][index]=''
+            with self.assertRaises(ValueError):build_script_row(bad,draft)
+        for field,limit in [('title',180),('description',500),('keywords',180)]:
+            bad=dict(draft);bad[field]='a'*limit
+            with self.assertRaises(ValueError):build_script_row(row,bad)
+            bad[field]='a'*(limit-1);self.assertEqual(len(build_script_row(row,bad).split('$')),14)
+        row['cells'][8]='injected$extra'
+        with self.assertRaisesRegex(ValueError,'分隔符'):build_script_row(row,draft)

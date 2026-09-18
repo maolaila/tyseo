@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "source": {
+    "workbook": "1y7VWR6T4ABcd09qa51GM5-7XXGC80w1h21wCL4stvUg",
+    "gid": 2066853497,
+    "formula_cells": [
+      "Q3",
+      "Q100"
+    ],
+    "separator_cell": "Q1",
+    "observed_at": "2026-09-18",
+    "method": "read_only_formula_bar"
+  },
+  "separator": "$",
+  "field_order": [
+    "domain",
+    "assigned_keyword",
+    "title",
+    "description",
+    "keywords",
+    "template",
+    "IP",
+    "AF1",
+    "reserved_empty",
+    "HeaderJS",
+    "FooterJS",
+    "ServerName",
+    "SeoFlag",
+    "SubSeoKeyword"
+  ],
+  "required_reference_columns": [
+    "J",
+    "M",
+    "N"
+  ],
+  "max_exclusive_utf16_length": {
+    "title": 180,
+    "description": 500,
+    "keywords": 180
+  },
+  "formula": "=if(OR(C3=\"\",D3=\"\", E3=\"\",F3=\"\",len(F3)>=180,G3=\"\",len(G3)>=500,H3=\"\",len(H3)>=180,J3=\"\",M3=\"\",N3=\"\",Q$1=\"\"),\"\",trim(C3)&Q$1&trim(D3)&Q$1&trim(F3)&Q$1&trim(G3)&Q$1&trim(H3)&Q$1&lower(REGEXEXTRACT(E3, \"^[A-Za-z]+\") & VALUE(REGEXEXTRACT(E3, \"[0-9]+$\"))\n)&Q$1&N3&Q$1&J3&Q$1&Q$1&I3&Q$1&K3&Q$1&M3&Q$1&O3&Q$1&P3)",
+  "escaping": "Not defined by reference formula; reject delimiter and line breaks in fields"
+}

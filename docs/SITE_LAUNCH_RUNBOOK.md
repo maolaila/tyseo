@@ -11,7 +11,7 @@
 1. 普通持久化浏览器只读核对购买、移表、归属、域名及分配词。
 2. AI 参考竞品自行撰写真实能力范围内的 TDK，保存在本地工作台。参考词表只读，不直接照搬竞品文案，不编造站点能力。
 3. 工作台预览/复制资料，由用户确认并取得 Leo 审核；绑定具体 TDK 内容版本。当前 20 份已记录用户转述的审核通过，非程序直接观察到 Leo 消息。
-4. 只读参考配置、准备本地后台资料。已存在且格式验证有效的本域名参考脚本可在本地替换 TDK/模板字段，保留配置。不得写表，也不要求参考表 E:H 等于本地 TDK。无脚本或字段契约不明时说明阻断，不能猜值、复制别人配置或要求编辑表。
+4. 按已只读核实的 Q3/Q100 公式和 Q1 分隔符，在本地生成14字段脚本；具体契约见 config/launch-script-contract.json。使用本人采购行配置与本地已审核 TDK，不要求本批 E:H/Q 有值，不写任何单元格。缺少必需配置、字段含未定义转义的分隔符/换行、长度不符或审批版本变化时阻断。
 5. 用户点击“回填后台（不提交）”，使用 CLI 普通浏览器填入经过核对的完整脚本。后台固定 https://s213016.abcd-cms.com/mgradm/optdata.html 。采购分配 s213017 与管理入口不同不是错误。
 6. 正式提交必须针对已审核内容，并遵循用户手动触发的当前模式。正式提交执行器尚未接通，UI 显示“尚未接通”，不能继续显示当前 TDK 尚待 Leo 审核，也不能假称提交成功。
 7. 保存明确成功回执，再验证 DNS/HTTPS、页面品牌、TDK 与模板。20 项都有证据才完成并停止本批监听。
@@ -28,7 +28,7 @@
 
 入口 ./Start-Workbench.ps1，工作台 http://127.0.0.1:8766/，台账 runs/site-launch/2026-09-18-pony-20/state.json。本地程序每30分钟只读扫描，页面每5秒刷新。Codex heartbeat 已删除，RS 接入未启用。电脑和程序需保持运行。
 
-CLI 固定 0.1.20；程序会话 tyseo-launch-program，普通持久化 profile private/launch-browser，不用无痕/访客、不清登录配置。上次真实后台检查返回登录页，需在程序浏览器完成后台登录后核实 #optdata001 与提交控件。文本框预填不等于提交成功。
+CLI 固定 0.1.20；程序会话 tyseo-launch-program，普通持久化 profile private/launch-browser，不用无痕/访客、不清登录配置。本轮已在程序普通浏览器使用用户此前提供的账号完成登录，实际确认 #optdata001 与提交按钮存在。文本框预填不等于提交成功。
 
 重启/扫描不得把已批准的同版 TDK 改回待审核；TDK 内容改动则旧批准失效。填入前重读采购配置。提交结果不明标 submission_unknown，先核验而非自动重试。日期变化暂停旧批次，不创建新批次或自动发布过期资料。
 
@@ -39,3 +39,14 @@ CLI 固定 0.1.20；程序会话 tyseo-launch-program，普通持久化 profile 
 已移除工作台写表按钮、fill_sheet 动作和 SheetConnector.write_tdk。旧页面动作请求也会被拒绝。当前批准依据来自用户本轮明确声明，并绑定本地20份现有 TDK 版本；未调用实际回填或提交。
 
 只读参考脚本下载/格式核实失败时保留错误，不假称本地生成契约已确认。证据与检查放 runs/workbench-qa/read-only-sheet；完整业务上线仍未完成。
+
+
+## 脚本生成与回填能力已接通
+
+字段顺序：域名 $ 分配词 $ title $ description $ keywords $ 规范化模板编号 $ IP $ AF1 $ 空保留位 $ HeaderJS $ FooterJS $ ServerName $ SeoFlag $ SubSeoKeyword。保持14个位置，包括空字段。必需采购列 J/M/N；参考公式对 title/description/keywords 的上限分别为严格小于180/500/180。完整实际公式与来源在 config/launch-script-contract.json，不猜测/改写后端接口。
+
+真实只读验证：Q3、Q100 的公式分别与本地重建结果逐字一致。当前20个本人域名所需配置齐全，已用已审核本地 TDK 生成20行、每行14字段；本批 Q 为空不再是阻断。实时回填前仍重新读取采购配置、核对归属/分配词、检查批准版本。
+
+用户手动点击工作台回填才会填真实后台，仍不点击提交。现有不同的未提交文本会被保留并报错；相同资料可重复确认。HTML textarea 将 CRLF 规范化为 LF，比较和行数按规范化值验证，避免误报失败。
+
+证据：runs/workbench-qa/script-contract/formulas.json、entry.json、build-verification.json、admin-inspection.json。fixture-browser/result.json 是浏览器路由拦截的本地模拟表单测试：没有把测试内容发给真实后台，不能等同真实上站提交证据。本轮没有填入真实后台或执行上站提交。

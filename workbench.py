@@ -115,7 +115,9 @@ class Monitor:
                     with self.lock:script=backend_script(self.state['domains'],snapshot)
                     result=self.connector.prefill_admin(script)
                     with self.lock:
-                        if not result.get('prefilled'):raise ValueError('请先在打开的普通浏览器完成后台登录，再点回填；未提交上站')
+                        if not result.get('prefilled'):
+                            if result.get('reason')=='existing_admin_draft':raise ValueError('后台文本框已有不同资料，已保留，请先人工核对；未提交上站')
+                            raise ValueError('请先在打开的普通浏览器完成后台登录，再点回填；未提交上站')
                         self.state['backend_prefill']={'at':utc(),'revision':revision,'submitted':False,'script_sha256':hashlib.sha256(script.encode()).hexdigest()}
                         self.state['monitor']['status']='backend_prefilled'
                         self.event('backend_prefilled','后台文本框已回填，未点击提交');self.persist()

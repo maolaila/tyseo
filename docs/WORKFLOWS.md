@@ -95,3 +95,5 @@ cd C:\tyseo\pony-template-workflow
 ## 最新覆盖：上站表只读
 
 用户已确认本批 Leo 审核通过，上站表只能参考。旧写表步骤撤回，工作台写入按钮/API/适配器均删除；使用本地已审核 TDK 准备后台资料，不能要求编辑表格。当前执行顺序及证据见 SITE_LAUNCH_RUNBOOK.md；审核通过不是已提交。
+
+脚本能力更新：本地生成采用已验证的参考表 Q3/Q100 14字段公式，不再依赖本批Q列有值。工作台根据本地 Leo 已批准 TDK + 只读本人采购配置准备后台资料，用户手动回填后台。详见 launch-script-contract.json 和 SITE_LAUNCH_RUNBOOK.md。
