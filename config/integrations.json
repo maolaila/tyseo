@@ -14,5 +14,12 @@
   "remote_side_effects_default": false,
   "playwright_cli_version": "0.1.20",
   "trigger_mode": "user_conversation",
-  "current_executor": "assistant_with_local_tools"
+  "current_executor": "assistant_with_local_tools",
+  "active_batch_heartbeat": {
+    "id": "pony-9-18-20",
+    "batch_id": "2026-09-18-pony-20",
+    "interval_minutes": 30,
+    "stop_when": "all_batch_domains_verified",
+    "new_daily_batches": false
+  }
 }
