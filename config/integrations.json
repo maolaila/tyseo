@@ -23,5 +23,13 @@
     "batch_id": "2026-09-18-pony-20",
     "access_status": "requires_dedicated_google_login",
     "rs_robot_enabled": false
+  },
+  "business_browser_policy": {
+    "mode": "normal_persistent",
+    "incognito_allowed": false,
+    "guest_allowed": false,
+    "retain_login": true,
+    "profile_path": "private/launch-browser",
+    "scope": "authenticated sheet/admin/business connections"
   }
 }

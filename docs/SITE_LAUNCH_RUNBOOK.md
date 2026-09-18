@@ -53,3 +53,6 @@
 Google Sheets匿名CSV访问实测401；已有Chrome缺少Playwright扩展。当前采用程序专用的持久浏览器会话（profile在private/launch-browser，session=tyseo-launch-program），需要用户完成一次登录。未经成功认证读取时工作台显示blocked，保留最后人工记录，不能当作实时采购数据。
 
 当前程序已实现购买/移表监听、状态展示与完成证据门禁；TDK写表与后台上站执行适配器尚未接通，检测到移表后会进入awaiting_tdk_worker/action_required，不会假称上站成功。本批全部自动推进仍需后续接通这些环节并验证。原上站操作步骤保留作为接入契约，不是已实现功能声明。
+
+
+用户浏览器要求：表格/后台连接使用普通持久化窗口，不用无痕或访客模式。已实际点击工作台“连接 Google 表格”，程序以private/launch-browser启动并到达Google登录页；进程命令含user-data-dir、不含--incognito/--guest。当前待用户首次登录，不能标为认证成功。
