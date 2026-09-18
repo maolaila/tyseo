@@ -90,7 +90,7 @@ def run_audit(task,out):
             rules.append(Rule(pattern,endpoint=str(i)))
     mapper=Map(rules,converters={'regex':RegexConverter}).bind('localhost')
     lookup={p['entry_template']:p for p in pages}
-    queue=['/','/search?q=nba','/search','/search?q=%E6%9C%AA%E7%9F%A5%E8%AF%8D']
+    queue=['/','/zuqiu/','/lanqiu/','/search?q=nba','/search','/search?q=%E6%9C%AA%E7%9F%A5%E8%AF%8D']
     seen=set(); captured=set(); attempted=set(); responses=[]
     for depth in range(4):
         next_queue=[]
@@ -100,7 +100,7 @@ def run_audit(task,out):
             try: endpoint,_=mapper.match(urlsplit(path).path)
             except Exception: continue
             names=endpoint_pages[endpoint]
-            if all(n in attempted for n in names) and not path.startswith('/search'): continue
+            if all(n in attempted for n in names) and not path.startswith('/search') and path not in ('/zuqiu/','/lanqiu/'): continue
             attempted.update(names)
             try:
                 resp=requests.get(urljoin(task['preview_base_url'],path),timeout=18,allow_redirects=False)

@@ -43,6 +43,8 @@
 
 运行 `./.venv/Scripts/python.exe pipeline.py list` 查看已实现/部分实现/禁用的任务类型。z1–z21 是单独的临时任务，历史采集不是全套生产验收；固定流程与临时任务已分开记录。
 
+2026-09-19 的 z1–z21 修复进度、真实页面证据和待 Leo/Rechard 确认项见 [docs/Z_SERIES_REPAIR_20260919.md](docs/Z_SERIES_REPAIR_20260919.md)。该记录仍不是公司验收或上线证明。
+
 ## 半自动验收与换机
 
 当前有效增量规范：`docs/ACCEPTANCE_INCREMENT.md`；本轮实现/未完成状态：`docs/HARDENING_RESULT.md`。CLI以0.1.20为准，保留原Python Playwright验收入口。未来RS助手机器人接入保持关闭。

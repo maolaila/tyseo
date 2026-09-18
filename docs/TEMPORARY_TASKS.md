@@ -3,6 +3,17 @@
 z1–z21 检查与修复是团队临时插入任务，不属于每日固定工作流，也不是上站后的必做步骤。
 临时任务按用户/团队当次明确安排执行；没有自动触发器。修复仍未完成，不能因移出流程而写成取消或完成。
 
+2026-09-19 当前代码、可重复验收入口与阻断项见 [Z_SERIES_REPAIR_20260919.md](Z_SERIES_REPAIR_20260919.md)。新版命令可选择已审计页面类型与视口，输出仍留在外部 `runs/`：
+
+```powershell
+.\.venv\Scripts\python.exe src\z_review.py --output runs/z-review-next
+.\.venv\Scripts\python.exe src\z_acceptance.py --contract-run runs/z-review-next --page-types index --output runs/z-home-next
+.\.venv\Scripts\python.exe src\z_raw_home.py --output runs/z-raw-home-next
+.\.venv\Scripts\python.exe src\z_report.py --run runs/z-review-next
+```
+
+这些步骤只是本地检查。源码变更后使用新的 run 目录，不复用旧 `summary.json`；`needs_review`、`blocked`、公司验收和上线分别记录。
+
 ## A. z 系列已有模板检查（历史首轮采集）
 
 依据：Leo 11:56 要先修 z 系列，11:58 明确 z1–z21 全部看一轮，不确定的再沟通。

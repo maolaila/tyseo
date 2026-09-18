@@ -13,7 +13,8 @@ LAYOUT_JS="""() => ({
   brokenImages:[...document.images].filter(x=>x.complete&&!x.naturalWidth).length,
   scoreBoxes:[...document.querySelectorAll('.score')].map(x=>{let r=x.getBoundingClientRect();return {text:x.innerText,x:r.x,right:r.right,width:r.width,visible:r.width>0&&r.height>0}}),
   background:getComputedStyle(document.body).backgroundColor,
-  color:getComputedStyle(document.body).color
+  color:getComputedStyle(document.body).color,
+  effectiveTheme:document.documentElement.getAttribute('data-theme')
 })"""
 
 def execute_matrix(task,contract,out,render_dir=None,design=None):
@@ -25,7 +26,8 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
         for engine in [matrix['primary_engine'],*matrix['secondary_engines']]:
             try: browser=getattr(pw,engine).launch()
             except Exception as e:
-                results.append({'engine':engine,'status':'blocked','reason':type(e).__name__,'environment':environment});continue
+                results.append({'engine':engine,'status':'blocked','reason':type(e).__name__,
+                                'detail':str(e)[:280],'environment':environment});continue
             for p in contract['pages']:
                 page_id=p['page_type_id']
                 if engine!='chromium' and page_id not in ('index','detail','type_list','search','detail_zb'):continue
@@ -39,8 +41,15 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                     result={'page_type_id':page_id,'width':width,'theme':theme,'javascript':js,'engine':engine,'environment':environment,'status':'blocked','evidence_paths':[]}
                     if not available:
                         result['reason']='No rendered document or successful real sample';results.append(result);continue
+                    if not fixture and next(x['path'] for x in p['http_samples'] if x['status']==200).startswith('/play/'):
+                        result.update(reason='Shared playback response outside z template scope',owner_layer='backend_shared_playback')
+                        results.append(result)
+                        continue
                     context=browser.new_context(viewport={'width':width,'height':900},color_scheme=theme,java_script_enabled=js,
                         user_agent='Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36' if width<768 else None)
+                    template_id=task.get('reference_template_id')
+                    if not fixture and js and template_id and template_id.startswith('z') and template_id[1:].isdigit():
+                        context.add_init_script(script=f"try {{ localStorage.setItem('{template_id}-theme', '{theme}'); }} catch (e) {{}}")
                     page=context.new_page();errors=[]
                     page.on('pageerror',lambda e:errors.append(str(e)[:180]))
                     if fixture:
@@ -64,6 +73,8 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                         response=page.goto(url,wait_until='domcontentloaded',timeout=25000)
                         if response and response.status>=500:raise ValueError('Server error; do not save debugger locals')
                         page.locator('body').wait_for()
+                        # Layout measurements need loaded stylesheets; DOMContentLoaded alone can capture bare markup.
+                        page.wait_for_load_state('load',timeout=15000)
                         metrics=page.evaluate(LAYOUT_JS)
                         stem=f'{page_id}-{engine}-{width}-{theme}-'+('js' if js else 'nojs')
                         image='screenshots/'+stem+'.png'
@@ -74,11 +85,30 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                             (raw_dir/(stem+'.html')).write_bytes(response.body())
                             save_json(raw_dir/(stem+'.json'),{'kind':'http_response' if not fixture else 'fixture_response',
                                 'url':url,'status':response.status,'headers':{k:v for k,v in response.headers.items() if k.lower() not in ('set-cookie','authorization')}})
-                        page.screenshot(path=str(out/image),full_page=True,animations='disabled')
+                        document_height=page.evaluate('Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)')
+                        if document_height <= 30000:
+                            page.screenshot(path=str(out/image),full_page=True,animations='disabled')
+                            images=[image]
+                        else:
+                            images=[]
+                            for part,start in enumerate(range(0,document_height,12000),1):
+                                tile=f'screenshots/{stem}-part{part}.png'
+                                page.screenshot(path=str(out/tile),clip={'x':0,'y':start,'width':width,
+                                    'height':min(12000,document_height-start)},full_page=True,animations='disabled')
+                                images.append(tile)
+                        viewport_image=f'screenshots/{stem}-viewport.png'
+                        page.evaluate('window.scrollTo(0,0)')
+                        page.screenshot(path=str(out/viewport_image),animations='disabled')
+                        images.append(viewport_image)
                         evidence='screenshots/'+stem+'.json';save_json(out/evidence,metrics)
                         clipped=[s for s in metrics['scoreBoxes'] if s['visible'] and (s['x']<0 or s['right']>width+2)]
-                        result.update(status='fail' if metrics['scrollWidth']>width+2 or not metrics['bodyText'] or errors or clipped else 'needs_review',
-                                      evidence_paths=[image,evidence],metrics={k:v for k,v in metrics.items() if k!='scoreBoxes'},clipped_scores=clipped,errors=errors,
+                        theme_mismatch=not fixture and js and metrics['effectiveTheme']!=theme
+                        result.update(status='fail' if metrics['scrollWidth']>width+2 or not metrics['bodyText'] or errors or clipped or theme_mismatch else 'needs_review',
+                                      evidence_paths=images+[evidence],metrics={k:v for k,v in metrics.items() if k!='scoreBoxes'},clipped_scores=clipped,errors=errors,
+                                      screenshot_tiled=document_height>30000,
+                                      theme_state={'requested':theme,'observed':metrics['effectiveTheme'],
+                                          'state_matches':not theme_mismatch if js else None,
+                                          'scope':'DOM theme state only; visual contrast review separate'},
                                       capture_status='pass',ai_visual_review='needs_review',ai_seo_review='needs_review',
                                       http_evidence=str((raw_dir/(stem+'.html')).relative_to(out)),
                                       dom_evidence=str((dom_dir/(stem+'.html')).relative_to(out)),
@@ -99,7 +129,7 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                                 page.evaluate('scrollTo(0,document.body.scrollHeight)');top.click();interactions['goto_top']=page.evaluate('scrollY')==0
                             result['interactions']=interactions
                             if not all(interactions.values()):result['status']='fail'
-                    except Exception as e:result.update(status='blocked',reason=type(e).__name__)
+                    except Exception as e:result.update(status='blocked',reason=type(e).__name__,detail=str(e)[:280])
                     finally:context.close()
                     results.append(result)
                     save_json(out/'matrix-results.json',results)

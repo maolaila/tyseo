@@ -23,7 +23,9 @@ async def review_one(index, browser, semaphore):
     async with semaphore:
         template=f'z{index}';out=RUN_ROOT/template;out.mkdir(parents=True,exist_ok=True)
         repo=Path(read_json(TASK_PATH)['repo_root'])
-        inputs=[repo/'run.py',repo/'config.py',repo/'cache/cache_data.py',*list((repo/'templates'/template).rglob('*.html')),
+        inputs=[repo/'run.py',repo/'config.py',repo/'cache/cache_data.py',
+                ROOT/'src/z_review.py',ROOT/'src/audit.py',ROOT/'src/browser_checks.py',TASK_PATH,
+                *list((repo/'templates'/template).rglob('*.html')),
                 *[p for p in (repo/'static'/template).rglob('*') if p.is_file()]]
         input_hash=fingerprint({'template':template,'commit':git(repo,'rev-parse','HEAD')},inputs)
         if (out/'summary.json').exists():
@@ -58,10 +60,18 @@ async def review_one(index, browser, semaphore):
                 if not urls:
                     if (p['page_type_id'],None) not in completed:records.append({'page':p['page_type_id'],'status':'blocked','reason':'No successful real URL','environment':'real_app'})
                     continue
+                if urls[0].startswith('/play/'):
+                    for width in (390,1280):
+                        if (p['page_type_id'],width) not in completed:
+                            records.append({'page':p['page_type_id'],'url':urls[0],'width':width,
+                                'status':'blocked','reason':'Shared playback response outside z template scope',
+                                'owner_layer':'backend_shared_playback','environment':'real_app'})
+                    continue
                 for width in (390,1280):
                     if (p['page_type_id'],width) in completed:continue
                     ctx=await browser.new_context(viewport={'width':width,'height':900},color_scheme='light',
                         user_agent='Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36' if width==390 else None)
+                    await ctx.add_init_script(script=f"try {{ localStorage.setItem('{template}-theme', 'light'); }} catch (e) {{}}")
                     page=await ctx.new_page();errors=[]
                     page.on('pageerror',lambda e:errors.append(str(e)[:160]))
                     record={'template':template,'page':p['page_type_id'],'url':urls[0],'width':width,'theme':'light','environment':'real_app','status':'blocked','selection_verified':selection_ok}
@@ -69,13 +79,14 @@ async def review_one(index, browser, semaphore):
                     try:
                         resp=await page.goto(task['preview_base_url']+urls[0],wait_until='domcontentloaded',timeout=22000)
                         if not resp or resp.status>=500:raise ValueError('HTTP server error, no debugger screenshot stored')
+                        await page.wait_for_load_state('load',timeout=15000)
                         metrics=await page.evaluate(LAYOUT_JS)
                         shots=out/'screenshots';shots.mkdir(exist_ok=True)
                         await page.screenshot(path=str(shots/(stem+'.png')),full_page=True,animations='disabled',timeout=15000)
                         await page.screenshot(path=str(shots/(stem+'-viewport.png')),animations='disabled',timeout=15000)
                         features=await page.evaluate("""()=>({searchForms:[...document.forms].map(x=>({action:x.getAttribute('action'),inputs:[...x.elements].map(i=>i.name)})),themeButtons:[...document.querySelectorAll('button,[role=button]')].map(x=>({label:(x.getAttribute('aria-label')||x.innerText).slice(0,60)})).filter(x=>/theme|dark|light|主题|模式/i.test(x.label)),scripts:[...document.scripts].map(x=>x.getAttribute('src')).filter(Boolean),pageTitle:document.title})""")
                         clipped=[s for s in metrics['scoreBoxes'] if s['visible'] and (s['x']<0 or s['right']>width+2)]
-                        record.update(status='fail' if metrics['scrollWidth']>width+2 or clipped or errors or not selection_ok else 'needs_review',
+                        record.update(status='fail' if metrics['scrollWidth']>width+2 or clipped or errors or not selection_ok or metrics['effectiveTheme']!='light' else 'needs_review',
                             metrics={k:v for k,v in metrics.items() if k!='scoreBoxes'},clipped_scores=clipped[:20],errors=errors,
                             features=features,screenshot='screenshots/'+stem+'.png',viewport_screenshot='screenshots/'+stem+'-viewport.png',
                             scope='first review, light only; full interaction/theme/no-JS acceptance not claimed')
@@ -85,7 +96,7 @@ async def review_one(index, browser, semaphore):
             save_json(out/'visual-results.json',records)
             summary={'template':template,'input_hash':input_hash,'selection_verified':selection_ok,'page_counts':contract['counts'],
                 'observations':len(records),'fail':sum(r['status']=='fail' for r in records),'blocked':sum(r['status']=='blocked' for r in records),
-                'needs_review':sum(r['status']=='needs_review' for r in records),'human_review':'pending','business_modified':False}
+                'needs_review':sum(r['status']=='needs_review' for r in records),'human_review':'pending','review_tool_modified_business':False}
             save_json(out/'summary.json',summary)
             print(json.dumps(summary,ensure_ascii=False),flush=True)
         finally:
@@ -94,16 +105,18 @@ async def review_one(index, browser, semaphore):
                 subprocess.run(['taskkill','/PID',str(server.pid),'/T','/F'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
             else:server.terminate()
 
-async def main():
+async def main(ids):
     async with async_playwright() as pw:
         browser=await pw.chromium.launch()
         semaphore=asyncio.Semaphore(4)
-        await asyncio.gather(*(review_one(i,browser,semaphore) for i in range(1,22)))
+        await asyncio.gather(*(review_one(i,browser,semaphore) for i in ids))
         await browser.close()
 
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('--output',default='runs/z-review')
+    parser.add_argument('--ids',type=int,nargs='+',default=list(range(1,22)))
     args=parser.parse_args();RUN_ROOT=(ROOT/args.output).resolve()
     if not RUN_ROOT.is_relative_to(ROOT/'runs'):raise ValueError('Review output must stay in external runs/')
-    asyncio.run(main())
+    if any(i < 1 or i > 21 for i in args.ids): raise ValueError('Expected z1 through z21')
+    asyncio.run(main(args.ids))
