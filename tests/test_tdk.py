@@ -80,3 +80,21 @@ class TdkTests(unittest.TestCase):
             bad[field]='a'*(limit-1);self.assertEqual(len(build_script_row(row,bad).split('$')),14)
         row['cells'][8]='injected$extra'
         with self.assertRaisesRegex(ValueError,'分隔符'):build_script_row(row,draft)
+
+    def test_copy_script_reads_current_reference_and_returns_only_payload(self):
+        with tempfile.TemporaryDirectory() as d:
+            draft=generate_tdk('球帝直播');item={'domain':'example.com','keyword':'球帝直播','status':'approved_for_prefill','tdk':draft,'leo_review':{'status':'approved','reviewer':'Leo','revision':draft['revision'],'evidence':'user_report'}}
+            path=Path(d)/'state.json';path.write_text(json.dumps({'batch_id':'test','business_date':datetime.now().date().isoformat(),'expected_count':1,'domains':[item]}))
+            class Connector:
+                reads=0
+                def read(self):
+                    self.reads+=1;cells=['']*17;cells[9]='23';cells[12]='s213017';cells[13]='203.0.113.4'
+                    return {'pending':[],'launch':[{'domain':'example.com','keyword':'球帝直播','owner':'Pony','cells':cells}]}
+            monitor=Monitor(path);monitor.connector=Connector();result=monitor.script_preview()
+            self.assertEqual(monitor.connector.reads,1);self.assertEqual(result['count'],1)
+            self.assertTrue(result['script'].startswith('example.com$球帝直播$'))
+            self.assertEqual(len(result['script'].split('$')),14)
+            self.assertNotIn('Title：',result['script']);self.assertNotIn('待 Leo 审核',result['script'])
+            monitor.state['domains'][0]['tdk']['title']='unapproved change'
+            with self.assertRaisesRegex(ValueError,'changed'):monitor.script_preview()
+            self.assertFalse(monitor.scan_lock.locked())

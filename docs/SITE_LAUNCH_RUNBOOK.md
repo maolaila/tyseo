@@ -50,3 +50,5 @@ CLI 固定 0.1.20；程序会话 tyseo-launch-program，普通持久化 profile 
 用户手动点击工作台回填才会填真实后台，仍不点击提交。现有不同的未提交文本会被保留并报错；相同资料可重复确认。HTML textarea 将 CRLF 规范化为 LF，比较和行数按规范化值验证，避免误报失败。
 
 证据：runs/workbench-qa/script-contract/formulas.json、entry.json、build-verification.json、admin-inspection.json。fixture-browser/result.json 是浏览器路由拦截的本地模拟表单测试：没有把测试内容发给真实后台，不能等同真实上站提交证据。本轮没有填入真实后台或执行上站提交。
+
+复制入口：工作台“复制全部 N 份上站脚本”通过只读 /api/launch-script 获取新鲜校验结果，正文每站一行、14字段；没有审核文案抬头、日期、编号或 Title 标签。可直接粘贴替换后台全文。$与空字段不能删除；复制不触发回填或提交。

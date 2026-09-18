@@ -47,3 +47,5 @@
 真实后台已在普通持久化程序浏览器登录，确认文本框可用。实际回填仍等待用户手动点击，本轮没有填入或提交真实上站资料。回填执行代码已在浏览器拦截的本地模拟表单验证：两行填入与回读、相同内容重复回填、不同草稿保留；已修复 CRLF/LF 导致的误判。模拟测试没有请求真实上站后台。
 
 证据统一在 runs/workbench-qa/script-contract：build-verification.json、admin-inspection.json、fixture-browser/result.json、ui/result.json、ui-1280.png。旧“参考表Q为空而阻断”描述为历史，当前不再依赖本批Q有内容。
+
+复制入口修正：主按钮复制可直接粘贴后台的纯上站脚本，不再复制带抬头的审核文本。65项测试通过；真实浏览器剪贴板验证20行/每行14字段、与新鲜校验接口结果一致、无标题日期编号或字段标签；本轮POST数0，未操作实际后台内容。证据 runs/workbench-qa/copy-launch-script/result.json。

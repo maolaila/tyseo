@@ -58,6 +58,14 @@ class Monitor:
         self.state['tdk_review_required']=pending
         if entries:self.state['monitor']['status']='awaiting_leo_review' if pending else 'approved_for_prefill'
         return entries
+    def script_preview(self):
+        if not self.scan_lock.acquire(blocking=False):raise ValueError('程序正在检查，请稍后再复制')
+        try:
+            snapshot=self.connector.read()
+            with self.lock:
+                script=backend_script(self.state['domains'],snapshot)
+                return {'script':script,'count':len(self.state['domains']),'revision':self.draft_revision()}
+        finally:self.scan_lock.release()
     def status(self):
         with self.lock:
             return {'batch_id':self.state['batch_id'],'business_date':self.state['business_date'],'expected_count':self.state['expected_count'],
@@ -166,6 +174,9 @@ def serve(state,port=8766,interval=1800):
         def do_GET(self):
             if urlsplit(self.path).path=='/':self.reply(200,(ROOT/'web/workbench.html').read_text(encoding='utf-8'),'text/html')
             elif self.path=='/api/status':self.reply(200,{**monitor.status(),'control_token':token})
+            elif self.path=='/api/launch-script':
+                try:self.reply(200,monitor.script_preview())
+                except Exception as e:self.reply(409,{'error':str(e)[:180]})
             else:self.reply(404,{'error':'Not found'})
         def do_POST(self):
             origin=self.headers.get('Origin','')
