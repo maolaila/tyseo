@@ -3,7 +3,6 @@ import csv
 import io
 import json
 import subprocess
-import time
 from pathlib import Path
 from cli_adapter import cli_executable
 from core import ROOT
@@ -61,46 +60,6 @@ class SheetConnector:
         }''')
         if not result.get('ok'):raise RuntimeError('请先在程序专用浏览器完成 Google 登录')
         return {'pending':parse_rows(result['pending'],'pending'),'launch':parse_rows(result['launch'],'launch')}
-
-    def write_tdk(self,updates):
-        """Only E:H for verified Pony rows. No launch-script or other-column writes."""
-        if not updates:return self.read()
-        fresh=self.read()
-        by_domain={u['domain']:u for u in updates}
-        if len(by_domain)!=len(updates):raise ValueError('Duplicate metadata update')
-        for u in updates:
-            matches=[r for r in fresh['launch'] if r['domain']==u['domain']]
-            if len(matches)!=1 or matches[0]['owner']!='Pony' or matches[0]['row']!=u['row'] or matches[0]['cells'][4:8]!=u['before']:
-                raise ValueError('Sheet changed before write; refusing stale update')
-        ordered=sorted(updates,key=lambda u:u['row']);groups=[]
-        for u in ordered:
-            if not groups or u['row']!=groups[-1][-1]['row']+1:groups.append([])
-            groups[-1].append(u)
-        payload=[{'range':f"E{g[0]['row']}:H{g[-1]['row']}",'tsv':'\n'.join('\t'.join(u['values']) for u in g)} for g in groups]
-        self.run_script('''async(page)=>{
-          await page.goto('https://docs.google.com/spreadsheets/d/'''+BOOK+'''/edit?gid=2066853497#gid=2066853497',{waitUntil:'domcontentloaded'});
-          await page.locator('#t-name-box').waitFor({timeout:30000});
-          await page.context().grantPermissions(['clipboard-read','clipboard-write'],{origin:'https://docs.google.com'});
-          const writes='''+json.dumps(payload,ensure_ascii=False)+''';
-          for(const write of writes){
-            await page.locator('#t-name-box').fill(write.range);await page.locator('#t-name-box').press('Enter');
-            await page.evaluate(text=>navigator.clipboard.writeText(text),write.tsv);
-            await page.keyboard.press('Control+V');
-            await page.waitForTimeout(1000);
-          }
-          return {submitted:true,ranges:writes.map(x=>x.range)};
-        }''')
-        for attempt in range(5):
-            after=self.read();rows={r['domain']:r for r in after['launch'] if r['domain'] in by_domain}
-            if all(u['domain'] in rows and rows[u['domain']]['cells'][4:8]==u['values'] for u in updates):
-                # Retain all non-TDK fields, including server data and dynamic code. Q is computed.
-                before={r['domain']:r for r in fresh['launch'] if r['domain'] in by_domain}
-                for name,r in rows.items():
-                    if r['cells'][:4]!=before[name]['cells'][:4] or r['cells'][8:16]!=before[name]['cells'][8:16]:
-                        raise ValueError('Non-TDK sheet fields changed; check collaborator changes')
-                return after
-            time.sleep(2)
-        raise RuntimeError('TDK paste submitted but readback not confirmed; inspect before retry')
 
     def prefill_admin(self,script):
         # This action deliberately never clicks the submit button or posts the form.

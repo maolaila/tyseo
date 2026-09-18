@@ -34,9 +34,9 @@
   },
   "launch_metadata": {
     "draft_mode": "local_preview",
-    "sheet_write": "manual_button_confirmation",
+    "sheet_write": "forbidden_read_only_reference",
     "backend_prefill": "manual_button_confirmation_no_submit",
-    "submission": "disabled_pending_leo_review_and_implementation",
+    "submission": "disabled_pending_implementation_and_manual_trigger",
     "keyword_reference": "read_only_reference_not_write_target",
     "template_id": "r62",
     "rotation": "pending_current_assignment_verification",

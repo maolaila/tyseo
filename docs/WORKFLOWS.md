@@ -91,3 +91,7 @@ cd C:\tyseo\pony-template-workflow
 运行 `./Start-Workbench.ps1`，打开 http://127.0.0.1:8766 。工作台与30分钟采购监听由独立Python进程执行，不依赖Codex heartbeat；旧heartbeat已删除。支持查看状态、立即检查、暂停/继续、程序专用Google登录窗口和页面桌面通知。
 
 当前已认证读取本批 20 行并自动生成本地 TDK 草稿。先预览，再分别手动确认上站表回填、后台文本框回填；正式提交等待 Leo 审核，执行器尚未接通。固定管理入口由用户确认为 s213016.abcd-cms.com/mgradm/optdata.html，采购分配服务器可不同；缺采购配置或未登录仍会阻断操作。参考词表只读参考、轮换规则未核实时不覆盖今日 r62。完整限制和实测状态见 SITE_LAUNCH_RUNBOOK.md。
+
+## 最新覆盖：上站表只读
+
+用户已确认本批 Leo 审核通过，上站表只能参考。旧写表步骤撤回，工作台写入按钮/API/适配器均删除；使用本地已审核 TDK 准备后台资料，不能要求编辑表格。当前执行顺序及证据见 SITE_LAUNCH_RUNBOOK.md；审核通过不是已提交。

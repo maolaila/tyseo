@@ -15,7 +15,7 @@ sys.path.insert(0,str(Path(__file__).parent/'src'))
 from core import ROOT,read_json,save_json
 from launch_connector import SheetConnector,classify,ADMIN_URL
 from site_launch_state import completion
-from tdk import prepare_updates,backend_script
+from tdk import prepare_drafts,backend_script,require_leo_approval
 
 def utc():return datetime.now(timezone.utc).isoformat()
 
@@ -35,31 +35,37 @@ class Monitor:
         values=[(d['domain'],(d.get('tdk') or {}).get('revision'),d.get('row')) for d in self.state['domains']]
         return hashlib.sha256(json.dumps(values,sort_keys=True).encode()).hexdigest()
     def prepare_drafts(self,snapshot):
-        updates,existing=prepare_updates(self.state['domains'],snapshot)
+        entries=prepare_drafts(self.state['domains'],snapshot)
         by_domain={x['domain']:x for x in self.state['domains']}
         assigned={r['cells'][12].strip() for r in snapshot['launch'] if r['domain'] in by_domain}
         admin_url=self.state.get('admin_url',ADMIN_URL)
         ready=admin_url==ADMIN_URL and bool(assigned) and '' not in assigned
         self.state['backend_target_check']={'assigned_servers':sorted(assigned),'admin_url':admin_url,
             'ready':ready,'reason':None if ready else '后台入口不是已确认地址或采购服务器未分配'}
-        for entry in updates:
-            item=by_domain[entry['domain']];item.update(tdk=entry['tdk'],status='awaiting_user_confirmation',row=entry['row'])
-        for entry in existing:
-            observed=next(r for r in snapshot['launch'] if r['domain']==entry['domain'])
-            item=by_domain[entry['domain']];item.update(tdk=entry['tdk'],status='awaiting_leo_review',row=entry['row'],tdk_present=True,script_present=bool(observed['cells'][16].strip()))
-            if (item.get('leo_review') or {}).get('revision')!=entry['tdk']['revision']:
-                item['leo_review']={'reviewer':'Leo','status':'pending','revision':entry['tdk']['revision'],'evidence':None}
-        if updates:self.state['monitor']['status']='review_required'
-        elif existing:self.state['monitor']['status']='awaiting_leo_review'
-        return updates
+        for entry in entries:
+            item=by_domain[entry['domain']];item.update(tdk=entry['tdk'],row=entry['row'])
+            try:
+                require_leo_approval(item)
+                item['tdk']['review_status']='approved';item['status']='approved_for_prefill'
+            except ValueError:
+                item['tdk']['review_status']='pending';item['status']='awaiting_leo_review'
+            try:
+                backend_script([item],snapshot)
+                item['payload_ready']=True;item['payload_error']=None
+            except ValueError as e:
+                item['payload_ready']=False;item['payload_error']=str(e)
+        pending=any(d.get('status')=='awaiting_leo_review' for d in self.state['domains'])
+        self.state['tdk_review_required']=pending
+        if entries:self.state['monitor']['status']='awaiting_leo_review' if pending else 'approved_for_prefill'
+        return entries
     def status(self):
         with self.lock:
             return {'batch_id':self.state['batch_id'],'business_date':self.state['business_date'],'expected_count':self.state['expected_count'],
                     'monitor':dict(self.state['monitor']),'completion':completion(self.state),
-                    'domains':[{k:d.get(k) for k in ('domain','keyword','status','observed','reason','row','tdk_present','script_present','tdk')} for d in self.state['domains']],
+                    'domains':[{k:d.get(k) for k in ('domain','keyword','status','observed','reason','row','tdk_present','script_present','tdk','leo_review','payload_ready','payload_error')} for d in self.state['domains']],
                     'draft_revision':self.draft_revision(),
                     'backend_target_check':self.state.get('backend_target_check',{'ready':False,'reason':'未核实后台入口'}),
-                    'events':list(self.state['events'][-30:]),'worker_status':'TDK自动生成并预览。Google上站表与后台文本框均需手动确认回填；后台不点击提交，等待Leo审核。'}
+                    'events':list(self.state['events'][-30:]),'worker_status':'上站表只读参考。使用本地已审核TDK准备后台资料，手动回填后台；不自动提交。'}
     def scan(self):
         if not self.scan_lock.acquire(blocking=False):return
         try:
@@ -86,7 +92,6 @@ class Monitor:
                     self.prepare_drafts(snapshot)
                 if completion(self.state)['completed']:
                     m.update(enabled=False,status='completed');self.event('completed','本批全部上站核验完成，监听已停止')
-                self.state['tdk_review_required']=True
                 self.persist()
         except Exception as e:
             with self.lock:
@@ -99,31 +104,7 @@ class Monitor:
                 retry_login=(m.get('connection_state')=='login_required' and (m.get('login_check_until') or 0)>time.time())
                 m['next_check_at']=time.time()+(15 if retry_login else self.interval) if m['enabled'] else None;self.persist()
             self.scan_lock.release()
-    def fill_sheet(self,revision):
-        if not self.scan_lock.acquire(blocking=False):return
-        try:
-            with self.lock:
-                if not revision or revision!=self.draft_revision():raise ValueError('草稿已变化，请刷新后重新预览确认')
-                self.state['monitor'].update(status='writing_tdk',last_error=None)
-                self.event('tdk_write_started','已收到用户手动确认，仅回填Google表格，不提交上站后台');self.persist()
-            snapshot=self.connector.read()
-            with self.lock:
-                updates=self.prepare_drafts(snapshot)
-                if revision!=self.draft_revision():raise ValueError('表格或草稿已变化，未写入，请重新预览')
-                save_json(self.path.parent/'tdk-write-intent.json',{'at':utc(),'revision':revision,'updates':updates,'requires_leo_review':True})
-            after=self.connector.write_tdk(updates)
-            with self.lock:
-                remaining=self.prepare_drafts(after)
-                if remaining:raise RuntimeError('部分资料未确认写入，请检查回读结果')
-                save_json(self.path.parent/'tdk-write-receipt.json',{'at':utc(),'revision':revision,'domains':[d['domain'] for d in self.state['domains'] if d.get('tdk_present')],'verified_by':'fresh authenticated sheet readback','backend_submitted':False})
-                self.state['monitor'].update(status='awaiting_leo_review',last_error=None)
-                self.event('tdk_ready_for_review','TDK已回填并回读确认，等待Leo审核；未提交上站后台');self.persist()
-        except Exception as e:
-            with self.lock:
-                self.state['monitor'].update(status='action_required',last_error=str(e)[:180]);self.event('blocked',str(e)[:180]);self.persist()
-        finally:self.scan_lock.release()
     def control(self,action,revision=None):
-        if action=='fill_sheet':threading.Thread(target=lambda:self.fill_sheet(revision),daemon=True).start();return
         if action=='prefill_admin':
             def prefill():
                 if not self.scan_lock.acquire(blocking=False):return
@@ -136,8 +117,8 @@ class Monitor:
                     with self.lock:
                         if not result.get('prefilled'):raise ValueError('请先在打开的普通浏览器完成后台登录，再点回填；未提交上站')
                         self.state['backend_prefill']={'at':utc(),'revision':revision,'submitted':False,'script_sha256':hashlib.sha256(script.encode()).hexdigest()}
-                        self.state['monitor']['status']='awaiting_leo_review'
-                        self.event('backend_prefilled','后台文本框已回填，未点击提交；等待Leo审核');self.persist()
+                        self.state['monitor']['status']='backend_prefilled'
+                        self.event('backend_prefilled','后台文本框已回填，未点击提交');self.persist()
                 except Exception as e:
                     with self.lock:self.state['monitor']['last_error']=str(e)[:180];self.event('blocked',str(e)[:180]);self.persist()
                 finally:self.scan_lock.release()

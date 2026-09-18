@@ -50,6 +50,6 @@ class WorkbenchTests(unittest.TestCase):
             class FakeConnector:
                 def read(self):return {'pending':[],'launch':[{'domain':'example.com','owner':'Pony','row':3,'keyword':'词','cells':['']*17}]}
             monitor.connector=FakeConnector();monitor.scan()
-            self.assertEqual(monitor.state['monitor']['status'],'review_required');self.assertFalse(monitor.status()['completion']['completed'])
+            self.assertEqual(monitor.state['monitor']['status'],'awaiting_leo_review');self.assertFalse(monitor.status()['completion']['completed'])
 
 if __name__=='__main__':unittest.main()
