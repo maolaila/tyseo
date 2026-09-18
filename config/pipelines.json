@@ -67,5 +67,6 @@
       "robot_integration": "reserved_disabled"
     }
   },
-  "execution_mode": "semi_automatic"
+  "execution_mode": "semi_automatic",
+  "trigger_mode": "user_conversation"
 }

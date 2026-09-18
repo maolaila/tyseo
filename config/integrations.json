@@ -6,9 +6,13 @@
     "reference_workspace": "C:/RS",
     "allowed_actions": [],
     "entry_contract": "validated TaskSpec + current input_hash + evidence report; no implicit authority",
-    "activation_requires": "Separate user task after robot optimization; review auth, idempotency and cancellation"
+    "activation_requires": "User explicitly requests integration after robot optimization; implement and verify before enabling",
+    "future_trigger": "user_starts_robot_program",
+    "future_execution_mode": "automatic_within_company_rules_and_task_authorization"
   },
   "scheduler_enabled": false,
   "remote_side_effects_default": false,
-  "playwright_cli_version": "0.1.20"
+  "playwright_cli_version": "0.1.20",
+  "trigger_mode": "user_conversation",
+  "current_executor": "assistant_with_local_tools"
 }
