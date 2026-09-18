@@ -49,3 +49,5 @@
 证据统一在 runs/workbench-qa/script-contract：build-verification.json、admin-inspection.json、fixture-browser/result.json、ui/result.json、ui-1280.png。旧“参考表Q为空而阻断”描述为历史，当前不再依赖本批Q有内容。
 
 复制入口修正：主按钮复制可直接粘贴后台的纯上站脚本，不再复制带抬头的审核文本。65项测试通过；真实浏览器剪贴板验证20行/每行14字段、与新鲜校验接口结果一致、无标题日期编号或字段标签；本轮POST数0，未操作实际后台内容。证据 runs/workbench-qa/copy-launch-script/result.json。
+
+本轮“打开后台并回填”真实验证通过：程序恢复普通浏览器并正常登录，新标签页20行14字段，文本框内容与回填回执哈希一致，未点击上站提交。修复忙时静默丢操作/失败不显示/扫描丢回填状态。68项测试通过，证据 runs/workbench-qa/open-and-prefill。

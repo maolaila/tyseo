@@ -35,8 +35,8 @@
   "launch_metadata": {
     "draft_mode": "local_preview",
     "sheet_write": "forbidden_read_only_reference",
-    "backend_prefill": "manual_button_confirmation_no_submit",
-    "submission": "disabled_pending_implementation_and_manual_trigger",
+    "backend_prefill": "manual_button_opens_normal_browser_and_fills",
+    "submission": "user_clicks_submit_in_admin",
     "keyword_reference": "read_only_reference_not_write_target",
     "template_id": "r62",
     "rotation": "pending_current_assignment_verification",
@@ -44,6 +44,7 @@
     "admin_entry_confirmed_by": "user_2026-09-18",
     "preferred_browser_driver": "playwright-cli_0.1.20_normal_persistent",
     "script_generation": "local_verified_sheet_formula_14_fields",
-    "script_contract": "config/launch-script-contract.json"
+    "script_contract": "config/launch-script-contract.json",
+    "admin_login_file": "private/admin-login.json"
   }
 }

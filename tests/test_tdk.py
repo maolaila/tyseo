@@ -98,3 +98,36 @@ class TdkTests(unittest.TestCase):
             monitor.state['domains'][0]['tdk']['title']='unapproved change'
             with self.assertRaisesRegex(ValueError,'changed'):monitor.script_preview()
             self.assertFalse(monitor.scan_lock.locked())
+
+    def test_manual_prefill_restores_browser_and_keeps_submission_manual(self):
+        from unittest.mock import patch
+        from test_workbench import InlineThread
+        with tempfile.TemporaryDirectory() as d:
+            draft=generate_tdk('球帝直播');item={'domain':'example.com','keyword':'球帝直播','status':'approved_for_prefill','tdk':draft,'leo_review':{'status':'approved','reviewer':'Leo','revision':draft['revision'],'evidence':'user_report'}}
+            path=Path(d)/'state.json';path.write_text(json.dumps({'batch_id':'test','business_date':datetime.now().date().isoformat(),'expected_count':1,'domains':[item]}))
+            calls=[]
+            class Connector:
+                def ensure_browser(self):calls.append('ensure')
+                def read(self):
+                    calls.append('read');cells=['']*17;cells[9]='23';cells[12]='s213017';cells[13]='203.0.113.4'
+                    return {'pending':[],'launch':[{'domain':'example.com','keyword':'球帝直播','owner':'Pony','row':3,'cells':cells}]}
+                def prefill_admin(self,script):calls.append('prefill');return {'prefilled':True,'submitted':False}
+            monitor=Monitor(path);monitor.connector=Connector()
+            with patch('workbench.threading.Thread',InlineThread):monitor.control('prefill_admin',monitor.draft_revision())
+            self.assertEqual(calls,['ensure','read','prefill']);self.assertEqual(monitor.state['monitor']['status'],'backend_prefilled')
+            self.assertFalse(monitor.state['backend_prefill']['submitted']);monitor.scan()
+            self.assertEqual(monitor.state['monitor']['status'],'backend_prefilled')
+            monitor.scan_lock.acquire()
+            try:
+                with self.assertRaisesRegex(ValueError,'正在处理'):monitor.control('prefill_admin',monitor.draft_revision())
+            finally:monitor.scan_lock.release()
+
+    def test_only_closed_browser_triggers_persistent_reconnect(self):
+        from unittest.mock import Mock
+        from launch_connector import SheetConnector,ADMIN_URL
+        with tempfile.TemporaryDirectory() as d:
+            c=SheetConnector(d);c.run_script=Mock(side_effect=RuntimeError('程序浏览器会话不可用，请点击连接 Google 表格'));c.connect=Mock()
+            c.ensure_browser();c.connect.assert_called_once_with(ADMIN_URL)
+            c.connect.reset_mock();c.run_script=Mock(side_effect=RuntimeError('unrelated failure'))
+            with self.assertRaises(RuntimeError):c.ensure_browser()
+            c.connect.assert_not_called()

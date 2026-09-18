@@ -26,25 +26,35 @@ def parse_rows(text,kind):
 class SheetConnector:
     def __init__(self,folder):
         self.folder=Path(folder).resolve();self.folder.mkdir(parents=True,exist_ok=True)
-    def call(self,args,timeout=75):
+    def call(self,args,timeout=75,redact=()):
         executable=cli_executable()
         if not executable:raise RuntimeError('浏览器工具不可用，请检查程序安装')
         r=subprocess.run([executable,'-s='+SESSION,*args],cwd=self.folder,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=timeout,
                          creationflags=subprocess.CREATE_NO_WINDOW if __import__('os').name=='nt' else 0)
         text=r.stdout+'\n'+r.stderr
-        (self.folder/'latest-cli.log').write_text(text,encoding='utf-8')
+        log=text
+        for value in redact:
+            if value:log=log.replace(value,'[redacted]').replace(json.dumps(value)[1:-1],'[redacted]')
+        (self.folder/'latest-cli.log').write_text(log,encoding='utf-8')
         if r.returncode or '### Error' in text:
             if 'ENOENT' in text:raise RuntimeError('读表脚本文件未找到，请检查程序路径；不是登录失败')
             if 'No browser' in text or 'not open' in text or 'not found' in text and 'session' in text:
                 raise RuntimeError('程序浏览器会话不可用，请点击连接 Google 表格')
             raise RuntimeError('浏览器读表操作失败，详情已记录；不能据此判断未登录')
         return text
-    def connect(self):
+    def connect(self,url=None):
         profile=ROOT/'private/launch-browser';profile.mkdir(parents=True,exist_ok=True)
-        return self.call(['open',f'https://docs.google.com/spreadsheets/d/{BOOK}/edit?gid=0#gid=0','--headed','--persistent','--profile',str(profile)],120)
-    def run_script(self,body):
+        return self.call(['open',url or f'https://docs.google.com/spreadsheets/d/{BOOK}/edit?gid=0#gid=0','--headed','--persistent','--profile',str(profile)],120)
+    def ensure_browser(self):
+        try:self.run_script('async(page)=>({ready:true})')
+        except RuntimeError as e:
+            if '程序浏览器会话不可用' not in str(e):raise
+            self.connect(ADMIN_URL)
+    def run_script(self,body,redact=()):
         path=self.folder/'read-sheet.js';path.write_text(body,encoding='utf-8')
-        text=self.call(['run-code','--filename',str(path)],120)
+        try:text=self.call(['run-code','--filename',str(path)],120,redact=redact)
+        finally:
+            if redact:path.write_text('// Temporary login script removed.\n',encoding='utf-8')
         if '### Result\n' not in text:raise RuntimeError('No verified browser result')
         return json.JSONDecoder().raw_decode(text.split('### Result\n',1)[1].lstrip())[0]
     def read(self):
@@ -62,19 +72,32 @@ class SheetConnector:
         return {'pending':parse_rows(result['pending'],'pending'),'launch':parse_rows(result['launch'],'launch')}
 
     def prefill_admin(self,script):
-        # This action deliberately never clicks the submit button or posts the form.
+        # Only the login form may be submitted; the launch form is filled but never submitted.
+        credential_file=ROOT/'private/admin-login.json'
+        credentials=json.loads(credential_file.read_text(encoding='utf-8')) if credential_file.exists() else {}
+        password=credentials.get('password','')
         return self.run_script('''async(page)=>{
           const url='''+json.dumps(ADMIN_URL)+''';
-          let admin=page.context().pages().find(p=>p.url()===url);
-          if(!admin)admin=await page.context().newPage();
-          if(admin.url()!==url)await admin.goto(url,{waitUntil:'domcontentloaded',timeout:20000});await admin.bringToFront();
+          const admin=await page.context().newPage();
+          await admin.goto(url,{waitUntil:'domcontentloaded',timeout:20000});await admin.bringToFront();
+          const login='''+json.dumps(credentials,ensure_ascii=False)+''';
+          if(await admin.locator('#uname').count() && login.username && login.password){
+            const form=admin.locator('form').filter({has:admin.locator('#uname')});
+            const action=await form.evaluate(e=>e.action);
+            if(action!==url.replace('optdata.html','action.html'))throw Error('Unexpected login target');
+            await admin.locator('#uname').fill(login.username);await admin.locator('#upwd').fill(login.password);
+            await form.locator('input[type=submit]').click({timeout:10000});
+            await admin.waitForLoadState('domcontentloaded',{timeout:20000});
+            await admin.goto(url,{waitUntil:'domcontentloaded',timeout:20000});
+          }
           if(await admin.locator('#optdata001').count()!==1)return {prefilled:false,submitted:false,reason:'backend_login_required'};
           const value='''+json.dumps(script.replace('\r\n','\n'),ensure_ascii=False)+''';
           const previous=await admin.locator('#optdata001').inputValue();
           if(previous.trim()&&previous!==value)return {prefilled:false,submitted:false,reason:'existing_admin_draft'};
           await admin.locator('#optdata001').fill(value);
+          await admin.locator('#optdata001').focus();await admin.bringToFront();
           return {prefilled:await admin.locator('#optdata001').inputValue()===value,submitted:false,lines:value.split('\\n').length};
-        }''')
+        }''',redact=(password,) if password else ())
 
 def classify(domains,snapshot):
     changes=[]

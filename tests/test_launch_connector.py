@@ -15,6 +15,14 @@ class ConnectorTests(unittest.TestCase):
                 args=run.call_args.args[0];file=Path(args[args.index('--filename')+1])
                 self.assertTrue(file.is_absolute());self.assertEqual(file.parent,Path(run.call_args.kwargs['cwd']))
                 self.assertTrue(file.is_file())
+    def test_temporary_login_script_and_cli_log_do_not_keep_password(self):
+        with tempfile.TemporaryDirectory() as d:
+            c=SheetConnector(d);secret='fixture-password'
+            output='### Result\n{"ok":true}\n### Ran code '+secret
+            with patch('launch_connector.cli_executable',return_value='playwright-cli.cmd'),patch('launch_connector.subprocess.run',return_value=CompletedProcess([],0,output,'')):
+                c.run_script('async()=>'+repr(secret),redact=(secret,))
+            self.assertNotIn(secret,(Path(d)/'read-sheet.js').read_text())
+            self.assertNotIn(secret,(Path(d)/'latest-cli.log').read_text())
     def test_missing_script_not_reported_as_login_failure(self):
         with tempfile.TemporaryDirectory() as d:
             c=SheetConnector(d)

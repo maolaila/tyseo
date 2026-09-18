@@ -57,6 +57,10 @@ class Monitor:
         pending=any(d.get('status')=='awaiting_leo_review' for d in self.state['domains'])
         self.state['tdk_review_required']=pending
         if entries:self.state['monitor']['status']='awaiting_leo_review' if pending else 'approved_for_prefill'
+        if not pending and all(d.get('payload_ready') for d in self.state['domains']):
+            current_hash=hashlib.sha256(backend_script(self.state['domains'],snapshot).encode()).hexdigest()
+            if current_hash==(self.state.get('backend_prefill') or {}).get('script_sha256'):
+                self.state['monitor']['status']='backend_prefilled'
         return entries
     def script_preview(self):
         if not self.scan_lock.acquire(blocking=False):raise ValueError('程序正在检查，请稍后再复制')
@@ -114,11 +118,14 @@ class Monitor:
             self.scan_lock.release()
     def control(self,action,revision=None):
         if action=='prefill_admin':
+            if not self.scan_lock.acquire(blocking=False):raise ValueError('程序正在处理其他操作，请稍后再点回填')
+            with self.lock:
+                self.state['monitor'].update(status='prefilling',last_error=None);self.persist()
             def prefill():
-                if not self.scan_lock.acquire(blocking=False):return
                 try:
                     with self.lock:
                         if not revision or revision!=self.draft_revision():raise ValueError('草稿已变化，请重新预览确认')
+                    self.connector.ensure_browser()
                     snapshot=self.connector.read()
                     with self.lock:script=backend_script(self.state['domains'],snapshot)
                     result=self.connector.prefill_admin(script)
@@ -127,10 +134,10 @@ class Monitor:
                             if result.get('reason')=='existing_admin_draft':raise ValueError('后台文本框已有不同资料，已保留，请先人工核对；未提交上站')
                             raise ValueError('请先在打开的普通浏览器完成后台登录，再点回填；未提交上站')
                         self.state['backend_prefill']={'at':utc(),'revision':revision,'submitted':False,'script_sha256':hashlib.sha256(script.encode()).hexdigest()}
-                        self.state['monitor']['status']='backend_prefilled'
-                        self.event('backend_prefilled','后台文本框已回填，未点击提交');self.persist()
+                        self.state['monitor'].update(status='backend_prefilled',last_error=None)
+                        self.event('backend_prefilled','后台已打开并填好资料，请在后台点击提交；程序未提交');self.persist()
                 except Exception as e:
-                    with self.lock:self.state['monitor']['last_error']=str(e)[:180];self.event('blocked',str(e)[:180]);self.persist()
+                    with self.lock:self.state['monitor'].update(status='prefill_failed',last_error=str(e)[:180]);self.event('blocked',str(e)[:180]);self.persist()
                 finally:self.scan_lock.release()
             threading.Thread(target=prefill,daemon=True).start();return
         if action=='scan':threading.Thread(target=self.scan,daemon=True).start();return
@@ -185,7 +192,7 @@ def serve(state,port=8766,interval=1800):
             if int(self.headers.get('Content-Length','0'))>2048:self.reply(400,{'error':'Request too large'});return
             try:
                 data=json.loads(self.rfile.read(int(self.headers['Content-Length'])));monitor.control(data['action'],data.get('revision'));self.reply(202,{'accepted':True})
-            except (ValueError,KeyError):self.reply(400,{'error':'Invalid action'})
+            except (ValueError,KeyError) as e:self.reply(400,{'error':str(e)[:180]})
     server=ThreadingHTTPServer(('127.0.0.1',port),Handler) # Bind first: a second process cannot create another poller.
     monitor=Monitor(state,interval);threading.Thread(target=monitor.loop,daemon=True).start()
     print(json.dumps({'url':f'http://127.0.0.1:{port}','pid':os.getpid(),'mode':'local_program'}),flush=True)
