@@ -65,3 +65,6 @@ CLI按用户指定使用0.1.20；升级由另一任务负责，本任务只核�
 ## 当前单批执行例外
 
 用户已明确启动2026-09-18这20个Pony域名的上站流程，直到全部核验完成停止。仅本批通过Codex heartbeat每30分钟跟进，id=pony-9-18-20，详见docs/SITE_LAUNCH_RUNBOOK.md和对应runs/site-launch台账。此前“未启用定时跟进/不处理TDK上站”不再适用于这一明确批次，但不扩大为长期每日任务、采购、模板修改或RS接入。
+
+
+最新纠正：用户要求工作流程序自动监听，不是Codex持续监听。已删除pony-9-18-20 heartbeat。当前监听由workbench.py独立进程执行，当前状态与限制见SITE_LAUNCH_RUNBOOK.md。禁止重建Codex定时跟进替代本地程序。Google登录未完成或后续执行器未接通必须明确显示阻断。

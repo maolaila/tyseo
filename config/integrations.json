@@ -15,11 +15,13 @@
   "playwright_cli_version": "0.1.20",
   "trigger_mode": "user_conversation",
   "current_executor": "assistant_with_local_tools",
-  "active_batch_heartbeat": {
-    "id": "pony-9-18-20",
-    "batch_id": "2026-09-18-pony-20",
+  "program_monitor": {
+    "executor": "local_program",
+    "entrypoint": "workbench.py",
+    "url": "http://127.0.0.1:8766",
     "interval_minutes": 30,
-    "stop_when": "all_batch_domains_verified",
-    "new_daily_batches": false
+    "batch_id": "2026-09-18-pony-20",
+    "access_status": "requires_dedicated_google_login",
+    "rs_robot_enabled": false
   }
 }

@@ -85,3 +85,9 @@ cd C:\tyseo\pony-template-workflow
 ## 当前半自动增量入口
 
 详见 `docs/ACCEPTANCE_INCREMENT.md`。使用 `workflow.py plan-acceptance` 建立完整矩阵与待复核账本，再用 `assess-acceptance` 检查执行证据、输入hash和未完成槽位；计划不等于执行。RS接口只预留，不启用。跨电脑迁移与已授权工具库推送的范围见 `docs/MIGRATION.md`。
+
+## 本地工作台
+
+运行 `./Start-Workbench.ps1`，打开 http://127.0.0.1:8766 。工作台与30分钟采购监听由独立Python进程执行，不依赖Codex heartbeat；旧heartbeat已删除。支持查看状态、立即检查、暂停/继续、程序专用Google登录窗口和页面桌面通知。
+
+当前必须先完成程序浏览器的Google登录。TDK写表/后台上站执行器仍未接通；工作台如实显示待接入状态，不以监听进程在线冒充完整流程完成。细节见 SITE_LAUNCH_RUNBOOK.md。

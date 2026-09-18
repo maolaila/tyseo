@@ -44,3 +44,5 @@
 当前有效增量规范：`docs/ACCEPTANCE_INCREMENT.md`；本轮实现/未完成状态：`docs/HARDENING_RESULT.md`。CLI以0.1.20为准，保留原Python Playwright验收入口。未来RS助手机器人接入保持关闭。
 
 跨机器初始化使用 `Initialize.ps1`；敏感配置/运行数据为 `migration/` 中加密分片，解密密钥须单独转移，详情见 `docs/MIGRATION.md`。本库不镜像公司业务仓库；加密数据保留外部草稿及其中的参考模板/资源副本。
+
+当前可用的本地状态工作台：`./Start-Workbench.ps1` → http://127.0.0.1:8766 。独立程序监听，非Codex定时唤醒；Google登录与后续执行器就绪情况在页面明确显示。
