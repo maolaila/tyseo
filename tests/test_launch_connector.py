@@ -1,7 +1,7 @@
 import sys,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
-from launch_connector import parse_rows,classify,SheetConnector
+from launch_connector import parse_rows,SheetConnector
 from unittest.mock import patch
 from subprocess import CompletedProcess
 import os,tempfile
@@ -31,15 +31,30 @@ class ConnectorTests(unittest.TestCase):
     def test_headers_and_multiline_csv(self):
         text='日期,归属,域名,詞語,Template,Title,Description,Keyword\n2026-09-18,Pony,example.com,体育,r62,title,"two\nlines",词\n'
         rows=parse_rows(text,'launch');self.assertEqual(rows[0]['row'],2);self.assertEqual(rows[0]['cells'][6],'two\nlines')
+    def test_rate_limit_is_not_login_failure(self):
+        with tempfile.TemporaryDirectory() as d:
+            c=SheetConnector(d)
+            with patch.object(c,'run_script',return_value={'ok':False,'http_status':429}):
+                with self.assertRaisesRegex(RuntimeError,'HTTP 429'):c.read()
+    def test_writer_limits_ranges_and_verifies_readback(self):
+        from unittest.mock import Mock
+        import copy
+        before={'pending':[],'launch':[]};updates=[]
+        for rownum,name in [(3539,'one.example.com'),(3541,'two.example.com')]:
+            cells=['']*17;cells[1]='Pony';cells[2]=name
+            before['launch'].append({'row':rownum,'owner':'Pony','domain':name,'cells':cells})
+            updates.append({'row':rownum,'domain':name,'before':['']*4,'before_cells':cells[:16],'values':['r62','Title','Description','Keywords']})
+        after=copy.deepcopy(before)
+        for row,u in zip(after['launch'],updates):row['cells'][4:8]=u['values']
+        with tempfile.TemporaryDirectory() as d:
+            c=SheetConnector(d);c.read=Mock(return_value=after);c.run_script=Mock(return_value={'pasted':True})
+            self.assertEqual(c.write_tdk(updates,fresh=before),after)
+            script=c.run_script.call_args.args[0]
+            self.assertIn('E3539:H3539',script);self.assertIn('E3541:H3541',script)
+            self.assertNotIn('Q3539',script);self.assertNotIn('E3539:H3541',script)
+            changed=copy.deepcopy(before);changed['launch'][0]['owner']='Other';c.run_script.reset_mock()
+            with self.assertRaises(ValueError):c.write_tdk(updates,fresh=changed)
+            c.run_script.assert_not_called()
     def test_stale_clipboard_rejected(self):
         with self.assertRaises(ValueError):parse_rows('归属,域名,上站詞\nPony,example.com,词','launch')
-    def test_transition_and_duplicate(self):
-        domain=[{'domain':'example.com'}];row={'domain':'example.com','owner':'Pony','row':3,'keyword':'词','cells':['']*17}
-        self.assertEqual(classify(domain,{'pending':[row],'launch':[]})[0]['observed'],'waiting_purchase')
-        self.assertEqual(classify(domain,{'pending':[],'launch':[row]})[0]['observed'],'purchased_in_launch_sheet')
-        self.assertEqual(classify(domain,{'pending':[row],'launch':[row]})[0]['observed'],'needs_attention')
-    def test_wrong_owner(self):
-        row={'domain':'example.com','owner':'SomeoneElse'}
-        self.assertEqual(classify([{'domain':'example.com'}],{'pending':[],'launch':[row]})[0]['observed'],'needs_attention')
-
 if __name__=='__main__':unittest.main()

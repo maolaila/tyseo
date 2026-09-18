@@ -86,14 +86,8 @@ cd C:\tyseo\pony-template-workflow
 
 详见 `docs/ACCEPTANCE_INCREMENT.md`。使用 `workflow.py plan-acceptance` 建立完整矩阵与待复核账本，再用 `assess-acceptance` 检查执行证据、输入hash和未完成槽位；计划不等于执行。RS接口只预留，不启用。跨电脑迁移与已授权工具库推送的范围见 `docs/MIGRATION.md`。
 
-## 本地工作台
+## 本地工作台（现行范围）
 
-运行 `./Start-Workbench.ps1`，打开 http://127.0.0.1:8766 。工作台与30分钟采购监听由独立Python进程执行，不依赖Codex heartbeat；旧heartbeat已删除。支持查看状态、立即检查、暂停/继续、程序专用Google登录窗口和页面桌面通知。
+运行 ./Start-Workbench.ps1，打开 http://127.0.0.1:8766/。工作台由用户手动触发，只展示本批 TDK、打开普通持久化 Google 浏览器，并在确认后核对/写入上站表本人行 E:H、回读确认。工作台不运行定时监听，不采购、复制 Q 脚本、打开后台、提交或核验网站；后续步骤由用户自己处理。
 
-当前已认证读取本批 20 行并自动生成本地 TDK 草稿。先预览，再分别手动确认上站表回填、后台文本框回填；正式提交等待 Leo 审核，执行器尚未接通。固定管理入口由用户确认为 s213016.abcd-cms.com/mgradm/optdata.html，采购分配服务器可不同；缺采购配置或未登录仍会阻断操作。参考词表只读参考、轮换规则未核实时不覆盖今日 r62。完整限制和实测状态见 SITE_LAUNCH_RUNBOOK.md。
-
-## 最新覆盖：上站表只读
-
-用户已确认本批 Leo 审核通过，上站表只能参考。旧写表步骤撤回，工作台写入按钮/API/适配器均删除；使用本地已审核 TDK 准备后台资料，不能要求编辑表格。当前执行顺序及证据见 SITE_LAUNCH_RUNBOOK.md；审核通过不是已提交。
-
-脚本能力更新：本地生成采用已验证的参考表 Q3/Q100 14字段公式，不再依赖本批Q列有值。工作台根据本地 Leo 已批准 TDK + 只读本人采购配置准备后台资料，用户手动回填后台。详见 launch-script-contract.json 和 SITE_LAUNCH_RUNBOOK.md。
+新批次由 AI 每次重新读取最新 Pony 关键词分组和本次分配词，检查相关竞争网站后撰写原创 Title、Description、Keywords。当前分配里没有 Pony 时标记待分配，不沿用旧组或默认 all。同日不同批次也要不同；本批及历史上站记录逐字段查重。历史指纹在 data/tdk-fingerprints.json 随工具仓库交付。Leo 审核仅在当次要求时适用；今天已写入的 20 份保持原样。详情见 SITE_LAUNCH_RUNBOOK.md。

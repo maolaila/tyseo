@@ -1,15 +1,16 @@
-"""Program-owned authenticated Sheet reader using a dedicated Playwright CLI session."""
+"""Authenticated Sheet reader and scoped TDK writer; no background activity."""
 import csv
 import io
 import json
 import subprocess
+import time
 from pathlib import Path
 from cli_adapter import cli_executable
 from core import ROOT
 
 SESSION='tyseo-launch-program'
 BOOK='1y7VWR6T4ABcd09qa51GM5-7XXGC80w1h21wCL4stvUg'
-ADMIN_URL='https://s213016.abcd-cms.com/mgradm/optdata.html'
+LAUNCH_URL=f'https://docs.google.com/spreadsheets/d/{BOOK}/edit?gid=2066853497#gid=2066853497'
 
 def parse_rows(text,kind):
     rows=list(csv.reader(io.StringIO(text)))
@@ -38,18 +39,21 @@ class SheetConnector:
         (self.folder/'latest-cli.log').write_text(log,encoding='utf-8')
         if r.returncode or '### Error' in text:
             if 'ENOENT' in text:raise RuntimeError('读表脚本文件未找到，请检查程序路径；不是登录失败')
-            if 'No browser' in text or 'not open' in text or 'not found' in text and 'session' in text:
+            if 'No browser' in text or 'not open' in text or 'Target page, context or browser has been closed' in text or 'not found' in text and 'session' in text:
                 raise RuntimeError('程序浏览器会话不可用，请点击连接 Google 表格')
             raise RuntimeError('浏览器读表操作失败，详情已记录；不能据此判断未登录')
         return text
     def connect(self,url=None):
         profile=ROOT/'private/launch-browser';profile.mkdir(parents=True,exist_ok=True)
-        return self.call(['open',url or f'https://docs.google.com/spreadsheets/d/{BOOK}/edit?gid=0#gid=0','--headed','--persistent','--profile',str(profile)],120)
+        return self.call(['open',url or LAUNCH_URL,'--headed','--persistent','--profile',str(profile)],120)
     def ensure_browser(self):
-        try:self.run_script('async(page)=>({ready:true})')
+        try:self.run_script('async(page)=>{await page.title();return {ready:true}}')
         except RuntimeError as e:
             if '程序浏览器会话不可用' not in str(e):raise
-            self.connect(ADMIN_URL)
+            # Clear the dead CLI session without clearing the persistent browser profile.
+            try:self.call(['close'])
+            except RuntimeError:pass # Already-closed sessions may return an empty CLI error.
+            self.connect(LAUNCH_URL)
     def run_script(self,body,redact=()):
         path=self.folder/'read-sheet.js';path.write_text(body,encoding='utf-8')
         try:text=self.call(['run-code','--filename',str(path)],120,redact=redact)
@@ -68,51 +72,47 @@ class SheetConnector:
           }
           return {ok:true,...out};
         }''')
-        if not result.get('ok'):raise RuntimeError('请先在程序专用浏览器完成 Google 登录')
+        if not result.get('ok'):
+            if result.get('http_status')==429:raise RuntimeError('Google 表格读取过于频繁（HTTP 429），请稍后重试；无需重新登录')
+            if result.get('http_status') not in (401,403):raise RuntimeError('Google 表格读取失败（HTTP '+str(result.get('http_status'))+'），不是登录状态证明')
+            raise RuntimeError('请先在程序专用浏览器完成 Google 登录')
         return {'pending':parse_rows(result['pending'],'pending'),'launch':parse_rows(result['launch'],'launch')}
 
-    def prefill_admin(self,script):
-        # Only the login form may be submitted; the launch form is filled but never submitted.
-        credential_file=ROOT/'private/admin-login.json'
-        credentials=json.loads(credential_file.read_text(encoding='utf-8')) if credential_file.exists() else {}
-        password=credentials.get('password','')
-        return self.run_script('''async(page)=>{
-          const url='''+json.dumps(ADMIN_URL)+''';
-          const admin=await page.context().newPage();
-          await admin.goto(url,{waitUntil:'domcontentloaded',timeout:20000});await admin.bringToFront();
-          const login='''+json.dumps(credentials,ensure_ascii=False)+''';
-          if(await admin.locator('#uname').count() && login.username && login.password){
-            const form=admin.locator('form').filter({has:admin.locator('#uname')});
-            const action=await form.evaluate(e=>e.action);
-            if(action!==url.replace('optdata.html','action.html'))throw Error('Unexpected login target');
-            await admin.locator('#uname').fill(login.username);await admin.locator('#upwd').fill(login.password);
-            await form.locator('input[type=submit]').click({timeout:10000});
-            await admin.waitForLoadState('domcontentloaded',{timeout:20000});
-            await admin.goto(url,{waitUntil:'domcontentloaded',timeout:20000});
+    def write_tdk(self,updates,fresh=None):
+        """Write approved E:H only, with fresh row identity and conflict checks."""
+        fresh=self.read() if fresh is None else fresh
+        if not updates:return fresh
+        if len({u['domain'] for u in updates})!=len(updates):raise ValueError('Duplicate metadata update')
+        for u in updates:
+            matches=[r for r in fresh['launch'] if r['domain']==u['domain']]
+            if len(matches)!=1 or matches[0]['owner']!='Pony' or matches[0]['row']!=u['row'] or matches[0]['cells'][:16]!=u['before_cells']:
+                raise ValueError('上站表在写入前发生变化，未写入，请重新核对')
+        groups=[]
+        for u in sorted(updates,key=lambda u:u['row']):
+            if not groups or u['row']!=groups[-1][-1]['row']+1:groups.append([])
+            groups[-1].append(u)
+        writes=[{'range':f"E{g[0]['row']}:H{g[-1]['row']}",'tsv':'\n'.join('\t'.join(u['values']) for u in g)} for g in groups]
+        self.run_script('''async(page)=>{
+          const sheet=await page.context().newPage();
+          await sheet.goto('https://docs.google.com/spreadsheets/d/'''+BOOK+'''/edit?gid=2066853497#gid=2066853497',{waitUntil:'domcontentloaded',timeout:25000});
+          await sheet.locator('#t-name-box').waitFor({timeout:25000});
+          await sheet.context().grantPermissions(['clipboard-read','clipboard-write'],{origin:'https://docs.google.com'});
+          const writes='''+json.dumps(writes,ensure_ascii=False)+''';
+          for(const write of writes){
+            await sheet.locator('#t-name-box').fill(write.range);await sheet.locator('#t-name-box').press('Enter');
+            await sheet.evaluate(text=>navigator.clipboard.writeText(text),write.tsv);
+            await sheet.keyboard.press('Control+V');await sheet.waitForTimeout(1000);
           }
-          if(await admin.locator('#optdata001').count()!==1)return {prefilled:false,submitted:false,reason:'backend_login_required'};
-          const value='''+json.dumps(script.replace('\r\n','\n'),ensure_ascii=False)+''';
-          const previous=await admin.locator('#optdata001').inputValue();
-          if(previous.trim()&&previous!==value)return {prefilled:false,submitted:false,reason:'existing_admin_draft'};
-          await admin.locator('#optdata001').fill(value);
-          await admin.locator('#optdata001').focus();await admin.bringToFront();
-          return {prefilled:await admin.locator('#optdata001').inputValue()===value,submitted:false,lines:value.split('\\n').length};
-        }''',redact=(password,) if password else ())
-
-def classify(domains,snapshot):
-    changes=[]
-    for item in domains:
-        name=item['domain'].lower()
-        launch=[r for r in snapshot['launch'] if r['domain']==name]
-        pending=[r for r in snapshot['pending'] if r['domain']==name]
-        if len(launch)>1 or any(r['owner']!='Pony' for r in launch+pending):
-            changes.append({'domain':name,'observed':'needs_attention','reason':'Duplicate domain or owner mismatch'})
-        elif launch and pending:
-            changes.append({'domain':name,'observed':'needs_attention','reason':'Present in both sheets; purchase transition ambiguous'})
-        elif launch:
-            changes.append({'domain':name,'observed':'purchased_in_launch_sheet','row':launch[0]['row'],'keyword':launch[0]['keyword'],
-                            'tdk_present':all(launch[0]['cells'][i].strip() for i in (5,6,7)),
-                            'script_present':bool(launch[0]['cells'][16].strip())})
-        elif pending:changes.append({'domain':name,'observed':'waiting_purchase'})
-        else:changes.append({'domain':name,'observed':'needs_attention','reason':'Domain missing from both sheets'})
-    return changes
+          return {pasted:true,ranges:writes.map(x=>x.range)};
+        }''')
+        for _ in range(5):
+            after=self.read();ready=True
+            for u in updates:
+                rows=[r for r in after['launch'] if r['domain']==u['domain']]
+                if len(rows)!=1 or rows[0]['owner']!='Pony':raise ValueError('写入后域名/归属发生变化，停止处理')
+                row=rows[0]
+                if row['cells'][:4]!=u['before_cells'][:4] or row['cells'][8:16]!=u['before_cells'][8:16]:raise ValueError('非TDK配置发生变化，停止后续处理')
+                ready=ready and row['cells'][4:8]==u['values']
+            if ready:return after
+            time.sleep(1)
+        raise ValueError('写入结果未确认，已保留证据，请回读核实后再重试')

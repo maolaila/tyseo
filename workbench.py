@@ -1,205 +1,141 @@
-"""Local program-owned poller and dashboard. No Codex heartbeat or model polling."""
+"""Manual Pony TDK workbench. No poller, launch submission, or background jobs."""
 import argparse
-import json
-import secrets
-import threading
-import time
-import sys
-import os
 import hashlib
+import json
+import os
+import secrets
+import sys
+import threading
 from datetime import datetime,timezone
-from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
+
 sys.path.insert(0,str(Path(__file__).parent/'src'))
 from core import ROOT,read_json,save_json
-from launch_connector import SheetConnector,classify,ADMIN_URL
-from site_launch_state import completion
-from tdk import prepare_drafts,backend_script,require_leo_approval
+from launch_connector import LAUNCH_URL,SheetConnector
+from tdk import ensure_unique_tdks,plan_sheet_write,prior_tdks,record_tdk_history,require_current_review
 
 def utc():return datetime.now(timezone.utc).isoformat()
 
-class Monitor:
-    def __init__(self,state_path,interval=1800):
-        self.path=Path(state_path);self.interval=interval;self.lock=threading.RLock();self.scan_lock=threading.Lock();self.wake=threading.Event()
-        self.state=read_json(self.path);self.connector=SheetConnector(self.path.parent/'program-browser')
-        enabled=self.state.get('monitor',{}).get('enabled',True) and not completion(self.state)['completed']
-        self.state['automation_status']='deleted';self.state['monitor']={'executor':'local_program','enabled':enabled,'status':'starting' if enabled else 'paused','pid':os.getpid(),
-            'interval_seconds':interval,'next_check_at':time.time() if enabled else None,'last_check_at':None,'last_success_at':None,'last_error':None,
-            'connection_state':'unchecked','login_check_until':None}
-        self.state.setdefault('events',[]);self.event('started','本地工作流程序已启动；Codex定时跟进已删除');self.persist()
-    def persist(self):save_json(self.path,self.state)
-    def event(self,kind,message):
-        self.state['events'].append({'at':utc(),'kind':kind,'message':message});self.state['events']=self.state['events'][-150:]
-    def draft_revision(self):
+class Workbench:
+    def __init__(self,state_path):
+        self.path=Path(state_path).resolve()
+        self.state=read_json(self.path)
+        self.connector=SheetConnector(self.path.parent/'program-browser')
+        self.lock=threading.Lock()
+        receipt_path=self.path.parent/'sheet-write-receipt.json'
+        if not self.state.get('tdk_write_result') and receipt_path.exists():
+            receipt=read_json(receipt_path)
+            verified=receipt.get('readback_verified') or receipt.get('verified_by')=='Google Sheets UI clipboard readback'
+            if verified and receipt.get('count')==self.state['expected_count']:
+                self.state['tdk_write_result']={'domains_verified':receipt['count'],
+                                                'rows_written':receipt.get('rows',[])}
+
+    def revision(self):
         values=[(d['domain'],(d.get('tdk') or {}).get('revision'),d.get('row')) for d in self.state['domains']]
         return hashlib.sha256(json.dumps(values,sort_keys=True).encode()).hexdigest()
-    def prepare_drafts(self,snapshot):
-        entries=prepare_drafts(self.state['domains'],snapshot)
-        by_domain={x['domain']:x for x in self.state['domains']}
-        assigned={r['cells'][12].strip() for r in snapshot['launch'] if r['domain'] in by_domain}
-        admin_url=self.state.get('admin_url',ADMIN_URL)
-        ready=admin_url==ADMIN_URL and bool(assigned) and '' not in assigned
-        self.state['backend_target_check']={'assigned_servers':sorted(assigned),'admin_url':admin_url,
-            'ready':ready,'reason':None if ready else '后台入口不是已确认地址或采购服务器未分配'}
-        for entry in entries:
-            item=by_domain[entry['domain']];item.update(tdk=entry['tdk'],row=entry['row'])
-            try:
-                require_leo_approval(item)
-                item['tdk']['review_status']='approved';item['status']='approved_for_prefill'
-            except ValueError:
-                item['tdk']['review_status']='pending';item['status']='awaiting_leo_review'
-            try:
-                backend_script([item],snapshot)
-                item['payload_ready']=True;item['payload_error']=None
-            except ValueError as e:
-                item['payload_ready']=False;item['payload_error']=str(e)
-        pending=any(d.get('status')=='awaiting_leo_review' for d in self.state['domains'])
-        self.state['tdk_review_required']=pending
-        if entries:self.state['monitor']['status']='awaiting_leo_review' if pending else 'approved_for_prefill'
-        if not pending and all(d.get('payload_ready') for d in self.state['domains']):
-            current_hash=hashlib.sha256(backend_script(self.state['domains'],snapshot).encode()).hexdigest()
-            if current_hash==(self.state.get('backend_prefill') or {}).get('script_sha256'):
-                self.state['monitor']['status']='backend_prefilled'
-        return entries
-    def script_preview(self):
-        if not self.scan_lock.acquire(blocking=False):raise ValueError('程序正在检查，请稍后再复制')
-        try:
-            snapshot=self.connector.read()
-            with self.lock:
-                script=backend_script(self.state['domains'],snapshot)
-                return {'script':script,'count':len(self.state['domains']),'revision':self.draft_revision()}
-        finally:self.scan_lock.release()
-    def status(self):
-        with self.lock:
-            return {'batch_id':self.state['batch_id'],'business_date':self.state['business_date'],'expected_count':self.state['expected_count'],
-                    'monitor':dict(self.state['monitor']),'completion':completion(self.state),
-                    'domains':[{k:d.get(k) for k in ('domain','keyword','status','observed','reason','row','tdk_present','script_present','tdk','leo_review','payload_ready','payload_error')} for d in self.state['domains']],
-                    'draft_revision':self.draft_revision(),
-                    'backend_target_check':self.state.get('backend_target_check',{'ready':False,'reason':'未核实后台入口'}),
-                    'events':list(self.state['events'][-30:]),'worker_status':'上站表只读参考。使用本地已审核TDK准备后台资料，手动回填后台；不自动提交。'}
-    def scan(self):
-        if not self.scan_lock.acquire(blocking=False):return
-        try:
-            with self.lock:
-                if datetime.now().date().isoformat()!=self.state['business_date']:
-                    self.state['monitor'].update(enabled=False,status='paused',last_error='批次日期已变，保留未完成记录，等待处理')
-                    self.event('blocked','批次日期已变，未自动续到新一天');self.persist();return
-                m=self.state['monitor'];m.update(status='checking',last_check_at=utc(),next_check_at=None,last_error=None);self.persist()
-            snapshot=self.connector.read();changes=classify(self.state['domains'],snapshot)
-            with self.lock:
-                by_name={x['domain']:x for x in self.state['domains']}
-                for change in changes:
-                    if 'keyword' in change and change['keyword']!=by_name[change['domain']]['keyword']:
-                        raise ValueError('Assigned launch keyword changed; review required')
-                    item=by_name[change['domain']];old=item.get('observed');item.update(change)
-                    if old is not None and old!=change['observed']:self.event('state_change',item['domain']+' → '+change['observed'])
-                    if change['observed']=='purchased_in_launch_sheet' and item['status']=='waiting_purchase':
-                        item['status']='awaiting_tdk_worker';item['purchase_evidence']={'source':'authenticated_sheet_export','gid':2066853497,'row':change['row'],'at':utc()}
-                if m.get('last_success_at') is None:self.event('connected','已成功读取表格，本批 '+str(len(changes))+' 个域名已核对')
-                m.update(status='waiting',last_success_at=utc(),last_error=None,connection_state='connected',login_check_until=None)
-                if any(x['status']=='awaiting_tdk_worker' for x in self.state['domains']):m['status']='action_required'
-                # Preparing metadata is local only. Scheduled scans never write the sheet or publish.
-                if any(x.get('observed')=='purchased_in_launch_sheet' for x in self.state['domains']):
-                    self.prepare_drafts(snapshot)
-                if completion(self.state)['completed']:
-                    m.update(enabled=False,status='completed');self.event('completed','本批全部上站核验完成，监听已停止')
-                self.persist()
-        except Exception as e:
-            with self.lock:
-                m=self.state['monitor'];message=str(e)[:180]
-                if m.get('last_error')!=message:self.event('blocked',message)
-                m.update(status='blocked',last_error=message,connection_state='login_required' if 'Google 登录' in message else 'read_error');self.persist()
-        finally:
-            with self.lock:
-                m=self.state['monitor']
-                retry_login=(m.get('connection_state')=='login_required' and (m.get('login_check_until') or 0)>time.time())
-                m['next_check_at']=time.time()+(15 if retry_login else self.interval) if m['enabled'] else None;self.persist()
-            self.scan_lock.release()
-    def control(self,action,revision=None):
-        if action=='prefill_admin':
-            if not self.scan_lock.acquire(blocking=False):raise ValueError('程序正在处理其他操作，请稍后再点回填')
-            with self.lock:
-                self.state['monitor'].update(status='prefilling',last_error=None);self.persist()
-            def prefill():
-                try:
-                    with self.lock:
-                        if not revision or revision!=self.draft_revision():raise ValueError('草稿已变化，请重新预览确认')
-                    self.connector.ensure_browser()
-                    snapshot=self.connector.read()
-                    with self.lock:script=backend_script(self.state['domains'],snapshot)
-                    result=self.connector.prefill_admin(script)
-                    with self.lock:
-                        if not result.get('prefilled'):
-                            if result.get('reason')=='existing_admin_draft':raise ValueError('后台文本框已有不同资料，已保留，请先人工核对；未提交上站')
-                            raise ValueError('请先在打开的普通浏览器完成后台登录，再点回填；未提交上站')
-                        self.state['backend_prefill']={'at':utc(),'revision':revision,'submitted':False,'script_sha256':hashlib.sha256(script.encode()).hexdigest()}
-                        self.state['monitor'].update(status='backend_prefilled',last_error=None)
-                        self.event('backend_prefilled','后台已打开并填好资料，请在后台点击提交；程序未提交');self.persist()
-                except Exception as e:
-                    with self.lock:self.state['monitor'].update(status='prefill_failed',last_error=str(e)[:180]);self.event('blocked',str(e)[:180]);self.persist()
-                finally:self.scan_lock.release()
-            threading.Thread(target=prefill,daemon=True).start();return
-        if action=='scan':threading.Thread(target=self.scan,daemon=True).start();return
-        if action=='connect':
-            def connect():
-                # Serialize connection/navigation with reads; do not leave an old error after opening.
-                if not self.scan_lock.acquire(blocking=False):return
-                try:
-                    with self.lock:
-                        self.state['monitor'].update(status='connecting',last_error=None,connection_state='connecting',next_check_at=None)
-                        self.persist()
-                    self.connector.connect()
-                    with self.lock:
-                        self.state['monitor']['login_check_until']=time.time()+300
-                except Exception as e:
-                    with self.lock:
-                        self.state['monitor'].update(status='blocked',last_error=str(e)[:160],connection_state='read_error',
-                            next_check_at=time.time()+self.interval if self.state['monitor']['enabled'] else None)
-                        self.event('blocked',str(e)[:160]);self.persist()
-                    return
-                finally:self.scan_lock.release()
-                self.scan()
-            threading.Thread(target=connect,daemon=True).start();return
-        with self.lock:
-            if action not in ('start','pause'):raise ValueError('Unknown control')
-            m=self.state['monitor'];m['enabled']=action=='start';m['status']='waiting' if m['enabled'] else 'paused'
-            m['next_check_at']=time.time() if m['enabled'] else None;self.event(action,'监听已启动' if m['enabled'] else '监听已暂停');self.persist();self.wake.set()
-    def loop(self):
-        while True:
-            with self.lock:m=dict(self.state['monitor'])
-            if m['enabled'] and m.get('next_check_at') is not None and time.time()>=m['next_check_at']:self.scan()
-            self.wake.wait(1);self.wake.clear()
 
-def serve(state,port=8766,interval=1800):
+    def readiness(self):
+        if self.state['business_date']!=datetime.now().date().isoformat():
+            return False,'这是旧日期批次，请先建立当次任务'
+        if len(self.state['domains'])!=self.state['expected_count']:
+            return False,'本批域名数量与台账不一致'
+        if self.state.get('tdk_write_result') and all(d.get('status')=='sheet_filled' for d in self.state['domains']):
+            return False,'本批 TDK 已填入并回读确认，无需重复写入'
+        try:
+            ensure_unique_tdks(self.state['domains'],prior_tdks(self.path))
+            for item in self.state['domains']:require_current_review(item)
+        except ValueError as error:return False,str(error)
+        return True,None
+
+    def status(self):
+        ready,reason=self.readiness()
+        done=bool(self.state.get('tdk_write_result')) and all(d.get('status')=='sheet_filled' for d in self.state['domains'])
+        return {'batch_id':self.state['batch_id'],'business_date':self.state['business_date'],
+                'expected_count':self.state['expected_count'],'ready':ready,'done':done,'reason':reason,
+                'domains':[{k:d.get(k) for k in ('domain','keyword','status','row','tdk','leo_review','reason')} for d in self.state['domains']],
+                'revision':self.revision(),'last_result':self.state.get('tdk_write_result'),
+                'program':{'mode':'tdk_only','pid':os.getpid(),'background_monitor':False}}
+
+    def connect(self):
+        self.connector.ensure_browser()
+        self.connector.run_script('''async(page)=>{
+          const tab=await page.context().newPage();
+          await tab.goto('''+json.dumps(LAUNCH_URL)+''',{waitUntil:'domcontentloaded',timeout:25000});
+          await tab.bringToFront();
+          return {opened:true};
+        }''')
+        return {'opened':True,'url':LAUNCH_URL}
+
+    def write_tdk(self,revision):
+        if not self.lock.acquire(blocking=False):raise ValueError('上站表写入正在进行，请等待结果')
+        try:
+            if not revision or revision!=self.revision():raise ValueError('TDK 已变化，请刷新后重新核对')
+            ready,reason=self.readiness()
+            if not ready:raise ValueError(reason)
+            self.connector.ensure_browser()
+            snapshot=self.connector.read()
+            history=prior_tdks(self.path)
+            updates=plan_sheet_write(self.state['domains'],snapshot,history)
+            save_json(self.path.parent/'sheet-write-intent.json',
+                      {'at':utc(),'revision':revision,'rows':[u['row'] for u in updates],
+                       'domains':[u['domain'] for u in updates]})
+            after=self.connector.write_tdk(updates,fresh=snapshot)
+            if plan_sheet_write(self.state['domains'],after,history):
+                raise ValueError('部分 TDK 未回读确认；请先检查表格，再决定是否重试')
+            rows={r['domain']:r for r in after['launch']}
+            for item in self.state['domains']:
+                item.update(status='sheet_filled',tdk_present=True,row=rows[item['domain']]['row'])
+            record_tdk_history(self.state['domains'],self.state['batch_id'])
+            result={'at':utc(),'domains_verified':len(self.state['domains']),
+                    'rows_written':[u['row'] for u in updates],
+                    'source':'Google 上站表 E:H 回读','next_step':'由用户手动处理'}
+            self.state['tdk_write_result']=result
+            save_json(self.path,self.state)
+            save_json(self.path.parent/'sheet-write-receipt.json',result)
+            return result
+        finally:self.lock.release()
+
+def serve(state_path,port=8766):
+    workbench=Workbench(state_path)
     token=secrets.token_urlsafe(24)
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args):pass
         def reply(self,status,data,kind='application/json'):
-            data=data.encode('utf-8') if isinstance(data,str) else json.dumps(data,ensure_ascii=False).encode('utf-8')
-            self.send_response(status);self.send_header('Content-Type',kind+'; charset=utf-8');self.send_header('Cache-Control','no-store');self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
+            payload=data.encode('utf-8') if isinstance(data,str) else json.dumps(data,ensure_ascii=False).encode('utf-8')
+            self.send_response(status)
+            self.send_header('Content-Type',kind+'; charset=utf-8')
+            self.send_header('Cache-Control','no-store')
+            self.send_header('Content-Length',str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
         def do_GET(self):
-            if urlsplit(self.path).path=='/':self.reply(200,(ROOT/'web/workbench.html').read_text(encoding='utf-8'),'text/html')
-            elif self.path=='/api/status':self.reply(200,{**monitor.status(),'control_token':token})
-            elif self.path=='/api/launch-script':
-                try:self.reply(200,monitor.script_preview())
-                except Exception as e:self.reply(409,{'error':str(e)[:180]})
+            path=urlsplit(self.path).path
+            if path=='/':self.reply(200,(ROOT/'web/workbench.html').read_text(encoding='utf-8'),'text/html')
+            elif path=='/api/status':self.reply(200,{**workbench.status(),'control_token':token})
             else:self.reply(404,{'error':'Not found'})
         def do_POST(self):
             origin=self.headers.get('Origin','')
             if self.path!='/api/control' or self.headers.get('X-Workbench-Token')!=token or (origin and origin not in (f'http://127.0.0.1:{port}',f'http://localhost:{port}')):
                 self.reply(403,{'error':'Forbidden'});return
-            if int(self.headers.get('Content-Length','0'))>2048:self.reply(400,{'error':'Request too large'});return
+            length=int(self.headers.get('Content-Length','0'))
+            if length<1 or length>2048:self.reply(400,{'error':'Invalid request length'});return
             try:
-                data=json.loads(self.rfile.read(int(self.headers['Content-Length'])));monitor.control(data['action'],data.get('revision'));self.reply(202,{'accepted':True})
-            except (ValueError,KeyError) as e:self.reply(400,{'error':str(e)[:180]})
-    server=ThreadingHTTPServer(('127.0.0.1',port),Handler) # Bind first: a second process cannot create another poller.
-    monitor=Monitor(state,interval);threading.Thread(target=monitor.loop,daemon=True).start()
-    print(json.dumps({'url':f'http://127.0.0.1:{port}','pid':os.getpid(),'mode':'local_program'}),flush=True)
+                data=json.loads(self.rfile.read(length))
+                if data['action']=='connect':result=workbench.connect()
+                elif data['action']=='write_tdk':result=workbench.write_tdk(data.get('revision'))
+                else:raise ValueError('Unknown control')
+                self.reply(200,result)
+            except (ValueError,KeyError) as error:self.reply(409,{'error':str(error)[:180]})
+            except Exception:self.reply(503,{'error':'表格操作失败，写入结果不明。请先核对目标行，再重试。'})
+    server=ThreadingHTTPServer(('127.0.0.1',port),Handler)
+    print(json.dumps({'url':f'http://127.0.0.1:{port}','mode':'tdk_only','pid':os.getpid()}),flush=True)
     server.serve_forever()
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--state',default='runs/site-launch/2026-09-18-pony-20/state.json');p.add_argument('--port',type=int,default=8766);p.add_argument('--interval',type=int,default=1800)
-    a=p.parse_args()
-    if a.interval<60:raise ValueError('Production polling interval must be at least 60 seconds')
-    serve(a.state,a.port,a.interval)
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--state',default='runs/site-launch/2026-09-18-pony-20/state.json')
+    parser.add_argument('--port',type=int,default=8766)
+    options=parser.parse_args()
+    serve(options.state,options.port)

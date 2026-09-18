@@ -1,28 +1,24 @@
 {
   "execution_mode": "semi_automatic",
-  "rs_assistant": {
-    "enabled": false,
-    "status": "reserved_not_implemented",
-    "reference_workspace": "C:/RS",
-    "allowed_actions": [],
-    "entry_contract": "validated TaskSpec + current input_hash + evidence report; no implicit authority",
-    "activation_requires": "User explicitly requests integration after robot optimization; implement and verify before enabling",
-    "future_trigger": "user_starts_robot_program",
-    "future_execution_mode": "automatic_within_company_rules_and_task_authorization"
-  },
+  "trigger_mode": "user_conversation",
   "scheduler_enabled": false,
   "remote_side_effects_default": false,
   "playwright_cli_version": "0.1.20",
-  "trigger_mode": "user_conversation",
-  "current_executor": "assistant_with_local_tools",
-  "program_monitor": {
-    "executor": "local_program",
+  "program": {
+    "mode": "manual_tdk_only",
     "entrypoint": "workbench.py",
     "url": "http://127.0.0.1:8766",
-    "interval_minutes": 30,
-    "batch_id": "2026-09-18-pony-20",
-    "access_status": "authenticated_read_verified",
-    "rs_robot_enabled": false
+    "background_monitor": false
+  },
+  "tdk": {
+    "owner": "Pony",
+    "keyword_and_group_reference": "https://docs.google.com/spreadsheets/d/1-3DvtAhJQu83G9fA1TWrEZIKiosOzvwDWYknEFXKGJ0/edit?gid=0",
+    "group_rule": "recheck current Pony assignment for each launch; no fixed group or default all",
+    "competitor_rule": "AI checks relevant sites at each launch and writes original copy",
+    "history": "data/tdk-fingerprints.json",
+    "review_rule": "Leo only when specifically requested for that batch",
+    "write_target": "Bing launch sheet E:H for confirmed Pony rows",
+    "downstream": "user_managed"
   },
   "business_browser_policy": {
     "mode": "normal_persistent",
@@ -30,21 +26,12 @@
     "guest_allowed": false,
     "retain_login": true,
     "profile_path": "private/launch-browser",
-    "scope": "authenticated sheet/admin/business connections"
+    "scope": "authenticated Google Sheets access"
   },
-  "launch_metadata": {
-    "draft_mode": "local_preview",
-    "sheet_write": "forbidden_read_only_reference",
-    "backend_prefill": "manual_button_opens_normal_browser_and_fills",
-    "submission": "user_clicks_submit_in_admin",
-    "keyword_reference": "read_only_reference_not_write_target",
-    "template_id": "r62",
-    "rotation": "pending_current_assignment_verification",
-    "admin_url": "https://s213016.abcd-cms.com/mgradm/optdata.html",
-    "admin_entry_confirmed_by": "user_2026-09-18",
-    "preferred_browser_driver": "playwright-cli_0.1.20_normal_persistent",
-    "script_generation": "local_verified_sheet_formula_14_fields",
-    "script_contract": "config/launch-script-contract.json",
-    "admin_login_file": "private/admin-login.json"
+  "rs_assistant": {
+    "enabled": false,
+    "status": "reserved_not_implemented",
+    "reference_workspace": "C:/RS",
+    "activation_requires": "User explicitly requests integration after robot optimization"
   }
 }
