@@ -37,7 +37,7 @@
 
 本包现已有部分本地实现；完整状态见 `docs/IMPLEMENTATION_STATUS.md`，操作流水线见 `docs/WORKFLOWS.md`。原PRD和PACKAGE_CHECK继续保留为需求来源，不当作执行结果。
 
-运行 `./.venv/Scripts/python.exe pipeline.py list` 查看已实现/部分实现/禁用的任务类型。当前优先级为 z1–z21 只读检查，尚非全套生产验收；报告在 runs/，没有推送。
+运行 `./.venv/Scripts/python.exe pipeline.py list` 查看已实现/部分实现/禁用的任务类型。z1–z21 是单独的临时任务，历史采集不是全套生产验收；固定流程与临时任务已分开记录。
 
 ## 半自动验收与换机
 

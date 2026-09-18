@@ -1,33 +1,12 @@
 {
   "version": 1,
-  "current_task": "workflow-hardening",
+  "current_task": null,
   "scheduling_enabled": false,
   "pipelines": {
-    "z-review": {
-      "state": "implemented_first_pass_only",
-      "entrypoint": "src/z_review.py",
-      "scope": "read-only real application z1-z21; external artifacts",
-      "writes_business": false,
-      "steps": [
-        "source inventory",
-        "process-only template selection",
-        "route/sample discovery",
-        "390/1280 light browser observations",
-        "screenshots and findings",
-        "AI review and triage"
-      ],
-      "not_covered": [
-        "full dark-mode interactions",
-        "all no-JS cases",
-        "unreachable route samples",
-        "automatic business fixes"
-      ],
-      "output": "runs/z-review/"
-    },
     "template-workflow": {
-      "state": "partially_implemented_deferred_by_latest_task",
+      "state": "partially_implemented",
       "entrypoint": "workflow.py",
-      "scope": "external tool and drafts; no allocated business template id",
+      "scope": "template development or maintenance selected by the current explicit task; no fixed template series",
       "steps": [
         "validate",
         "audit",

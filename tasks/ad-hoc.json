@@ -1,0 +1,29 @@
+{
+  "tasks": {
+    "z-review": {
+      "state": "implemented_first_pass_only",
+      "entrypoint": "src/z_review.py",
+      "scope": "read-only real application z1-z21; external artifacts",
+      "writes_business": false,
+      "steps": [
+        "source inventory",
+        "process-only template selection",
+        "route/sample discovery",
+        "390/1280 light browser observations",
+        "screenshots and findings",
+        "AI review and triage"
+      ],
+      "not_covered": [
+        "full dark-mode interactions",
+        "all no-JS cases",
+        "unreachable route samples",
+        "automatic business fixes"
+      ],
+      "output": "runs/z-review/",
+      "classification": "temporary_assignment",
+      "automatic_trigger": false,
+      "status": "first_pass_collected_repairs_pending",
+      "source": "Leo 2026-09-18 11:56-11:58; user clarified temporary assignment"
+    }
+  }
+}
