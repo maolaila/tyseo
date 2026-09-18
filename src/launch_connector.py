@@ -10,6 +10,7 @@ from core import ROOT
 
 SESSION='tyseo-launch-program'
 BOOK='1y7VWR6T4ABcd09qa51GM5-7XXGC80w1h21wCL4stvUg'
+ADMIN_URL='https://s213016.abcd-cms.com/mgradm/optdata.html'
 
 def parse_rows(text,kind):
     rows=list(csv.reader(io.StringIO(text)))
@@ -104,7 +105,7 @@ class SheetConnector:
     def prefill_admin(self,script):
         # This action deliberately never clicks the submit button or posts the form.
         return self.run_script('''async(page)=>{
-          const url='https://s213016.abcd-cms.com/mgradm/optdata.html';
+          const url='''+json.dumps(ADMIN_URL)+''';
           let admin=page.context().pages().find(p=>p.url()===url);
           if(!admin)admin=await page.context().newPage();
           await admin.goto(url,{waitUntil:'domcontentloaded'});await admin.bringToFront();

@@ -25,12 +25,14 @@ class TdkTests(unittest.TestCase):
         item['leo_review']={'reviewer':'Leo','status':'approved','evidence':'message','revision':item['tdk']['revision']}
         require_leo_approval(item);item['tdk']['revision']='changed'
         with self.assertRaises(ValueError):require_leo_approval(item)
-    def test_backend_server_mismatch_blocks_prefill(self):
+    def test_admin_entry_is_independent_of_assigned_server(self):
         draft=generate_tdk('球帝直播');item={'domain':'example.com','keyword':'球帝直播','tdk':draft}
         cells=['']*17;cells[4:8]=[draft[k] for k in ('template','title','description','keywords')];cells[12]='s213017'
         cells[16]='$'.join(['example.com','球帝直播',draft['title'],draft['description'],draft['keywords'],'r62',*(['']*8)])
         row={'domain':'example.com','owner':'Pony','cells':cells}
-        with self.assertRaisesRegex(ValueError,'服务器'):backend_script([item],{'launch':[row]})
+        self.assertEqual(backend_script([item],{'launch':[row]}),cells[16])
+        cells[12]=''
+        with self.assertRaisesRegex(ValueError,'服务器缺失'):backend_script([item],{'launch':[row]})
     def test_scan_prepares_but_never_writes(self):
         with tempfile.TemporaryDirectory() as d:
             path=Path(d)/'state.json';path.write_text(json.dumps({'batch_id':'test','business_date':datetime.now().date().isoformat(),'expected_count':1,'domains':[{'domain':'example.com','keyword':'球帝直播','status':'waiting_purchase'}]}))

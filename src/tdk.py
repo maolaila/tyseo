@@ -57,6 +57,7 @@ def backend_script(domains,snapshot):
         if '\r' in script or '\n' in script or len(parts)<14:raise ValueError('上站表尚未生成有效的单行脚本')
         if parts[:6]!=[item['domain'],item['keyword'],draft['title'],draft['description'],draft['keywords'],draft['template']]:
             raise ValueError('生成脚本与工作台确认内容不一致')
-        if row['cells'][12].strip()!='s213016':raise ValueError('本批分配服务器不是当前已确认后台，需先核实地址')
+        # The user-confirmed admin entry is distinct from the assigned deployment server.
+        if not row['cells'][12].strip():raise ValueError('本批分配服务器缺失，需先核实采购配置')
         lines.append(script)
     return '\r\n'.join(lines)

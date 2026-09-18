@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 sys.path.insert(0,str(Path(__file__).parent/'src'))
 from core import ROOT,read_json,save_json
-from launch_connector import SheetConnector,classify
+from launch_connector import SheetConnector,classify,ADMIN_URL
 from site_launch_state import completion
 from tdk import prepare_updates,backend_script
 
@@ -38,9 +38,10 @@ class Monitor:
         updates,existing=prepare_updates(self.state['domains'],snapshot)
         by_domain={x['domain']:x for x in self.state['domains']}
         assigned={r['cells'][12].strip() for r in snapshot['launch'] if r['domain'] in by_domain}
-        backend_server=urlsplit(self.state.get('admin_url','https://s213016.abcd-cms.com')).hostname.split('.')[0]
-        self.state['backend_target_check']={'assigned_servers':sorted(assigned),'configured_server':backend_server,
-            'ready':assigned=={backend_server},'reason':None if assigned=={backend_server} else '采购分配服务器与当前后台不一致或未分配，需先核实后台入口'}
+        admin_url=self.state.get('admin_url',ADMIN_URL)
+        ready=admin_url==ADMIN_URL and bool(assigned) and '' not in assigned
+        self.state['backend_target_check']={'assigned_servers':sorted(assigned),'admin_url':admin_url,
+            'ready':ready,'reason':None if ready else '后台入口不是已确认地址或采购服务器未分配'}
         for entry in updates:
             item=by_domain[entry['domain']];item.update(tdk=entry['tdk'],status='awaiting_user_confirmation',row=entry['row'])
         for entry in existing:
