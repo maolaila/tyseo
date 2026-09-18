@@ -17,11 +17,12 @@ from audit import run_audit
 from browser_checks import LAYOUT_JS
 
 RUN_ROOT=ROOT/'runs/z-review'
+TASK_PATH=ROOT/'tasks/local.json' if (ROOT/'tasks/local.json').exists() else ROOT/'tasks/bootstrap.json'
 
 async def review_one(index, browser, semaphore):
     async with semaphore:
         template=f'z{index}';out=RUN_ROOT/template;out.mkdir(parents=True,exist_ok=True)
-        repo=Path(read_json(ROOT/'tasks/bootstrap.json')['repo_root'])
+        repo=Path(read_json(TASK_PATH)['repo_root'])
         inputs=[repo/'run.py',repo/'config.py',repo/'cache/cache_data.py',*list((repo/'templates'/template).rglob('*.html')),
                 *[p for p in (repo/'static'/template).rglob('*') if p.is_file()]]
         input_hash=fingerprint({'template':template,'commit':git(repo,'rev-parse','HEAD')},inputs)
@@ -29,7 +30,7 @@ async def review_one(index, browser, semaphore):
             if read_json(out/'summary.json').get('input_hash')!=input_hash:
                 raise ValueError(template+': stale or unversioned review; preserve evidence and start a new run')
             print('resume: '+template+' already has first-pass summary',flush=True);return
-        task=read_json(ROOT/'tasks/bootstrap.json');task['reference_template_id']=template
+        task=read_json(TASK_PATH);task['reference_template_id']=template
         port=5800+index;task['preview_base_url']=f'http://127.0.0.1:{port}'
         env=os.environ.copy();env.update(DEV_MasterID=template,APP_ENV='development',FLASK_HOST='127.0.0.1',FLASK_PORT=str(port),PYTHONDONTWRITEBYTECODE='1')
         python=Path(task['repo_root'])/'.venv/Scripts/python.exe'
