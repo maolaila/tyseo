@@ -2,16 +2,20 @@
 
 来源：2026-09-19 本轮当前源码的原始 HTTP 链接复查，`runs/z-functional-http-current-20260919/findings.json`；z11–z17 筛选修改后的局部复查 `runs/z-functional-links-z11-17-filter-final-20260919/findings.json`。所有条目在本地 HEAD 重试仍为404。模板编号只指实际输出此链接的预览，不意味着源数据或后端归该模板负责。线上未核验。最新浏览器合并报告 `runs/z-functional-v23-final-current-20260919/summary.json` 覆盖886/886个当前可访问样例的两档宽度状态，动态导航**没有新增404**；旧过期证据不计入。
 
-|模板|来源页|点击目标|本地状态|
+这些目标在界面上是**可点击卡片/链接 `<a>`**，不是 HTML `<button>`。下表的文字来自该链接的实际可见内容；点击位置和目标路由一一对应。
+
+|模板及打开页面|点击位置与可见文字|点击后目标路由|本地状态|
 |---|---|---|---|
-|z12|`/dejia`|`/dejia/jijin/765620.html`|404|
-|z12|`/dejia`|`/dejia/jijin/765619.html`|404|
-|z12|`/dejia`|`/dejia/jijin/765618.html`|404|
-|z12|`/dejia`|`/dejia/jijin/765617.html`|404|
-|z12|`/dejia`|`/dejia/jijin/765616.html`|404|
-|z17|`/`|`/ouguanbei/teams/teaminfo-11343.html`|404|
-|z17|`/`|`/ouguanbei/teams/teaminfo-10217.html`|404|
-|z17|`/`|`/ouguanbei/teams/teaminfo-10692.html`|404|
+|z12 `/dejia`|“最新集锦”列表卡片：德甲汉堡2轮丢10球！戈米破门恩昆库建功莱比锡50大胜汉堡|`/dejia/jijin/765620.html`|404|
+|z12 `/dejia`|“最新集锦”列表卡片：德甲林顿麦纳破门菲尔克鲁格扳平科隆11不莱梅|`/dejia/jijin/765619.html`|404|
+|z12 `/dejia`|“最新集锦”列表卡片：德甲马塔诺维奇，恩格哈特均双响建功弗赖堡50大胜门兴|`/dejia/jijin/765618.html`|404|
+|z12 `/dejia`|“最新集锦”列表卡片：德甲赫洛热克梅开二度霍芬海姆21斯图加特|`/dejia/jijin/765617.html`|404|
+|z12 `/dejia`|“最新集锦”列表卡片：德甲乌尊梅开二度伯卡特建功法兰克福31美因茨|`/dejia/jijin/765616.html`|404|
+|z17 首页 `/`|“热门球队”→“足球”卡片：那不勒斯 · 欧冠杯|`/ouguanbei/teams/teaminfo-11343.html`|404|
+|z17 首页 `/`|“热门球队”→“足球”卡片：皇家马德里 · 欧冠杯|`/ouguanbei/teams/teaminfo-10217.html`|404|
+|z17 首页 `/`|“热门球队”→“足球”卡片：国际米兰 · 欧冠杯|`/ouguanbei/teams/teaminfo-10692.html`|404|
+
+定位选择器：z12 为 `section.z12-home-panel--clips a.z12-home-video[href="目标路由"]`；z17 为 `section.sl-hot-teams a.sl-hot-teams__item[href="目标路由"]`。z17 的轮播会渲染两份同目标卡片，目标路由相同。2026-09-20 再次回读：两个来源页面均200，z12每个目标在来源页出现一次，z17每个目标出现两次，八个目标的 HEAD 仍全为404；以上是本地预览观察，未核验线上。
 
 请 Rechard 分别确认这两组数据的实际页面路由与记录是否有效；若数据已失效，请给出应隐藏的字段条件；若路由已迁移，请给对应的正式地址规则。未确认前不猜路径、不改后端、不批量套用某个替换。此前 `/oulianbei`→`/oulian` 是19:14明确确认的改名特例，z5–z11本地已回读新链接200；19:15 Rechard已说明改名情况少，不能外推到本表。
 
