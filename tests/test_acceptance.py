@@ -63,6 +63,7 @@ class AcceptanceTests(unittest.TestCase):
     def test_fixture_states_separate(self):
         self.assertIn('filter_results',self.plan['required_checks'])
         self.assertIn('layout_integrity',self.plan['required_checks'])
+        self.assertIn('scroll_table_header_integrity',self.plan['required_checks'])
         c=copy.deepcopy(self.contract);c['pages'][0]['score_contract']={'selectors':['.score']}
         p=make_plan(self.task,c,'v1')
         fixture=[x for x in p['cases'] if x['environment']=='fixture']
@@ -74,7 +75,7 @@ class AcceptanceTests(unittest.TestCase):
         record['checks']={name:{'status':'pass','method':'tool','verifier':'regression',
             'evidence':[record['artifacts']['dom']]} for name in plan['required_checks']}
         self.assertTrue(assess(plan,[record],self.root,'v1')['ready_for_human_review'])
-        for key in ('filter_results','layout_integrity','link_navigation','action_effect'):
+        for key in ('filter_results','layout_integrity','scroll_table_header_integrity','link_navigation','action_effect'):
             original=record['checks'].pop(key)
             self.assertFalse(assess(plan,[record],self.root,'v1')['ready_for_human_review'])
             record['checks'][key]={**original,'status':'fail'}

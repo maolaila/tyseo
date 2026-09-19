@@ -30,7 +30,7 @@
         "pages": "each template's existing pages only",
         "focus": "layout and style defects plus current per-page link and action-effect regression; no missing-page creation",
         "source": "user: only repair existing pages; Leo 10:11-10:12: z1-z17, layout defects; user 2026-09-19 later requested full functional recheck",
-        "functional_checks": ["current HTTP status and all internal link targets", "representative real browser navigation per page", "search button and Enter", "visible control inventory with effect or explicit unresolved status"],
+        "functional_checks": ["current HTTP status and all internal link targets", "representative real browser navigation per page", "search button and Enter", "visible control inventory with effect or explicit unresolved status", "scrollable table sticky header readability and row occlusion after interaction"],
         "functional_recheck_status": "in_progress_not_accepted",
         "preview_entry": "Start-Z-Preview.ps1",
         "preview_url": "http://127.0.0.1:8771/",

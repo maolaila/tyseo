@@ -1,5 +1,5 @@
 (contract = {}) => {
-  // Read-only geometry probes. Ambiguous overlap is triage, never automatic PASS.
+  // Geometry probes; local table scroll positions are restored after inspection.
   const findings = [], tolerance = 2, maxElements = 10000;
   const describe = e => e.id ? '#' + CSS.escape(e.id) : e.tagName.toLowerCase() + [...e.classList].slice(0, 3).map(c => '.' + CSS.escape(c)).join('');
   const rect = e => { const r = e.getBoundingClientRect(); return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height}; };
@@ -20,6 +20,36 @@
   const candidates=[...new Set([...all.slice(0,maxElements),...declared])].filter(visible);
   const root=document.documentElement;
   if(root.scrollWidth>innerWidth+tolerance)add('LAYOUT-PAGE-OVERFLOW','fail',root,`page width <= ${innerWidth+tolerance}`,root.scrollWidth);
+  // A translucent sticky header may hit-test correctly while rows visibly bleed through it.
+  for(const table of select('table').filter(visible).slice(0,100)) {
+    const headers=[...table.querySelectorAll('thead th')].filter(visible);
+    if(!headers.some(th=>getComputedStyle(th).position==='sticky'))continue;
+    let scroller=table.parentElement;
+    while(scroller && scroller!==document.body &&
+      !(/auto|scroll/.test(getComputedStyle(scroller).overflowY) && scroller.scrollHeight>scroller.clientHeight+tolerance))scroller=scroller.parentElement;
+    if(!scroller || scroller===document.body)continue;
+    const previous=scroller.scrollTop,max=scroller.scrollHeight-scroller.clientHeight;
+    try {
+      scroller.scrollTop=Math.min(max,Math.max(16,rect(headers[0]).height*.6));
+      for(const th of headers) {
+        const h=rect(th),row=[...table.querySelectorAll('tbody tr')].find(tr=>intersects(h,rect(tr)));
+        if(!row)continue;
+        const style=getComputedStyle(th),color=style.backgroundColor;
+        const match=color.match(/^rgba?\(([^)]+)\)$/),alpha=match&&match[1].split(',').length===4?Number(match[1].split(',')[3]):color==='transparent'?0:1;
+        if(alpha<.99 && style.backgroundImage==='none')
+          add('LAYOUT-STICKY-HEADER-BLEED','fail',th,'opaque sticky header when rows scroll underneath',
+            {scrollTop:scroller.scrollTop,background:color,alpha,header:h,row:rect(row)},row);
+        const top=document.elementFromPoint((h.x+h.right)/2,(h.y+h.bottom)/2);
+        if(h.y>=0 && h.bottom<=innerHeight && top && !related(th,top))
+          add('LAYOUT-STICKY-HEADER-OCCLUDED','fail',th,'sticky header remains above scrolled rows',
+            {scrollTop:scroller.scrollTop,header:h,blocker:describe(top)},top);
+        const line=parseFloat(style.lineHeight),pad=parseFloat(style.paddingTop)+parseFloat(style.paddingBottom);
+        if(line>0 && h.height-pad>line*1.5)
+          add('LAYOUT-STICKY-HEADER-WRAP','needs_review',th,'header label remains readable under the component design',
+            {text:th.textContent.trim().slice(0,55),height:h.height,lineHeight:line,padding:pad});
+      }
+    } finally {scroller.scrollTop=previous;}
+  }
   for(const e of candidates) {
     const r=rect(e),s=getComputedStyle(e),isCritical=critical.has(e);
     let clipped=false;
@@ -63,6 +93,6 @@
     }
   }
   return {viewport:{width:innerWidth,height:innerHeight,scrollY},candidateCount:all.length,scanned:candidates.length,findings,
-    coverage:{geometry:'document element boxes',hit_testing:'fully onscreen controls at current scroll position only',contrast:'not measured',pseudo_elements:'not measured',iframes:'outer frame only',shadow_dom:'not measured'},
+    coverage:{geometry:'document element boxes',hit_testing:'fully onscreen controls at current scroll position only',scroll_tables:'visible sticky table headers at a local scroll position',contrast:'not measured',pseudo_elements:'not measured',iframes:'outer frame only',shadow_dom:'not measured'},
     conclusion:'observations only; unresolved candidates and uncovered states prevent acceptance'};
 }

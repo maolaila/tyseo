@@ -44,6 +44,18 @@ class LayoutAudit(unittest.TestCase):
     def test_missing_contract_selector_is_blocked_not_pass(self):
         findings=self.findings('<p>content</p>',{'components':[{'selector':'#missing','required':True}]})
         self.assertTrue(any(f['status']=='blocked' for f in findings))
+    def test_scrolled_sticky_header_rejects_translucent_bleed_and_accepts_opaque(self):
+        rows=''.join(f'<tr><td style="height:32px">Team {i}</td></tr>' for i in range(12))
+        def table(background):
+            return ('<div id="scroll" style="width:200px;height:90px;overflow-y:auto">'
+                    '<table style="border-collapse:collapse;width:100%"><thead><tr>'
+                    f'<th id="header" style="position:sticky;top:0;background:{background};padding:6px">排名</th>'
+                    f'</tr></thead><tbody>{rows}</tbody></table></div>')
+        bad=self.findings(table('rgba(255,255,255,.06)'))
+        self.assertTrue(any(x['rule_id']=='LAYOUT-STICKY-HEADER-BLEED' and x['status']=='fail' for x in bad))
+        self.assertEqual(self.page.locator('#scroll').evaluate('(x)=>x.scrollTop'),0)
+        good=self.findings(table('rgb(255,255,255)'))
+        self.assertFalse(any(x['rule_id']=='LAYOUT-STICKY-HEADER-BLEED' for x in good))
     def test_cls_sessions_and_recent_input_exclusion(self):
         self.page.set_content('<body>fixture</body>')
         self.page.evaluate("""() => {window.PerformanceObserver=class {static supportedEntryTypes=['layout-shift'];constructor(cb){window.feedShift=entries=>cb({getEntries:()=>entries})}observe(){}};}""")
