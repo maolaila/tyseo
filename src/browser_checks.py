@@ -6,6 +6,7 @@ import json
 from playwright.sync_api import sync_playwright
 from core import ROOT,save_json,inside,read_json
 from checks import html_checks
+from acceptance import KEY_PAGES
 
 LAYOUT_JS="""() => ({
   width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
@@ -44,11 +45,11 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                                 'detail':str(e)[:280],'environment':environment});continue
             for p in contract['pages']:
                 page_id=p['page_type_id']
-                if engine!='chromium' and page_id not in ('index','detail','type_list','search','detail_zb'):continue
+                if engine!='chromium' and page_id not in KEY_PAGES:continue
                 configs=[(w,t,True,'normal',900) for w in matrix['widths'] for t in matrix['themes']]+[(w,t,False,'normal',900) for w in matrix['no_js_widths'] for t in matrix['themes']]
                 if engine=='chromium':
                     configs += [(w,t,True,stress,900) for w in (390,1280) if w in matrix['widths'] for t in matrix['themes'] for stress in ('text_resize_200','wcag_text_spacing')]
-                    if not task.get('_focused_matrix') and page_id in ('index','detail','type_list','article_list','search','detail_zb'):
+                    if not task.get('_focused_matrix') and page_id in KEY_PAGES:
                         layout=p.get('layout_contract') if isinstance(p.get('layout_contract'),dict) else {}
                         points=sorted({int(b)+d for b in layout.get('breakpoints',[900]) for d in (-1,0,1) if int(b)+d>=320})
                         configs += [(w,t,True,'normal',900) for w in points for t in matrix['themes']]
