@@ -77,11 +77,11 @@ def capture(number, output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ids", nargs="+", type=int, default=list(range(1, 22)))
+    parser.add_argument("--ids", nargs="+", type=int, default=list(range(1, 18)))
     parser.add_argument("--output", default="runs/z-raw-home")
     args = parser.parse_args()
     output = (ROOT / args.output).resolve()
-    if not output.is_relative_to(ROOT / "runs") or any(i < 1 or i > 21 for i in args.ids):
-        raise ValueError("Output must be under runs/ and IDs z1..z21")
+    if not output.is_relative_to(ROOT / "runs") or any(i < 1 or i > 17 for i in args.ids):
+        raise ValueError("Output must be under runs/ and IDs z1..z17")
     for i in args.ids:
         capture(i, output)

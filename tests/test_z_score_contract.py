@@ -22,7 +22,7 @@ class ZScoreContract(unittest.TestCase):
 
     def test_match_status_macros(self):
         cases = [(0, "0"), ("0", "0"), ("0-0", "0-0"), ("83-52", "83-52"), (None, "VS")]
-        for number in range(7, 22):
+        for number in range(7, 18):
             score = self.env.get_template(f"z{number}/macros/match_status.html").module.ms_score_view
             for value, expected in cases:
                 with self.subTest(template=number, value=value):
@@ -79,7 +79,7 @@ class ZScoreContract(unittest.TestCase):
                 self.assertEqual(html.select_one(".z13-fb-focus-vs strong").get_text(strip=True), expected)
 
     def test_detail_zb_preserves_zero_score(self):
-        for number in range(1, 22):
+        for number in range(1, 18):
             source = (self.repo / "templates" / f"z{number}" / "detail_zb.html").read_text(encoding="utf-8")
             statement = re.search(r"{% set has_match_score = .*? %}", source)
             self.assertIsNotNone(statement, f"z{number}")

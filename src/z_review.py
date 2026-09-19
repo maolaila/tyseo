@@ -115,8 +115,8 @@ async def main(ids):
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('--output',default='runs/z-review')
-    parser.add_argument('--ids',type=int,nargs='+',default=list(range(1,22)))
+    parser.add_argument('--ids',type=int,nargs='+',default=list(range(1,18)))
     args=parser.parse_args();RUN_ROOT=(ROOT/args.output).resolve()
     if not RUN_ROOT.is_relative_to(ROOT/'runs'):raise ValueError('Review output must stay in external runs/')
-    if any(i < 1 or i > 21 for i in args.ids): raise ValueError('Expected z1 through z21')
+    if any(i < 1 or i > 17 for i in args.ids): raise ValueError('Expected z1 through z17')
     asyncio.run(main(args.ids))

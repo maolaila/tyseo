@@ -28,8 +28,8 @@ def build(run, contract_run=None, reuse_run=None, reuse_commit=None):
     findings = []
     preview = ['<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>z 矩阵截图索引</title>',
                '<style>body{font:15px system-ui;margin:2rem;background:#f1f5f9}section,details{background:white;padding:1rem;margin:.7rem 0;border-radius:8px}img{width:280px;max-height:420px;object-fit:contain}a{color:#075985}summary{cursor:pointer}</style>',
-               '<h1>z1–z21 矩阵截图索引</h1><p>缩图仅用于定位；点击查看原图。自动截图和几何检查不等于 AI 或公司验收。</p>']
-    for number in range(1, 22):
+               '<h1>z1–z17 矩阵截图索引</h1><p>缩图仅用于定位；点击查看原图。自动截图和几何检查不等于 AI 或公司验收。</p>']
+    for number in range(1, 18):
         name = f"z{number}"
         inputs = [repo / "run.py", repo / "config.py", repo / "cache/cache_data.py",
                   ROOT / "src/browser_checks.py", ROOT / "src/z_acceptance.py", ROOT / "tasks/bootstrap.json",
@@ -80,7 +80,7 @@ def build(run, contract_run=None, reuse_run=None, reuse_commit=None):
     total = Counter()
     for row in rows:
         total.update(row["status_counts"])
-    overview = {"completed": sum(row["complete"] for row in rows), "expected_templates": 21,
+    overview = {"completed": sum(row["complete"] for row in rows), "expected_templates": 17,
                 "fresh_completed": sum(row["source_fresh"] is True for row in rows),
                 "reused_templates": [row["template"] for row in rows if row["reused"] and row["source_fresh"]],
                 "stale_templates": [row["template"] for row in rows if row["source_fresh"] is False],
@@ -88,8 +88,8 @@ def build(run, contract_run=None, reuse_run=None, reuse_commit=None):
                 "findings": findings, "templates": rows, "accepted": False,
                 "scope": "saved real-app browser observations only; AI visual/SEO and company acceptance separate"}
     save_json(run / "matrix-overview.json", overview)
-    report = ["# z1–z21 真实应用矩阵", "",
-              f"模板完成采集：{overview['completed']}/21；源码哈希仍匹配：{overview['fresh_completed']}/21；记录：{overview['records']}；状态：{overview['status_counts']}。",
+    report = ["# z1–z17 真实应用矩阵", "",
+              f"模板完成采集：{overview['completed']}/17；源码哈希仍匹配：{overview['fresh_completed']}/17；记录：{overview['records']}；状态：{overview['status_counts']}。",
               "", "自动 `needs_review` 不是 PASS，`blocked` 不从分母删除。复用的模板按旧提交参数和当前输入文件逐一重算哈希；图片索引见 `matrix-screenshots.html`，点击可看原图。",
               f"规则失败证据：{len(findings)} 条，详情见 `matrix-overview.json` 的 findings。",
               "", "|模板|证据运行|采集完毕|源码匹配|记录|状态|", "|---|---|---|---|---:|---|"]
@@ -98,7 +98,7 @@ def build(run, contract_run=None, reuse_run=None, reuse_commit=None):
     report += ["", "此报告不宣称逐页 AI 复核、主管验收、上线或 Bing 抓取。"]
     (run / "matrix-report.md").write_text("\n".join(report), encoding="utf-8")
     (run / "matrix-screenshots.html").write_text("\n".join(preview) + "</html>", encoding="utf-8")
-    print(f"matrix report: {overview['completed']}/21, {overview['records']} records, {len(findings)} findings")
+    print(f"matrix report: {overview['completed']}/17, {overview['records']} records, {len(findings)} findings")
 
 
 if __name__ == "__main__":

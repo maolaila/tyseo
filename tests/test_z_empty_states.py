@@ -18,7 +18,7 @@ class ZEmptyStates(unittest.TestCase):
         cls.env = Environment(loader=FileSystemLoader(str(repo / "templates")))
 
     def test_football_widgets_have_honest_empty_states(self):
-        for number in range(14, 22):
+        for number in range(14, 18):
             for name, expected in (("news", "暂无最新资讯"), ("hosts", "暂无主播信息"),
                                    ("live_matches", "暂无足球赛事"), ("focus_matches", "暂无焦点赛事")):
                 with self.subTest(template=number, widget=name):
@@ -30,7 +30,7 @@ class ZEmptyStates(unittest.TestCase):
                     self.assertNotIn("12.6万", html)
 
     def test_portal_widgets_have_no_fake_match_links(self):
-        for number in range(16, 21):
+        for number in range(16, 18):
             for name, expected in (("hot_live", "暂无热门赛事"), ("today_schedule", "暂无赛程数据")):
                 with self.subTest(template=number, widget=name):
                     html = self.env.get_template(f"z{number}/widgets/football-portal/{name}.html").render(

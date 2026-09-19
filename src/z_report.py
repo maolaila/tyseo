@@ -12,8 +12,8 @@ def main(index_only=False, run='runs/z-review'):
     if not root.is_relative_to(ROOT/'runs'):
         raise ValueError('Review output must stay under external runs/')
     rows=[];findings=[];shared_routes=[];shared_seen=set();tdk_review=[]
-    cards=['<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>z1–z21 检查索引</title><style>body{font:16px system-ui;margin:2rem;background:#f1f5f9}section{background:white;padding:1rem;margin-bottom:1rem}img{width:260px;max-height:450px;object-fit:contain;vertical-align:top}a{color:#075985}pre{white-space:pre-wrap}summary{cursor:pointer}.fail{color:#b91c1c}</style><h1>z1–z21 第一轮检查</h1><p>手机390 / 桌面1280，light。自动检查无异常不等于视觉通过；不替代全主题、无JS、全部交互验收。</p>']
-    for i in range(1,22):
+    cards=['<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>z1–z17 检查索引</title><style>body{font:16px system-ui;margin:2rem;background:#f1f5f9}section{background:white;padding:1rem;margin-bottom:1rem}img{width:260px;max-height:450px;object-fit:contain;vertical-align:top}a{color:#075985}pre{white-space:pre-wrap}summary{cursor:pointer}.fail{color:#b91c1c}</style><h1>z1–z17 第一轮检查</h1><p>手机390 / 桌面1280，light。自动检查无异常不等于视觉通过；不替代全主题、无JS、全部交互验收。</p>']
+    for i in range(1,18):
         name=f'z{i}';folder=root/name
         titles=defaultdict(list)
         summary=read_json(folder/'summary.json') if (folder/'summary.json').exists() else {'template':name,'status':'in_progress'}
@@ -60,14 +60,14 @@ def main(index_only=False, run='runs/z-review'):
         shared_routes=old.get('shared_routes',[])
     save_json(root/'overview.json',{'templates':rows,'finished':sum(r['collection_finished'] for r in rows),'total':21,'findings':findings,'tdk_review':tdk_review,'shared_routes':shared_routes,'business_modified':'verify_git_status_separately','accepted':False,'raw_review':'previous report in same run; index refresh only' if index_only else 'executed'})
     (root/'review-index.html').write_text('\n'.join(cards),encoding='utf-8')
-    text=['# z 系列第一轮检查','',f"采集完成 {sum(r['collection_finished'] for r in rows)}/21 套。这里只描述采集完成，不是模板验收完成。",'', '|模板|记录数|结果|采集完毕|','|---|---:|---|---|']
+    text=['# z 系列第一轮检查','',f"采集完成 {sum(r['collection_finished'] for r in rows)}/17 套。这里只描述采集完成，不是模板验收完成。",'', '|模板|记录数|结果|采集完毕|','|---|---:|---|---|']
     for r in rows:text.append(f"|{r['template']}|{r['records']}|{r['counts']}|{r['collection_finished']}|")
     text+=['','详细证据见 review-index.html；未发现自动几何错误的条目仍为 needs_review。无成功样例的入口保留 blocked。',
            f'共享 /play 路由单独记为 blocked：{len(shared_routes)} 个不同样例；不能在 z 模板目录内修复。',
            f'不同 URL 标题相同、待 canonical/内容政策复核：{len(tdk_review)} 组；详见 overview.json。',
            '业务改动范围以当前 Git 状态另行核对；此报告不证明已推送、已合并或已上线。']
     (root/'report.md').write_text('\n'.join(text),encoding='utf-8')
-    print(f"Report: {sum(r['collection_finished'] for r in rows)}/21 collected; {len(findings)} rule observations (not deduplicated defects)")
+    print(f"Report: {sum(r['collection_finished'] for r in rows)}/17 collected; {len(findings)} rule observations (not deduplicated defects)")
 
 if __name__=='__main__':
     import argparse

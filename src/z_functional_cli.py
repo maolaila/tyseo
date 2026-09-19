@@ -75,12 +75,12 @@ def run_one(number, root, cli, repo):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ids", nargs="+", type=int, default=list(range(1, 22)))
+    parser.add_argument("--ids", nargs="+", type=int, default=list(range(1, 18)))
     parser.add_argument("--output", default="runs/z-functional-20260918")
     args = parser.parse_args()
     root = (ROOT / args.output).resolve()
-    if not root.is_relative_to(ROOT / "runs") or any(i < 1 or i > 21 for i in args.ids):
-        raise ValueError("Output must be under runs/ and IDs z1..z21")
+    if not root.is_relative_to(ROOT / "runs") or any(i < 1 or i > 17 for i in args.ids):
+        raise ValueError("Output must be under runs/ and IDs z1..z17")
     root.mkdir(parents=True, exist_ok=True)
     cli = shutil.which("playwright-cli.cmd") or shutil.which("playwright-cli")
     if not cli or subprocess.check_output([cli, "--version"], text=True).strip() != "0.1.20":

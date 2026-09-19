@@ -125,7 +125,7 @@ def run_one(number, output, page_types=None, widths=None, no_js_widths=None, con
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ids", nargs="+", type=int, default=list(range(1, 22)))
+    parser.add_argument("--ids", nargs="+", type=int, default=list(range(1, 18)))
     parser.add_argument("--output", default="runs/z-acceptance-20260918")
     parser.add_argument("--page-types", nargs="+", help="Only these audited page type IDs; omit for the full matrix")
     parser.add_argument("--widths", nargs="+", type=int, help="Chromium JS widths; default is the configured full matrix")
@@ -133,8 +133,8 @@ if __name__ == "__main__":
     parser.add_argument("--contract-run", help="Existing z-review directory under runs/ with current page contracts")
     args = parser.parse_args()
     output = (ROOT / args.output).resolve()
-    if not output.is_relative_to(ROOT / "runs") or any(i < 1 or i > 21 for i in args.ids):
-        raise ValueError("Output must be under external runs/ and IDs must be z1..z21")
+    if not output.is_relative_to(ROOT / "runs") or any(i < 1 or i > 17 for i in args.ids):
+        raise ValueError("Output must be under external runs/ and IDs must be z1..z17")
     contract_root = (ROOT / args.contract_run).resolve() if args.contract_run else None
     if contract_root and (not contract_root.is_relative_to(ROOT / "runs") or not contract_root.is_dir()):
         raise ValueError("Contract run must be an existing directory under external runs/")

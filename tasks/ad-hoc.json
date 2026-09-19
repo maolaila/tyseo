@@ -32,7 +32,8 @@
         "source": "user: only repair existing pages; Leo 10:11-10:12: z1-z17, layout defects",
         "preview_entry": "Start-Z-Preview.ps1",
         "preview_url": "http://127.0.0.1:8771/",
-        "previous_pr": "1657 remains draft; includes broader z1-z21 feature and SEO changes"
+        "previous_pr": "1657 remains draft; z18-z21 reverted in c223e6925; only z1-z17 remain, including prior feature/SEO changes",
+        "excluded_templates": "z18-z21 and all other template IDs; no task modifications allowed"
       }
     }
   }
