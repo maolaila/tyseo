@@ -23,7 +23,17 @@
       "classification": "temporary_assignment",
       "automatic_trigger": false,
       "status": "first_pass_collected_repairs_pending",
-      "source": "Leo 2026-09-18 11:56-11:58; user clarified temporary assignment"
+      "source": "Leo 2026-09-18 11:56-11:58; user clarified temporary assignment",
+      "current_repair_scope": {
+        "confirmed_on": "2026-09-19",
+        "templates": "z1-z17",
+        "pages": "each template's existing pages only",
+        "focus": "layout and style defects; no missing-page creation",
+        "source": "user: only repair existing pages; Leo 10:11-10:12: z1-z17, layout defects",
+        "preview_entry": "Start-Z-Preview.ps1",
+        "preview_url": "http://127.0.0.1:8771/",
+        "previous_pr": "1657 remains draft; includes broader z1-z21 feature and SEO changes"
+      }
     }
   }
 }
