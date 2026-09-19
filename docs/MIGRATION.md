@@ -14,6 +14,8 @@
 
 入口安装外部依赖/浏览器并将证据、草稿、私有配置恢复到 `restored/`，拒绝覆盖现有文件。公司项目仍使用自己的Python环境和权限；本脚本不重新配置白名单、不安装或修改公司依赖、不覆盖现有.env。
 
+Playwright 的 Python 包与 CLI 可能要求不同版本的浏览器二进制。`Initialize.ps1` 现在分别安装 Python 所需浏览器和 CLI 0.1.20 的 Firefox/WebKit，并用 CLI 实际打开空白页验证；不能用“Python版能启动”代替“CLI版已就绪”。已有电脑或CLI升级后可运行 `playwright-cli install-browser firefox`、`playwright-cli install-browser webkit`，再分别用 `open about:blank --browser=firefox` / `--browser=webkit` 核验。浏览器包保存在用户的 Playwright 缓存，不提交安装包到 Git。
+
 恢复的 `.env` 和本地需求记录位于 `restored/private/business/`；只有在新电脑明确配置业务环境时再使用，不能盲目覆盖已存在的配置。路径与IP相关设置须按新电脑实际情况核验。后台账号若纳入包，位于 private/ 内，不打印到终端。
 
 ## 上传范围

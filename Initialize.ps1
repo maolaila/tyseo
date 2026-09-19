@@ -15,6 +15,16 @@ if ($LASTEXITCODE -ne 0) { throw 'External dependency install failed' }
 if ($LASTEXITCODE -ne 0) { throw 'Browser install failed' }
 & npm.cmd install --prefix .runtime-cli --save-exact '@playwright/cli@0.1.20'
 if ($LASTEXITCODE -ne 0) { throw 'CLI 0.1.20 install failed; Node.js/npm is required.' }
+$workflowCli = Join-Path $PSScriptRoot '.runtime-cli/node_modules/.bin/playwright-cli.cmd'
+foreach ($browserEngine in @('firefox','webkit')) {
+    & $workflowCli install-browser $browserEngine
+    if ($LASTEXITCODE -ne 0) { throw "CLI browser install failed: $browserEngine" }
+    $browserSession = "tyseo-setup-$browserEngine"
+    & $workflowCli "-s=$browserSession" open about:blank "--browser=$browserEngine"
+    if ($LASTEXITCODE -ne 0) { throw "CLI browser launch failed: $browserEngine" }
+    & $workflowCli "-s=$browserSession" close
+    if ($LASTEXITCODE -ne 0) { throw "CLI browser cleanup failed: $browserEngine" }
+}
 if ($RestoreData) {
     if (-not $KeyFile) { throw 'Pass -KeyFile with the separately transferred migration key.' }
     & ./.venv/Scripts/python.exe scripts/migrate.py restore --key-file $KeyFile --destination restored

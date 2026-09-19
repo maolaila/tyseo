@@ -61,11 +61,25 @@ class AcceptanceTests(unittest.TestCase):
         plan['required_checks']=[]
         self.assertTrue(assess(plan,[record],self.root,'v1')['policy_mismatch'])
     def test_fixture_states_separate(self):
+        self.assertIn('filter_results',self.plan['required_checks'])
+        self.assertIn('layout_integrity',self.plan['required_checks'])
         c=copy.deepcopy(self.contract);c['pages'][0]['score_contract']={'selectors':['.score']}
         p=make_plan(self.task,c,'v1')
         fixture=[x for x in p['cases'] if x['environment']=='fixture']
         self.assertEqual(len(fixture),18*4)
         self.assertTrue(any(x['data_state']=='undefined' for x in fixture))
+    def test_filter_and_layout_gate_reject_missing_or_failed_evidence(self):
+        plan=copy.deepcopy(self.plan);record=self.record()
+        plan['cases']=[plan['cases'][0]];plan['page_requirements']=[];plan['reviews']=[]
+        record['checks']={name:{'status':'pass','method':'tool','verifier':'regression',
+            'evidence':[record['artifacts']['dom']]} for name in plan['required_checks']}
+        self.assertTrue(assess(plan,[record],self.root,'v1')['ready_for_human_review'])
+        for key in ('filter_results','layout_integrity'):
+            original=record['checks'].pop(key)
+            self.assertFalse(assess(plan,[record],self.root,'v1')['ready_for_human_review'])
+            record['checks'][key]={**original,'status':'fail'}
+            self.assertFalse(assess(plan,[record],self.root,'v1')['ready_for_human_review'])
+            record['checks'][key]=original
     def test_missing_cases_and_reviews_block_delivery(self):
         result=assess(self.plan,[self.record()],self.root,'v1')
         self.assertEqual(result['valid'],1);self.assertFalse(result['ready_for_human_review']);self.assertGreater(result['missing'],0)
