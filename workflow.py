@@ -85,7 +85,7 @@ def main():
             records=read_json(out/'capture-records.json') if (out/'capture-records.json').exists() else []
             reviews=read_json(out/'review-ledger.json').get('reviews',[])
             result=assess(plan,records,out,stamp,reviews);save_json(out/'acceptance-status.json',result)
-            print(json.dumps({k:v for k,v in result.items() if k not in ('missing_case_ids','invalid','contract_pending')}))
+            print(json.dumps({k:v for k,v in result.items() if k not in ('missing_case_ids','invalid','contract_pending','checks_pending','ai_review_queue','tool_work_pending')}))
         return
     if args.command=='audit':
         if not (out/'business-before.json').exists():save_json(out/'business-before.json',baseline(task['repo_root']))

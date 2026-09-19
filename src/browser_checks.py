@@ -3,7 +3,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 import json
 from playwright.sync_api import sync_playwright
-from core import save_json,inside
+from core import ROOT,save_json,inside,read_json
 from checks import html_checks
 
 LAYOUT_JS="""() => ({
@@ -22,6 +22,14 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
     fixture=render_dir is not None
     environment='fixture' if fixture else 'real_app'
     results=[];matrix=task['browser_matrix']
+    layout_js=(ROOT/'scripts/layout-audit.js').read_text(encoding='utf-8')
+    shift_js=(ROOT/'scripts/layout-shift-init.js').read_text(encoding='utf-8')
+    policy=read_json(ROOT/'config/acceptance-policy.json')
+    matrix=dict(matrix)
+    if not task.get('_focused_matrix'):
+        matrix['widths']=sorted(set(matrix['widths']+policy['widths']))
+        matrix['no_js_widths']=sorted(set(matrix['no_js_widths']+policy['no_js_widths']))
+        matrix['secondary_engines']=list(dict.fromkeys(matrix['secondary_engines']+['webkit','firefox']))
     with sync_playwright() as pw:
         for engine in [matrix['primary_engine'],*matrix['secondary_engines']]:
             try: browser=getattr(pw,engine).launch()
@@ -31,26 +39,35 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
             for p in contract['pages']:
                 page_id=p['page_type_id']
                 if engine!='chromium' and page_id not in ('index','detail','type_list','search','detail_zb'):continue
-                configs=[(w,t,True) for w in matrix['widths'] for t in matrix['themes']]+[(w,'light',False) for w in matrix['no_js_widths']]
-                if engine!='chromium':configs=[(390,'light',True),(1280,'dark',True)]
+                configs=[(w,t,True,'normal',900) for w in matrix['widths'] for t in matrix['themes']]+[(w,t,False,'normal',900) for w in matrix['no_js_widths'] for t in matrix['themes']]
+                if engine=='chromium':
+                    configs += [(w,t,True,stress,900) for w in (390,1280) if w in matrix['widths'] for t in matrix['themes'] for stress in ('text_resize_200','wcag_text_spacing')]
+                    if not task.get('_focused_matrix') and page_id in ('index','detail','type_list','article_list','search','detail_zb'):
+                        layout=p.get('layout_contract') if isinstance(p.get('layout_contract'),dict) else {}
+                        points=sorted({int(b)+d for b in layout.get('breakpoints',[900]) for d in (-1,0,1) if int(b)+d>=320})
+                        configs += [(w,t,True,'normal',900) for w in points for t in matrix['themes']]
+                        configs += [(844,t,True,'landscape',390) for t in matrix['themes']]
+                else:configs=[(w,t,True,'normal',900) for w in (390,1280) for t in matrix['themes']]
+                configs=list(dict.fromkeys(configs))
                 if fixture:
                     file=Path(render_dir)/(page_id+'.html')
                     available=file.exists()
                 else: available=any(x['status']==200 for x in p.get('http_samples',[]))
-                for width,theme,js in configs:
-                    result={'page_type_id':page_id,'width':width,'theme':theme,'javascript':js,'engine':engine,'environment':environment,'status':'blocked','evidence_paths':[]}
+                for width,theme,js,stress,height in configs:
+                    result={'page_type_id':page_id,'width':width,'height':height,'stress':stress,'theme':theme,'javascript':js,'engine':engine,'environment':environment,'status':'blocked','evidence_paths':[]}
                     if not available:
                         result['reason']='No rendered document or successful real sample';results.append(result);continue
                     if not fixture and next(x['path'] for x in p['http_samples'] if x['status']==200).startswith('/play/'):
                         result.update(reason='Shared playback response outside z template scope',owner_layer='backend_shared_playback')
                         results.append(result)
                         continue
-                    context=browser.new_context(viewport={'width':width,'height':900},color_scheme=theme,java_script_enabled=js,
+                    context=browser.new_context(viewport={'width':width,'height':height},color_scheme=theme,java_script_enabled=js,
                         user_agent='Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36' if width<768 else None)
                     template_id=task.get('reference_template_id')
                     if not fixture and js and template_id and template_id.startswith('z') and template_id[1:].isdigit():
                         context.add_init_script(script=f"try {{ localStorage.setItem('{template_id}-theme', '{theme}'); }} catch (e) {{}}")
                     page=context.new_page();errors=[]
+                    if js:page.add_init_script(script=shift_js)
                     page.on('pageerror',lambda e:errors.append(str(e)[:180]))
                     if fixture:
                         root=Path(render_dir).parents[2]/'drafts'/design
@@ -75,8 +92,24 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                         page.locator('body').wait_for()
                         # Layout measurements need loaded stylesheets; DOMContentLoaded alone can capture bare markup.
                         page.wait_for_load_state('load',timeout=15000)
+                        if stress=='text_resize_200':
+                            page.evaluate("""() => {const sizes=[...document.querySelectorAll('body,body *')].map(e=>[e,parseFloat(getComputedStyle(e).fontSize)]);for(const [e,size] of sizes)if(size)e.style.setProperty('font-size',(size*2)+'px','important');}""")
+                        elif stress=='wcag_text_spacing':
+                            page.add_style_tag(content='*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}')
                         metrics=page.evaluate(LAYOUT_JS)
+                        component_audit=page.evaluate(layout_js,p.get('layout_contract') or {})
+                        if js:
+                            page.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
+                        shift=page.evaluate('window.__layoutShiftAudit || null') if js else None
+                        if shift:
+                            shift['observed_duration_ms']=page.evaluate('performance.now()')-shift['startedAt']
+                            shift['threshold']=policy['lab_cls_target']
+                            shift['test_stress']=stress
+                            shift['sample_end']='before screenshot animation overrides'
+                            if stress=='normal' and shift['supported'] and shift['value']>policy['lab_cls_target']:
+                                component_audit['findings'].append({'rule_id':'LAYOUT-LAB-CLS','status':'fail','selector':'document','severity':'P1','owner_layer':'template_or_external_asset','expected':policy['lab_cls_target'],'actual':shift['value']})
                         stem=f'{page_id}-{engine}-{width}-{theme}-'+('js' if js else 'nojs')
+                        if stress!='normal':stem+='-'+stress
                         image='screenshots/'+stem+'.png'
                         dom_dir=out/('rendered-dom' if js else 'nojs-dom');dom_dir.mkdir(exist_ok=True)
                         (dom_dir/(stem+'.html')).write_text(page.content(),encoding='utf-8')
@@ -100,16 +133,20 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                         page.evaluate('window.scrollTo(0,0)')
                         page.screenshot(path=str(out/viewport_image),animations='disabled')
                         images.append(viewport_image)
+                        metrics['component_audit']=component_audit
+                        metrics['layout_shift']=shift
                         evidence='screenshots/'+stem+'.json';save_json(out/evidence,metrics)
                         clipped=[s for s in metrics['scoreBoxes'] if s['visible'] and (s['x']<0 or s['right']>width+2)]
                         theme_mismatch=not fixture and js and metrics['effectiveTheme']!=theme
-                        result.update(status='fail' if metrics['scrollWidth']>width+2 or not metrics['bodyText'] or errors or clipped or theme_mismatch else 'needs_review',
+                        result.update(status='fail' if metrics['scrollWidth']>width+2 or not metrics['bodyText'] or errors or clipped or theme_mismatch or any(x['status']=='fail' for x in component_audit['findings']) else 'needs_review',
                                       evidence_paths=images+[evidence],metrics={k:v for k,v in metrics.items() if k!='scoreBoxes'},clipped_scores=clipped,errors=errors,
                                       screenshot_tiled=document_height>30000,
                                       theme_state={'requested':theme,'observed':metrics['effectiveTheme'],
                                           'state_matches':not theme_mismatch if js else None,
                                           'scope':'DOM theme state only; visual contrast review separate'},
                                       capture_status='pass',ai_visual_review='needs_review',ai_seo_review='needs_review',
+                                      component_findings=component_audit['findings'],
+                                      tool_review_queue=[x for x in component_audit['findings'] if x['status'] in ('needs_review','blocked')],
                                       http_evidence=str((raw_dir/(stem+'.html')).relative_to(out)),
                                       dom_evidence=str((dom_dir/(stem+'.html')).relative_to(out)),
                                       scope='geometry/body/script observations; functions, semantics and visual review separate')

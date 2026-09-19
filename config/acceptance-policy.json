@@ -1,0 +1,15 @@
+{
+  "version": "2.0",
+  "review_mode": "tools_first",
+  "template_scope": "per_task_confirmed_assignment",
+  "widths": [320, 360, 390, 768, 1280, 1920],
+  "no_js_widths": [390, 1280],
+  "review_widths": [390, 1280],
+  "required_checks": ["layout_geometry", "component_collisions", "content_clipping", "media_integrity", "control_access", "responsive_states", "text_resize_spacing", "contrast", "layout_stability", "seo_contract", "interactions", "sports_data"],
+  "geometry_tolerance_px": 2,
+  "target_minimum_px": 24,
+  "critical_target_px": 44,
+  "lab_cls_target": 0.05,
+  "field_cls_good": 0.1,
+  "note": "Internal acceptance policy, not a claim of complete WCAG certification. Public thresholds and internal stricter targets are distinguished in TEMPLATE_ACCEPTANCE_STANDARD.md. No template ID is authorized by this file."
+}

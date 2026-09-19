@@ -1,0 +1,80 @@
+# Pony 模板验收 v2：工具优先、全元素布局
+
+生效2026-09-19，依据用户本轮加严要求。替代v1的执行方式，保留公司边界、逐页覆盖、证据与最终人审。引用WCAG作为工程依据，不宣称已取得完整WCAG认证，也不代表模板已通过公司验收。
+
+## 1. 范围随每次任务分配
+
+- 每套使用独立TaskSpec：task_id、target_template_id、分配来源与确认时间、模式、可写目录、页面范围、预览地址、Git SHA、输入hash。每周重核编号，不继承上周授权。
+- 当前z1–z17只属于这次任务，记录在 `tasks/ad-hoc.json`；`z_*.py`是本次适配器。其他编号用已有通用 `workflow.py --task ...` 与新TaskSpec，不改本标准、不自动解禁其他目录。
+- 维护模式 `page_scope=existing_only` 只检查本套实际存在的入口/组件。缺文件候选有理由地排除，不要求补建；已有页面缺样例、缺数据、HTTP错误仍为blocked。现有页指向不存在页面的失效链接仍算问题。新模板按确认交付清单，不能套此选项删减范围。
+- 检查范围不扩大修改权限。只修样式的任务，SEO/后端疑点独立记录；不能据本标准自行改接口、加业务功能或改生产文案。业务仍限当次 `templates/{id}`、`static/{id}`。
+- URL以真实链接/确认路由为准，探索样例另列；线上须核实实际模板资源编号。历史上站表、Cloudflare challenge、本地500和生产500分别记录。
+
+## 2. 全元素“不跑版”门槛
+
+涵盖文字、数字、比分、状态标签、徽标、图标、Logo、图片、SVG、canvas外框、视频/iframe外框、按钮、表单、表格、导航、卡片、分页、弹窗、抽屉、popover、吸顶/固定栏及APP下载条。伪元素、shadow DOM和跨域iframe内部等工具不可见区域必须标能力缺口。
+
+|规则|门槛|判定与例外|
+|---|---|---|
+|LAYOUT-01 重排|无非预期整页横向溢出，不丢信息/功能|2 CSS px仅为计算舍入容差，不能容忍肉眼可见的关键裁切。表格/轮播经确认可局部滚动，例外不扩展到整页|
+|LAYOUT-02 边界|各类元素不被容器裁掉、挤成零尺寸、挤出卡片或盖住邻项；媒体比例正确|同时看元素矩形、scroll/client尺寸与祖先裁切。正文、比分、主按钮不能省略；列表标题省略需提示及可访问的完整内容入口|
+|LAYOUT-03 碰撞|本应分开的组件不重叠，不相互挤占|按组件契约声明禁止重叠对。父子包含、图上文字、角标/装饰合法叠层不能全判失败；具体选择器/状态/原因/证据复核，禁止全局忽略|
+|LAYOUT-04 遮挡|主操作、焦点控件、页面最后一项完整可見可操作，下载条/回顶不挡按钮|命中测试、滚动与Tab焦点检查。采用高于AA最低线的内部要求：关键焦点组件完整可见。模态背景不可操作属合法状态|
+|LAYOUT-05 目标尺寸|普通独立目标≥24×24 CSS px或有标准例外；菜单/关闭/搜索提交/主题/回顶等核心触控≥44×44|44为内部强化门槛，参考AAA；不强行放大行内文字链接。图标本身与实际点击区分开测|
+|LAYOUT-06 对比|普通文字≥4.5:1，大文字≥3:1，必要非文字图形/状态/边界≥3:1|大文字为24 CSS px或约18.67 CSS px粗体；Logo/装饰等例外需说明。复杂背景和透明叠层不能靠body颜色比较宣称通过|
+|LAYOUT-07 状态|正常/hover/focus/active/disabled/展开/关闭/加载/空态/错误/异步更新都无损|测试实际存在状态，不编造业务；模态与非模态分开|
+|LAYOUT-08 稳定|图片/字体/图表/外部注入有占位；比分刷新不推挤邻项|内部实验室CLS目标≤0.05，规定场景分别测。公开良好阈值是现场移动/桌面各自75分位≤0.1；本地样本不证明线上指标|
+
+不得通过删内容、隐藏比分、缩小到不可读字号、全局 `overflow-x:hidden`、删断言或调高阈值制造通过。既有裁切/滚动CSS须先查设计目的，不能机械删除。
+
+## 3. 页面 × 尺寸 × 状态
+
+- 每个实际页面：Chromium **320/360/390/768/1280/1920** × light/dark；390/1280加无JS与两种系统配色偏好。无JS记录实际可读回退，不要求脚本主题切换。
+- 每页390/1280明暗：200%文字、同时覆盖文字间距（行高1.5倍、段后2倍、字距0.12em、词距0.16em）。这是用户覆盖样式压力，不要求默认排版采用这些值；语言不适用项按标准说明。
+- 关键页：真实CSS断点前/当点/后1px、横屏844×390、短视窗、真实200%–400%浏览器缩放、软键盘与安全区。900只是旧工程默认，不能冒称已提取实际断点；320宽只是重排参考，不等于做过真实400%缩放。
+- WebKit/Firefox关键页390/1280 × 两主题；不可用记blocked。模拟WebKit不等于真机Safari。软键盘/系统安全区需对应设备证据。
+- 顶/中/底、长菜单、所有浮层和焦点位置都要覆盖。长页分片截图；扫描数量/高度/时间超过工具上限时记录未覆盖区域，不能用首屏代整页。
+- 体育组件：数值0、字符串0、0:0/0:1/1:0、null/undefined、未开始、两/三位比分、长中文/英文/连续字符串、空/坏Logo、真实支持的延期/取消/进行中/完场；核对主客与比分绑定，时区不自行改。
+- 异步压力：慢图片/字体/接口、失败重试、空结果、长菜单、筛选切换、比分更新；夹具与真接口证据分开。
+
+## 4. SEO与交互
+
+逐页分别存原始HTTP状态/头/HTML、JS后DOM、无JSDOM，不能用page.content冒充HTTP。工具先检查正文/主标题/导航/分页发现入口、动态TDK绑定与转义、多页及多配置变化、空字段与错误继承、语言/标题结构、真实内链、alt、JSON-LD语法/真实字段、已有robots/Sitemap和索引契约。保留keywords、HeaderJS/FooterJS、jQuery/ajs.js。不发明关键词密度、字数或文本/HTML比例阈值。
+
+事实语义、未知canonical/索引策略、schema适用性与隐藏内容疑点只在工具无法确认时交AI。默认一个清楚H1是工程约定，不直接将多个H1说成不收录；无某类schema不自动失败；搜索页合法noindex保留。生产canonical和本地地址分开。SEO通过不证明Bing已抓取/收录/排名。
+
+搜索实测输入/Enter/按钮/中文特殊字符/空值/空结果/详情/实际分页；主题跨页刷新；菜单开关、Escape、焦点与滚动恢复；回顶、分页筛选和APP横幅按真实契约。后端/第三方依赖记录责任层，不前端造数。
+
+## 5. 工具优先流水线与放行
+
+1. 核对当次分配、初始树、真实页面/组件/数据契约，输出范围及排除依据。
+2. 工具跑HTTP/SEO、源码/绑定、浏览器矩阵、组件几何/碰撞/命中/媒体/CLS；完整证据落盘、终端只输出失败摘要。
+3. 使用pass/fail/blocked/needs_review/not_applicable；缺测/不支持不pass。每项含rule_id、页面URL、尺寸主题数据状态、选择器/相关组件、期望实际、严重度、责任层、版本/hash与证据路径。
+4. 明确失败在允许目录修复，复跑相关页及公共组件所有宿主页；具体合法叠层例外保留理由与原发现，不能放宽全局断言。
+5. **只有工具无法判断/覆盖的项目进入AI队列**。AI读取针对性DOM、原图和上下文；不重复工具已经完整确定的检查。可重复的新模式优先沉淀为工具用例。
+6. 最终按完整计划核对覆盖；源码/配置/数据/规则版本变化使相关旧证据失效。缩范围只接受明确分配变更，并保留历史。
+7. 所有适用项有当前证据，无未解决P0/P1、无未决契约/能力缺口、范围正确后才 `ready_for_human_review`。AI处理项与工具解决项分列；公司人审/合并/部署/Bing独立记账。
+
+`assess-acceptance`要求每个用例的checks覆盖政策全部检查类，逐项标tool/ai/human方法、verifier及证据文件/hash；N/A有理由与依据。工具完整解决的复核槽跳过AI；工具未执行、漏检查和明确失败先回工具工作队列，只有明确的歧义/能力缺口才进AI队列。只填“AI看过”、存在截图或进程退出0都不能放行；判定器只核对提交的证据，不补造检查结果。
+
+## 6. 已实现与未覆盖
+
+|能力|已实现|剩余缺口如何处理|
+|---|---|---|
+|任务/证据|任意已确认编号的TaskSpec、existing_only范围、hash失效、逐项checks门禁|分配/契约需核实|
+|全元素布局|layout-audit.js已接入矩阵：元素矩形、祖先裁切、禁止重叠对、兄弟碰撞候选、当前视口命中、目标尺寸/图片失败和比例候选|合法叠层、伪元素、shadow DOM、iframe内部、所有滚动/键盘/浮层状态未全自动覆盖，缺口入队|
+|CLS|layout-shift-init.js按会话窗口采集并排除最近用户输入；实验室超0.05报fail|仅为实际观测时段，后续滚动/晚加载及现场p75另测；不支持不得记0分pass|
+|加严矩阵|规划器与矩阵执行器增加全页320、无JS两主题、计算字号翻倍、文字间距压力、关键断点/横屏；WebKit/Firefox双尺寸双主题|字号翻倍是DOM压力模拟，不能代替真实浏览器缩放；真实缩放/软键盘等仍需独立证据，没有证据时门禁阻断|
+|SEO/交互|复用已有HTTP、TDK、链接、索引、真实功能工具|事实语义、索引政策、复杂对比度和键盘链路按缺口入队|
+
+组件契约放在page-contract每页的layout_contract：components（selector、required、critical）、forbidden_overlap_pairs、实际breakpoints及例外理由。未知契约的默认扫描只是线索，不足以证明“所有元素均不跑版”。工具fixture通过不表示真实模板通过v2，旧z证据不升级。
+
+## 7. 权威来源（2026-09-19核查）
+
+- W3C [Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html)：320重排及二维内容例外。
+- W3C [Resize Text](https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html)、[Text Spacing](https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html)：200%与间距覆盖。
+- W3C [Target Minimum](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html)、[Target Enhanced](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html)：24/44及例外。
+- W3C [Focus Not Obscured Enhanced](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-enhanced.html)：焦点组件完整可见。
+- W3C [Contrast Minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)、[Non-text Contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)：文字/必要非文字对比。
+- Google web.dev [CLS](https://web.dev/articles/cls)、[Optimize CLS](https://web.dev/articles/optimize-cls)：会话窗口、0.1阈值、现场75分位；0.05是本项目加严实验室目标，不冒称W3C/Bing规定。
+- Bing Webmaster Guidelines本轮仅返回空壳页面，未据此新增无法核实的排名规则，公司既有SEO契约继续保留。

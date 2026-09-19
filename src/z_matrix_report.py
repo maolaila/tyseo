@@ -32,6 +32,7 @@ def build(run, contract_run=None, reuse_run=None, reuse_commit=None):
     for number in range(1, 18):
         name = f"z{number}"
         inputs = [repo / "run.py", repo / "config.py", repo / "cache/cache_data.py",
+                  ROOT/'scripts/layout-audit.js', ROOT/'scripts/layout-shift-init.js', ROOT/'config/acceptance-policy.json', ROOT/'src/z_manual_preview.py',
                   ROOT / "src/browser_checks.py", ROOT / "src/z_acceptance.py", ROOT / "tasks/bootstrap.json",
                   contracts / name / "page-contract.json", *(repo / "templates" / name).rglob("*.html"),
                   *(p for p in (repo / "static" / name).rglob("*") if p.is_file())] if contracts else []

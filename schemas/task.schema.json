@@ -27,6 +27,7 @@
     "scheduler_enabled"
   ],
   "properties": {
+    "page_scope": {"enum": ["existing_only", "full_site"]},
     "schema_version": {
       "const": "2.0"
     },

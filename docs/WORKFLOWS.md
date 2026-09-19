@@ -2,6 +2,12 @@
 
 固定工作流描述可重复的业务阶段；具体模板编号、临时修复范围和优先级由当次任务提供。流水线记录不等于定时调度或对外操作授权。
 
+## 模板验收现行入口（2026-09-19）
+
+标准见 [v2](TEMPLATE_ACCEPTANCE_STANDARD_V2.md)，不绑定z编号。每次明确分配后用独立TaskSpec及run目录；维护旧模板指定 `page_scope=existing_only`，新模板按确认清单。通用入口沿用 `workflow.py plan-acceptance / browser / assess-acceptance --task <本次任务.json> --run <独立证据目录> --contract <真实页面契约>`。多套逐套运行，不从旧z批次推导新权限。
+
+工具先检查HTTP/SEO/功能/全部元素布局/位移，确定性失败复测；只将未覆盖或无法确定项交AI，AI处理结果回填有版本与证据的checks，再由assess判定。布局组件探针已接入browser；计划、矩阵原始记录和最终capture-records格式仍不同，整理证据时须逐项匹配case_id/artifacts/checks，不能把matrix-results中“无自动失败”批量改为pass。v2仍是半自动工作流，未接RS机器人。
+
 ## 当前启动方式与后续接入
 
 - 当前：用户通过对话下达任务 → AI选择对应流程 → 调用工具执行、检查、记录和报告。手动的是任务启动，不是让用户逐条运行命令；已授权范围内的连续步骤无需反复询问。

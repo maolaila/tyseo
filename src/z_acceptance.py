@@ -11,6 +11,7 @@ import requests
 
 from browser_checks import execute_matrix
 from core import ROOT, fingerprint, git, read_json, save_json
+from z_manual_preview import existing_pages
 
 
 def decorate_failures(records, contract):
@@ -25,7 +26,7 @@ def decorate_failures(records, contract):
         common = {"page": urls.get(record.get("page_type_id"), "unknown"), "viewport": width,
                   "theme": record.get("theme"), "data_state": record.get("environment"),
                   "engine": record.get("engine"), "evidence_paths": evidence}
-        findings = []
+        findings = [{**common, **f} for f in record.get('component_findings', []) if f.get('status') == 'fail']
         def add(rule_id, selector, expected, actual, severity="high", owner="template_or_asset"):
             findings.append({**common, "rule_id": rule_id, "selector": selector,
                              "expected": expected, "actual": actual, "severity": severity,
@@ -58,6 +59,7 @@ def run_one(number, output, page_types=None, widths=None, no_js_widths=None, con
     contract_run = contract_root or ROOT / "runs" / ("z-review-fake-free-20260918" if 14 <= number <= 20 else "z-review-final-20260918")
     contract_path = contract_run / name / "page-contract.json"
     inputs = [repo / "run.py", repo / "config.py", repo / "cache/cache_data.py",
+              ROOT/'scripts/layout-audit.js', ROOT/'scripts/layout-shift-init.js', ROOT/'config/acceptance-policy.json', ROOT/'src/z_manual_preview.py',
               ROOT / "src/browser_checks.py", ROOT / "src/z_acceptance.py", ROOT / "tasks/bootstrap.json", contract_path,
               *(repo / "templates" / name).rglob("*.html"),
               *(p for p in (repo / "static" / name).rglob("*") if p.is_file())]
@@ -70,6 +72,9 @@ def run_one(number, output, page_types=None, widths=None, no_js_widths=None, con
         print(f"resume {name}", flush=True)
         return
     contract = read_json(contract_path)
+    existing=existing_pages(repo,name,contract)
+    excluded=[p['page_type_id'] for p in contract['pages'] if p not in existing]
+    contract['pages']=existing
     if page_types:
         available = {page["page_type_id"] for page in contract["pages"]}
         unknown = set(page_types) - available
@@ -80,6 +85,7 @@ def run_one(number, output, page_types=None, widths=None, no_js_widths=None, con
     base = f"http://127.0.0.1:{port}"
     task = read_json(ROOT / "tasks/bootstrap.json")
     task.update(reference_template_id=name, preview_base_url=base)
+    task['_focused_matrix']=bool(widths)
     if widths:
         task["browser_matrix"]["widths"] = widths
     if no_js_widths:
@@ -111,6 +117,7 @@ def run_one(number, output, page_types=None, widths=None, no_js_widths=None, con
             save_json(out / "matrix-results.json", records)
             counts = Counter(item["status"] for item in records)
             summary = {"template": name, "input_hash": stamp, "environment": "real_app",
+                       "excluded_missing_pages":excluded,"page_scope":"existing_only",
                        "page_types": len(contract["pages"]), "status_counts": dict(counts),
                        "coverage": "browser capture only; AI visual/SEO and interactions remain separate"}
             save_json(out / "summary.json", summary)

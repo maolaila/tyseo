@@ -24,10 +24,37 @@ class AcceptanceTests(unittest.TestCase):
     def test_full_matrix_and_nojs_not_dropped(self):
         for page in ('index','detail'):
             cases=[c for c in self.plan['cases'] if c['page_type_id']==page]
-            self.assertEqual(sum(c['engine']=='chromium' and c['width'] in self.task['browser_matrix']['widths'] and c['text_scale']==1 for c in cases),12)
-            self.assertEqual(sum(not c['javascript'] for c in cases),2)
+            self.assertEqual(sum(c['engine']=='chromium' and c['width'] in self.task['browser_matrix']['widths'] and c['stress']=='normal' for c in cases),14)
+            self.assertEqual(sum(not c['javascript'] for c in cases),4)
             self.assertTrue(any(c['width']==320 for c in cases))
         self.assertEqual(len(self.plan['reviews']),8)
+    def test_assignment_is_not_fixed_to_z(self):
+        task={**self.task,'target_template_id':'x66','mode':'repair-template'}
+        contract={'pages':[{'page_type_id':'index','sample_urls':['/'],'template_exists':True},
+                           {'page_type_id':'missing','sample_urls':[],'template_exists':False},
+                           {'page_type_id':'no_data','sample_urls':[],'template_exists':True}]}
+        plan=make_plan(task,contract,'new')
+        self.assertEqual(plan['template_id'],'x66')
+        self.assertEqual([p['page_type_id'] for p in plan['excluded_pages']],['missing'])
+        self.assertTrue(any(c['page_type_id']=='no_data' and c['status']=='blocked' for c in plan['cases']))
+        self.assertEqual(len({c['case_id'] for c in plan['cases']}),len(plan['cases']))
+    def test_tool_evidence_can_resolve_without_ai_but_missing_check_cannot(self):
+        plan=copy.deepcopy(self.plan);record=self.record()
+        plan['cases']=[plan['cases'][0]];plan['page_requirements']=[]
+        plan['reviews']=[{'page_type_id':record['page_type_id'],'width':record['width'],'theme':record['theme']}]
+        record['checks']={name:{'status':'pass','method':'tool','verifier':'fixture-verifier',
+            'evidence':[record['artifacts']['dom']]} for name in plan['required_checks']}
+        self.assertTrue(assess(plan,[record],self.root,'v1')['ready_for_human_review'])
+        del record['checks']['seo_contract']
+        result=assess(plan,[record],self.root,'v1')
+        self.assertFalse(result['ready_for_human_review'])
+        self.assertFalse(result['ai_review_queue'])
+        self.assertTrue(result['tool_work_pending'])
+        record['review_triggers']=['SEO semantic contract cannot be determined by the current tool']
+        self.assertTrue(assess(plan,[record],self.root,'v1')['ai_review_queue'])
+        record['checks']['seo_contract']=dict(record['checks']['layout_geometry'])
+        plan['required_checks']=[]
+        self.assertTrue(assess(plan,[record],self.root,'v1')['policy_mismatch'])
     def test_fixture_states_separate(self):
         c=copy.deepcopy(self.contract);c['pages'][0]['score_contract']={'selectors':['.score']}
         p=make_plan(self.task,c,'v1')
