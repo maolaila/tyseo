@@ -48,7 +48,8 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                 if engine!='chromium' and page_id not in KEY_PAGES:continue
                 configs=[(w,t,True,'normal',900) for w in matrix['widths'] for t in matrix['themes']]+[(w,t,False,'normal',900) for w in matrix['no_js_widths'] for t in matrix['themes']]
                 if engine=='chromium':
-                    configs += [(w,t,True,stress,900) for w in (390,1280) if w in matrix['widths'] for t in matrix['themes'] for stress in ('text_resize_200','wcag_text_spacing')]
+                    if policy.get('artificial_text_stress',False):
+                        configs += [(w,t,True,stress,900) for w in (390,1280) if w in matrix['widths'] for t in matrix['themes'] for stress in ('text_resize_200','wcag_text_spacing')]
                     if not task.get('_focused_matrix') and page_id in KEY_PAGES:
                         layout=p.get('layout_contract') if isinstance(p.get('layout_contract'),dict) else {}
                         points=sorted({int(b)+d for b in layout.get('breakpoints',[900]) for d in (-1,0,1) if int(b)+d>=320})

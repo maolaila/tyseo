@@ -58,10 +58,11 @@ def make_plan(task, contract, stamp):
             for theme in matrix['themes']:add(page,'chromium',w,theme,True)
         for w in sorted(set(matrix['no_js_widths']+policy['no_js_widths'])):
             for theme in matrix['themes']:add(page,'chromium',w,theme,False)
-        for w in (390,1280):
-            for theme in matrix['themes']:
-                add(page,'chromium',w,theme,True,scale=2,stress='text_resize_200')
-                add(page,'chromium',w,theme,True,stress='wcag_text_spacing')
+        if policy.get('artificial_text_stress',False):
+            for w in (390,1280):
+                for theme in matrix['themes']:
+                    add(page,'chromium',w,theme,True,scale=2,stress='text_resize_200')
+                    add(page,'chromium',w,theme,True,stress='wcag_text_spacing')
         if page['page_type_id'] in KEY_PAGES:
             for engine in dict.fromkeys(matrix['secondary_engines']+['webkit','firefox']):
                 for w in (390,1280):

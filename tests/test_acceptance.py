@@ -38,6 +38,11 @@ class AcceptanceTests(unittest.TestCase):
         self.assertEqual([p['page_type_id'] for p in plan['excluded_pages']],['missing'])
         self.assertTrue(any(c['page_type_id']=='no_data' and c['status']=='blocked' for c in plan['cases']))
         self.assertEqual(len({c['case_id'] for c in plan['cases']}),len(plan['cases']))
+    def test_daily_policy_excludes_artificial_enlargement_but_keeps_responsive_pressure(self):
+        self.assertFalse(any(c['stress'] in ('text_resize_200','wcag_text_spacing') or c['text_scale']!=1 for c in self.plan['cases']))
+        self.assertNotIn('text_resize_spacing',self.plan['required_checks'])
+        self.assertTrue(any(c['stress']=='landscape' for c in self.plan['cases']))
+        self.assertTrue(any(c['width']==899 for c in self.plan['cases']))
     def test_tool_evidence_can_resolve_without_ai_but_missing_check_cannot(self):
         plan=copy.deepcopy(self.plan);record=self.record()
         plan['cases']=[plan['cases'][0]];plan['page_requirements']=[]
