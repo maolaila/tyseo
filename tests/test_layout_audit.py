@@ -5,6 +5,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 from core import ROOT
+from browser_checks import compact_review_queue
 
 class LayoutAudit(unittest.TestCase):
     @classmethod
@@ -49,5 +50,10 @@ class LayoutAudit(unittest.TestCase):
         self.page.evaluate((ROOT/'scripts/layout-shift-init.js').read_text(encoding='utf-8'))
         value=self.page.evaluate("""() => {feedShift([{startTime:100,value:.03,hadRecentInput:false},{startTime:200,value:.04,hadRecentInput:false},{startTime:250,value:.8,hadRecentInput:true},{startTime:2000,value:.05,hadRecentInput:false}]);return __layoutShiftAudit.value;}""")
         self.assertAlmostEqual(value,.07)
+    def test_compact_queue_retains_counts_and_full_evidence_reference(self):
+        findings=[{'rule_id':'clip','status':'needs_review','selector':f'#n{i}'} for i in range(50)]
+        findings.append({'rule_id':'overflow','status':'fail'})
+        queue=compact_review_queue(findings,'screenshots/full.json')
+        self.assertEqual(queue,[{'rule_id':'clip','status':'needs_review','occurrences':50,'evidence_paths':['screenshots/full.json']}])
 
 if __name__=='__main__':unittest.main()

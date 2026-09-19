@@ -1,5 +1,6 @@
 """Saved fixture documents are replayed in isolated browser contexts, never production."""
 from pathlib import Path
+from collections import Counter
 from urllib.parse import urlsplit
 import json
 from playwright.sync_api import sync_playwright
@@ -16,6 +17,11 @@ LAYOUT_JS="""() => ({
   color:getComputedStyle(document.body).color,
   effectiveTheme:document.documentElement.getAttribute('data-theme')
 })"""
+
+def compact_review_queue(findings, evidence):
+    counts=Counter((f['rule_id'],f['status']) for f in findings if f['status'] in ('needs_review','blocked'))
+    return [{'rule_id':rule,'status':status,'occurrences':count,'evidence_paths':[evidence]}
+            for (rule,status),count in sorted(counts.items())]
 
 def execute_matrix(task,contract,out,render_dir=None,design=None):
     out=Path(out);(out/'screenshots').mkdir(parents=True,exist_ok=True)
@@ -139,14 +145,15 @@ def execute_matrix(task,contract,out,render_dir=None,design=None):
                         clipped=[s for s in metrics['scoreBoxes'] if s['visible'] and (s['x']<0 or s['right']>width+2)]
                         theme_mismatch=not fixture and js and metrics['effectiveTheme']!=theme
                         result.update(status='fail' if metrics['scrollWidth']>width+2 or not metrics['bodyText'] or errors or clipped or theme_mismatch or any(x['status']=='fail' for x in component_audit['findings']) else 'needs_review',
-                                      evidence_paths=images+[evidence],metrics={k:v for k,v in metrics.items() if k!='scoreBoxes'},clipped_scores=clipped,errors=errors,
+                                      evidence_paths=images+[evidence],metrics={k:v for k,v in metrics.items() if k not in ('scoreBoxes','component_audit')},clipped_scores=clipped,errors=errors,
                                       screenshot_tiled=document_height>30000,
                                       theme_state={'requested':theme,'observed':metrics['effectiveTheme'],
                                           'state_matches':not theme_mismatch if js else None,
                                           'scope':'DOM theme state only; visual contrast review separate'},
                                       capture_status='pass',ai_visual_review='needs_review',ai_seo_review='needs_review',
-                                      component_findings=component_audit['findings'],
-                                      tool_review_queue=[x for x in component_audit['findings'] if x['status'] in ('needs_review','blocked')],
+                                      component_findings=[x for x in component_audit['findings'] if x['status']=='fail'],
+                                      component_audit_evidence=evidence,
+                                      tool_review_queue=compact_review_queue(component_audit['findings'],evidence),
                                       http_evidence=str((raw_dir/(stem+'.html')).relative_to(out)),
                                       dom_evidence=str((dom_dir/(stem+'.html')).relative_to(out)),
                                       scope='geometry/body/script observations; functions, semantics and visual review separate')
