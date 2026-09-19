@@ -85,7 +85,9 @@ def make_plan(task, contract, stamp):
             'search_contract':page.get('search_contract') or 'unknown',
             'pagination_contract':page.get('pagination_contract','unknown'),
             'keyword_policy':page.get('keyword_policy','unknown: no density/length rule invented'),
-            'function_checks':['theme toggle/reload/cross-page/storage-failure','search Enter/button/Chinese/special/empty/no-result/detail/pagination-if-supported',
+            'function_checks':['all current-page internal href targets and representative browser clicks',
+                'all visible controls inventoried; actual effect checked or explicitly unresolved',
+                'theme toggle/reload/cross-page/storage-failure','search Enter/button/Chinese/special/empty/no-result/detail/pagination-if-supported',
                 'navigation open/close/Escape/focus/breakpoint/scroll','goto-top click/keyboard/overlap','existing filters/pagination'],
             'status':'needs_review'})
         for w in (390,1280):

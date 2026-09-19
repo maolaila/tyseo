@@ -68,13 +68,13 @@ class AcceptanceTests(unittest.TestCase):
         fixture=[x for x in p['cases'] if x['environment']=='fixture']
         self.assertEqual(len(fixture),18*4)
         self.assertTrue(any(x['data_state']=='undefined' for x in fixture))
-    def test_filter_and_layout_gate_reject_missing_or_failed_evidence(self):
+    def test_functional_and_layout_gate_reject_missing_or_failed_evidence(self):
         plan=copy.deepcopy(self.plan);record=self.record()
         plan['cases']=[plan['cases'][0]];plan['page_requirements']=[];plan['reviews']=[]
         record['checks']={name:{'status':'pass','method':'tool','verifier':'regression',
             'evidence':[record['artifacts']['dom']]} for name in plan['required_checks']}
         self.assertTrue(assess(plan,[record],self.root,'v1')['ready_for_human_review'])
-        for key in ('filter_results','layout_integrity'):
+        for key in ('filter_results','layout_integrity','link_navigation','action_effect'):
             original=record['checks'].pop(key)
             self.assertFalse(assess(plan,[record],self.root,'v1')['ready_for_human_review'])
             record['checks'][key]={**original,'status':'fail'}
