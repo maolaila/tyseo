@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "common": ["existing-page-http-and-readable-html", "mobile-desktop-layout-and-theme", "search-button-and-enter", "mobile-menu-open-close", "goto-top", "real-link-destination"],
+  "specific": {
+    "z1": {"path": "/", "type": "expand", "selector": ".header_menu_more_btn", "target": ".header_menu_more .header_menu_item_item"},
+    "z2": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]"},
+    "z3": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]"},
+    "z4": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]"},
+    "z5": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]"},
+    "z6": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]"},
+    "z7": {"path": "/", "type": "paired-tabs", "selector": "[data-lc-tab]", "key": "data-lc-tab", "panel": "[data-lc-panel]", "panel_key": "data-lc-panel"},
+    "z8": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]"},
+    "z9": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]", "entry": "#z9-entry-enter"},
+    "z10": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]", "entry": "#z10-entry-enter"},
+    "z11": {"path": "/", "type": "numbered-tabs", "selector": "[data-tab]"},
+    "z12": {"path": "/", "type": "paired-tabs", "selector": "[data-z12-trank-tabs] [data-z12-trank]", "key": "data-z12-trank", "panel": "[data-z12-trank-panel]", "panel_key": "data-z12-trank-panel"},
+    "z13": {"path": "/", "type": "date-filter", "selector": "[data-day-offset]", "rows": "[data-z13-schedule-list] .z13-srow"},
+    "z14": {"path": "/", "type": "paired-tabs", "selector": "[data-lc-tab]", "key": "data-lc-tab", "panel": "[data-lc-panel]", "panel_key": "data-lc-panel"},
+    "z15": {"path": "/", "type": "row-filter", "selector": "[data-ps-filter]", "rows": "#ps-match-list .ps-match-row", "key": "data-ps-filter"},
+    "z16": {"path": "/zuqiu", "type": "standings", "selector": "#fp-stand-tabs [data-fp-tab]", "panel": "#fp-stand-body", "more": "#fp-stand-more"},
+    "z17": {"path": "/", "type": "paired-tabs", "selector": "[data-sl-hot-sport]", "key": "data-sl-hot-sport", "panel": "[data-sl-hot-panel]", "panel_key": "data-sl-hot-panel"}
+  }
+}
