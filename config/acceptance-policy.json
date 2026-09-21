@@ -1,16 +1,60 @@
 {
-  "version": "2.4",
+  "version": "2.5",
   "artificial_text_stress": false,
   "review_mode": "tools_first",
   "template_scope": "per_task_confirmed_assignment",
-  "widths": [320, 360, 390, 768, 1280, 1920],
-  "no_js_widths": [390, 1280],
-  "review_widths": [390, 1280],
-  "required_checks": ["layout_geometry", "layout_integrity", "scroll_table_header_integrity", "component_collisions", "content_clipping", "media_integrity", "control_access", "responsive_states", "contrast", "layout_stability", "seo_contract", "interactions", "link_navigation", "action_effect", "filter_results", "sports_data"],
+  "widths": [
+    320,
+    360,
+    390,
+    768,
+    1280,
+    1920
+  ],
+  "no_js_widths": [
+    390,
+    1280
+  ],
+  "review_widths": [
+    390,
+    1280
+  ],
+  "required_checks": [
+    "red_line",
+    "layout_geometry",
+    "layout_integrity",
+    "scroll_table_header_integrity",
+    "component_collisions",
+    "content_clipping",
+    "media_integrity",
+    "control_access",
+    "responsive_states",
+    "contrast",
+    "layout_stability",
+    "seo_contract",
+    "interactions",
+    "link_navigation",
+    "action_effect",
+    "filter_results",
+    "sports_data"
+  ],
   "geometry_tolerance_px": 2,
   "target_minimum_px": 24,
   "critical_target_px": 44,
   "lab_cls_target": 0.05,
   "field_cls_good": 0.1,
-  "note": "Internal acceptance policy, not a claim of complete WCAG certification. Public thresholds and internal stricter targets are distinguished in TEMPLATE_ACCEPTANCE_STANDARD.md. No template ID is authorized by this file."
+  "note": "Internal acceptance policy, not a claim of complete WCAG certification. Public thresholds and internal stricter targets are distinguished in TEMPLATE_ACCEPTANCE_STANDARD.md. No template ID is authorized by this file.",
+  "red_line": {
+    "tool": "src/red_line_gate.py",
+    "backend_issue_register": "config/backend-issues.json",
+    "rules": [
+      "every_click_succeeds",
+      "no_404",
+      "no_local_500",
+      "mobile_nav_is_drawer_or_overlay",
+      "triage_404_500_frontend_vs_backend",
+      "problem_reports_precise_with_screenshots"
+    ],
+    "source": "user 2026-09-21 after Leo review of z10-z13"
+  }
 }

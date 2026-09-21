@@ -1,0 +1,17 @@
+{
+  "note": "已经查明属于后端、模板侧改不了的问题登记在这里。红线门槛（src/red_line_gate.py）只对登记在案、且 owner_notified_at 有值（已经把带图报告交给负责人 Pony）的后端问题放行；页面上它们仍然点不通，要等后端修。path / exception 是正则。查不清原因的不许登记。",
+  "issues": [
+    {
+      "id": "tags-offsetnum-typeerror",
+      "path": "^/(tags/\\d+|tag/\\d+(-\\d+)?\\.html|\\w+-tag/\\d+(-\\d+)?\\.html)$",
+      "exception": "TypeError",
+      "cause": "run.py tag_list（第 4732 行 if recovery_id <= 0）：cache/cache_data.py 的 recovery_id_offset(id) 在站点 OffsetNum 为空/0 时把 URL 里的字符串 id 原样返回，与 0 比较抛 TypeError: '<=' not supported between instances of 'str' and 'int'。所有模板一样；模板里的链接写法（/tags/{{ item.id }}）与其他模板族一致。",
+      "templates": "全部",
+      "report": "runs/backend-issues-20260921/（tags-500-1-z2-click-here.png、tags-500-2-error-page.png）",
+      "owner_notified_at": "2026-09-21T15:50:00+09:00",
+      "backend_owner": "Rechard",
+      "backend_notified_at": null,
+      "production": "未查（线上站点对脚本请求返回 403）；站点配了 OffsetNum 时不会触发"
+    }
+  ]
+}

@@ -57,6 +57,8 @@
 5. 最终跑一遍用户旅程并出报告（输出目录必须是新的）：
    `.venv\Scripts\python.exe -B src\final_user_journeys.py --ids zN --output runs\zN-final-claude-<时间>`，然后对同一目录依次跑 `src\final_raw_seo_report.py --run …`、`src\final_nojs_check.py --run …`、`src\final_user_report.py --run …`。工具报的每个问题都要处理或解释。工具通过不等于验收通过——第二节的每一条仍以你实际点过为准。
 
+6. **最后过红线门槛**（政策 2.5，正式条款见 `docs/TEMPLATE_ACCEPTANCE_STANDARD_V2.md` 第 0 节）：`.venv\Scripts\python.exe -B src\red_line_gate.py --ids N --output runs\zN-gate-claude-<时间>`（跑得久可以后台跑），看输出目录里的 `gate.md`。门槛不通过就不能在报告里写"可以交给主管"。
+
 ## 五、改代码的要求
 
 - 顺着该模板现有的写法改，最小改动解决问题；不重写整套模板，不引入新的外部依赖和 CDN。
