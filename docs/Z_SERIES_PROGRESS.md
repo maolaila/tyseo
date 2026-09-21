@@ -8,7 +8,7 @@
 
 | 模板 | 状态 | 说明 |
 |---|---|---|
-| z1、z2、z3 | 做了一大半，2026-09-21 晚按用户安排暂停（这几天先不做 tyseo） | 改动已提交并推送到个人分支 **`fix/pony-z1-z3-wip-20260921`**（三个 `wip(zN)` 提交，没进 PR 分支，因为还没过验收）；进度见 `runs/partial-work-20260921/zN/STATUS.md` |
+| z1、z2、z3 | 做了一大半，2026-09-21 晚按用户安排暂停（这几天先不做 tyseo） | 改动已提交并推送到个人分支 **`fix/pony-z1-z17-layout`**（PR #1664 那条，三个 `wip(zN)` 提交接在 `f0c3489d4` 后面；还没过验收，提交信息里写了 wip，Codex 从这里接着做）；进度见 `runs/partial-work-20260921/zN/STATUS.md` |
 | z18 | 整套 65 页已做完、全部能打开，最终检查没跑完，暂停 | 已提交并推送到个人分支 **`feat/pony-z18`**（从 main 拉出，一个 `wip(z18)` 提交；"报馆"风格，和 z1–z17 的卡片式明显不同）；进度见 `runs/partial-work-20260921/z18/STATUS.md`；没接管 `origin/feat/dev-z18` |
 | z4 | 做了一半，已停 | 见下文"已停的半成品" |
 | z10、z11、z12 | 做了一半，已停；**Leo 点名的手机菜单已改成抽屉**，没有全量验证 | 见下文 |
@@ -17,7 +17,7 @@
 
 ## 接着做 z1–z3、z18
 
-业务仓库平时停在 PR 分支 `fix/pony-z1-z17-layout`。接着做时：`git switch fix/pony-z1-z3-wip-20260921`（或 `feat/pony-z18`），先读对应的 `STATUS.md`，确认本地预览正常，把"没验证"的项逐个验证，再跑最终用户旅程工具和 `red_line_gate`。几套共同剩下的事：
+业务仓库停在个人分支 `fix/pony-z1-z17-layout`，z1–z3 的改动都在上面（z18 单独在 `feat/pony-z18`）。接着做时先读对应的 `STATUS.md`，确认本地预览正常，把"没验证"的项逐个验证，再跑最终用户旅程工具和 `red_line_gate`。几套共同剩下的事：
 - `/nba/teams/teaminfo-42313.html` 500（`/nba/winner` 里点"巴尔的摩子弹（1944-1954）"；`run.py` 2956 行 → `utility/date_helper.py` 51 行 `time.localtime` 报 `OSError`，多半是本机 Windows 处理不了 1970 年以前的日期，线上没查）——是后端问题，还没登记进 `config/backend-issues.json`，所以门槛会一直拦；要先配图告诉用户，再登记。
 - z1、z2 各有一些模板里本来就没有的页面（`/tv*`、`/material*`、`/zhuanti*`、`/all` 等，z2 有 21 种），没有页面链过去，补不补要用户定。
 - z18：点"电视频道"详情本地 404，所以 `/tv` 列表的频道名没做成链接；登录、注册、反馈页后端没有接收表单的接口，只放了文字。
