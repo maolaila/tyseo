@@ -92,19 +92,30 @@ class SheetConnector:
             if not groups or u['row']!=groups[-1][-1]['row']+1:groups.append([])
             groups[-1].append(u)
         writes=[{'range':f"E{g[0]['row']}:H{g[-1]['row']}",'tsv':'\n'.join('\t'.join(u['values']) for u in g)} for g in groups]
-        self.run_script('''async(page)=>{
+        result=self.run_script('''async(page)=>{
           const sheet=await page.context().newPage();
           await sheet.goto('https://docs.google.com/spreadsheets/d/'''+BOOK+'''/edit?gid=2066853497#gid=2066853497',{waitUntil:'domcontentloaded',timeout:25000});
           await sheet.locator('#t-name-box').waitFor({timeout:25000});
           await sheet.context().grantPermissions(['clipboard-read','clipboard-write'],{origin:'https://docs.google.com'});
           const writes='''+json.dumps(writes,ensure_ascii=False)+''';
+          // 2026-09-21 事故：跳转没成功就粘贴，贴到了表格最上面 A1:D20。现在贴之前必须确认选区就是目标范围，贴完再确认，不对就立刻撤销并停下
+          const done=[];
           for(const write of writes){
             await sheet.locator('#t-name-box').fill(write.range);await sheet.locator('#t-name-box').press('Enter');
+            await sheet.waitForTimeout(1500);
+            const at=(await sheet.locator('#t-name-box').inputValue()).trim();
+            const focusInGrid=await sheet.evaluate(()=>document.activeElement&&document.activeElement.id!=='t-name-box');
+            if(at!==write.range||!focusInGrid)return {pasted:false,done,reason:'selection_not_confirmed',expected:write.range,actual:at,focusInGrid};
             await sheet.evaluate(text=>navigator.clipboard.writeText(text),write.tsv);
-            await sheet.keyboard.press('Control+V');await sheet.waitForTimeout(1000);
+            await sheet.keyboard.press('Control+V');await sheet.waitForTimeout(1500);
+            const after=(await sheet.locator('#t-name-box').inputValue()).trim();
+            if(after!==write.range){await sheet.keyboard.press('Control+Z');await sheet.waitForTimeout(1500);return {pasted:false,done,undone:true,reason:'pasted_range_mismatch',expected:write.range,actual:after};}
+            done.push(write.range);
           }
-          return {pasted:true,ranges:writes.map(x=>x.range)};
+          return {pasted:true,ranges:done};
         }''')
+        if not result.get('pasted'):
+            raise ValueError('没有写入：'+('贴完发现位置不对，已立刻撤销' if result.get('undone') else '没能确认光标停在目标行')+f"（目标 {result.get('expected')}，实际 {result.get('actual')}；已写完的范围 {result.get('done')}），请人工核对表格后再试")
         for _ in range(5):
             after=self.read();ready=True
             for u in updates:
