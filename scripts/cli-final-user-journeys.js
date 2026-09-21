@@ -22,10 +22,6 @@ async (page) => {
         const status=response.status()!==200?'blocked':text.trim().length<20||overflow>2||hard.length?'fail':'pass';
         out.pages.push({path:item.path,page_types:item.types,width,status,http:response.status(),body_chars:text.trim().length,
           page_overflow:overflow,layout_failures:hard.slice(0,8)});
-        if(item.path==='/'&&[390,1280].includes(width)){
-          const filename=`${folder}/${name}-home-${width}-light.png`;
-          await page.screenshot({path:filename,animations:'disabled'});out.screenshots.push(filename);
-        }
       }catch(error){out.pages.push({path:item.path,page_types:item.types,width,status:'blocked',error:short(error)});}
     }
   }
@@ -35,13 +31,12 @@ async (page) => {
       try{
         await open('/');
         await page.evaluate(t=>document.documentElement.setAttribute('data-theme',t),theme);
+        await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
         const background=await page.evaluate(()=>getComputedStyle(document.body).backgroundColor);
         const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
         record(out.common,'HOME-RESPONSIVE-THEME',overflow<=2?'pass':'fail',{width,theme,background,overflow},{path:'/',width,theme});
-        if(theme==='dark'){
-          const filename=`${folder}/${name}-home-${width}-dark.png`;
-          await page.screenshot({path:filename,animations:'disabled'});out.screenshots.push(filename);
-        }
+        const filename=`${folder}/${name}-home-${width}-${theme}.png`;
+        await page.screenshot({path:filename,animations:'disabled'});out.screenshots.push(filename);
       }catch(error){record(out.common,'HOME-RESPONSIVE-THEME','blocked',short(error),{path:'/',width,theme});}
     }
   }
