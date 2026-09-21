@@ -1,12 +1,12 @@
 # 全模板源码目录
 
-扫描时间：2026-09-18T13:09:31.703388+00:00；本地模板 **943** 套。
-基线：`fix/pony-z1-z21-layout` / `187f6bffea1bb2be94f41b1449d5cb31462a009e`，包括当前未提交修改。
+扫描时间：2026-09-21T02:00:56.480631+00:00；本地模板 **944** 套。
+基线：`fix/pony-z1-z17-layout` / `86c8d434b8c3d0248498bd406f10c1a5c3d6e1f9`，包括当前未提交修改。
 
 范围：本地 templates 下全部字母+数字编号目录及对应 static；admin/shared 单独排除，不代表线上已部署数量。
 所有条目为 source_only。信号仅表示源码匹配；不代表功能、SEO、浏览器或主管验收通过。详细路径、行号、依赖、文件哈希见 templates.json。
 
-分组：a: 82；b: 61；c: 50；d: 61；e: 41；g: 11；h: 118；j: 55；k: 23；o: 44；r: 62；s: 59；t: 20；u: 63；v: 77；x: 91；y: 4；z: 21
+分组：a: 82；b: 61；c: 50；d: 61；e: 41；g: 11；h: 118；j: 55；k: 23；o: 44；r: 62；s: 59；t: 21；u: 63；v: 77；x: 91；y: 4；z: 21
 
 | 编号 | HTML文件数（含组件） | 静态文件数 | 组件候选文件 | master/index | 未命中信号（非缺陷结论） |
 |---|---:|---:|---:|---|---|
@@ -697,6 +697,7 @@
 | t18 | 65 | 20 | 19 | True/True | — |
 | t19 | 65 | 20 | 19 | True/True | — |
 | t20 | 65 | 20 | 19 | True/True | mobile_nav |
+| t21 | 65 | 20 | 19 | True/True | — |
 | u1 | 13 | 8 | 0 | True/True | json_ld, header_dynamic, jquery, search, mobile_nav |
 | u2 | 13 | 14 | 0 | True/True | json_ld, header_dynamic, jquery, search, theme, mobile_nav |
 | u3 | 13 | 14 | 0 | True/True | json_ld, header_dynamic, jquery, search, theme, mobile_nav |
@@ -940,16 +941,16 @@
 | z6 | 88 | 23 | 41 | True/True | — |
 | z7 | 97 | 16 | 50 | True/True | mobile_nav |
 | z8 | 87 | 11 | 40 | True/True | mobile_nav |
-| z9 | 89 | 12 | 42 | True/True | mobile_nav |
-| z10 | 91 | 13 | 43 | True/True | mobile_nav |
-| z11 | 92 | 57 | 45 | True/True | mobile_nav |
-| z12 | 97 | 81 | 48 | True/True | mobile_nav |
+| z9 | 90 | 14 | 43 | True/True | — |
+| z10 | 92 | 15 | 44 | True/True | — |
+| z11 | 93 | 59 | 46 | True/True | — |
+| z12 | 98 | 83 | 49 | True/True | — |
 | z13 | 143 | 105 | 92 | True/True | mobile_nav |
-| z14 | 133 | 91 | 83 | True/True | mobile_nav |
-| z15 | 144 | 121 | 94 | True/True | mobile_nav |
-| z16 | 121 | 118 | 72 | True/True | mobile_nav |
-| z17 | 125 | 118 | 76 | True/True | mobile_nav |
-| z18 | 132 | 116 | 83 | True/True | mobile_nav |
-| z19 | 142 | 120 | 93 | True/True | mobile_nav |
-| z20 | 131 | 116 | 82 | True/True | mobile_nav |
-| z21 | 137 | 125 | 88 | True/True | mobile_nav |
+| z14 | 134 | 93 | 84 | True/True | — |
+| z15 | 145 | 123 | 95 | True/True | — |
+| z16 | 122 | 120 | 73 | True/True | — |
+| z17 | 126 | 120 | 77 | True/True | — |
+| z18 | 132 | 117 | 83 | True/True | mobile_nav |
+| z19 | 142 | 121 | 93 | True/True | mobile_nav |
+| z20 | 131 | 117 | 82 | True/True | mobile_nav |
+| z21 | 137 | 126 | 88 | True/True | mobile_nav |

@@ -180,6 +180,186 @@
         "description": "470a6e2f4712a0272a8bfa205ed4c0baa205b2db5d608f96f26bad6716eaafb8",
         "keywords": "d988f9ccc231a5951220083de56c119e546381317e4e796c2859bb0e92e5a1fe"
       }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "qiudi-balltv.com",
+      "field_hashes": {
+        "title": "26efed0de60497fe8fbcab47cbca28df38feeddad23dfb93eb35095110c8a1f1",
+        "description": "a56e8e00bd7909ed8c1a0c66a45882d6836af82899878acec8156a5ea690ef2c",
+        "keywords": "74d7fad90ddc0536b578e0cbbbe1483b8261e119cdadea22b18ea35d739f2892"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "shuoqiudi-balltv.com",
+      "field_hashes": {
+        "title": "1c4817af7d3f62e3bdf5a9884e96c20d6201ba7dd9a9f6ac5285ed7bbe5df7c3",
+        "description": "a5ac23674aafc1db093f1f755f77834423e975b1c14955c920edcb7333de1ea6",
+        "keywords": "4feca1bf456ee8b81c4d87c645224c858caf29be2892b6c920f8a072caadfd8a"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "shanmao-balltv.com",
+      "field_hashes": {
+        "title": "c73554878f864765e5762967cb06a0c449ef25da02f0ebe5796991536e2a3b59",
+        "description": "aea1c3fab2fd8b0a6d649bbaa9119148b96fea418a4307daf3331ad9a55cf729",
+        "keywords": "5e73ba4b8a58b1dfa977dd1c71b75f28c824150d736313c7b1bc377da0014ba5"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "feisu-balltv.com",
+      "field_hashes": {
+        "title": "48a561c34ffa617a65f05c69bfc302cf19ec552392352adb0033d169b95f0358",
+        "description": "ebfce73141c4406b1bc81c3feaf854c6f61e9645a897d88863599b70ad7be032",
+        "keywords": "67484814894ec313977d9a3a9e272c35eaddcadf908842fdba6ee81119e28543"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "jinqiu-balltv.com",
+      "field_hashes": {
+        "title": "fe7c5be4f124d065578301fb9a49fcf52dba69deb2a07f61b89fbdd8e75b85e7",
+        "description": "2a8fb143fbeb605c9a2d8367ade51a2b32f93a812ad76269b02a92d5e4640503",
+        "keywords": "bbef100c56a6d3c37f764804062e9b9874505ce17ddcba581baff47f4a633b5f"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "leqiu-balltv.com",
+      "field_hashes": {
+        "title": "0c083174c01fd505eca33ddcd23b26f1412e0629f31f81aef8a0296f442ed36d",
+        "description": "62d15b7842e23999ff37f6c0ff130257c3d4aa86842e4f8f81757651a00c8e12",
+        "keywords": "ced252c45be0acdfc862f50a5f949eefe553961ba1f2e013af491f967891fb36"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "yuyan-balltv.com",
+      "field_hashes": {
+        "title": "0318fd03a913fcc35522de2c4b92d06b9ced59da2fd8d728be6790875770f93f",
+        "description": "b8187614ea37f25a70d15f05caa7079940b081d0461399c0a54e126d75720bac",
+        "keywords": "bf8cc9cf16c906fe1e4096db38616fb2909dabc228b63181168b9ccba5f4fe74"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "kanqiuba-balltv.com",
+      "field_hashes": {
+        "title": "f5517a0ce0118f66234b61116871ec70ead962ac34111acedc91545a85302d68",
+        "description": "f9b6dce216581af5a7b913bad2e654a5ce14cd0de20941315ef24974fb63939a",
+        "keywords": "e39984dc4100dc344b24f8dc55dac4e113e12edabe63d4aa534b9a1f0ae31945"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "heibai-balltv.com",
+      "field_hashes": {
+        "title": "80f5ebf7d786ec13cf55388508b99121230ef8f45a751e4c685bd8fcfd795b8c",
+        "description": "c7735a676cd8eb58fcc0c5452c1cd4f3020099f9ba628f0314290401ef15bf53",
+        "keywords": "d14067473d2650d74932dc9d2e634f0334e15f8c450f61f2899ec518dc83456a"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "bisai-balltv.com",
+      "field_hashes": {
+        "title": "bff5916e222d92faefea46904a63043dd07809f203cd86dc60b186d330edecfa",
+        "description": "bc867b2628c573a11a594e2b10216df736a4564e7f9ec8869408bca7e55476de",
+        "keywords": "af873c695eb87c997ca01496521b958361da6e460510189db0ab5b7e1bf78f7d"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "kangeqiu-balltv.com",
+      "field_hashes": {
+        "title": "97ce0d45fa69174d837cb86ebc4ad5df59727ea50380482f78bc5c876b5e8d68",
+        "description": "c17573f08f7388e7a425b124bc1ae38091fae744e487d79bd882b71975b9b207",
+        "keywords": "710763400855f2e932da7f5fe9e947b942ba52e7a96d4006eabe1e09526196ff"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "wanqiu-balltv.com",
+      "field_hashes": {
+        "title": "8cf7cd34e4e403e8fd6efa0f329608b7ca6c8c6baf10665108fb146510433c64",
+        "description": "88fcf665edf6d8b190129025d47322ed736336cbb5440bf00eb66a48ed6e5bb6",
+        "keywords": "9f7ee7273c91ac97af16d49a9c085eba485bdfca65bb374315df17689c262eae"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "360-balltv.com",
+      "field_hashes": {
+        "title": "da757ff5e7f861b881f0a3ff5dacf5f055aab42cc9099cdb4bb276945ee2cd0a",
+        "description": "c4a14e01e00c3b87c48dab49e76d6cbc1a94bf88e4a607aaf778bd5339e6d6f8",
+        "keywords": "51b54438ea26c8348dbd9aecc92e5c7fde970956451a84d499c9d3f26fa911b3"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "douqiu-balltv.com",
+      "field_hashes": {
+        "title": "82a34232f04099474a4fcb6e5fc0b566592cf6645e3dbff2e9a9ad5a74eb7c6f",
+        "description": "552b9ec3d16ed99df7c2e7512c5706cd4f96d3d5e6ccacdf2c727bb63e756917",
+        "keywords": "9b01521b7e68092c54a84bad248b3c1b3316f741c841f4963e31a678ef030a0b"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "renren-balltv.com",
+      "field_hashes": {
+        "title": "f5efe77bd4c835b6cce9b94751eeb3fe7fb6a1961f35313b38c546682086e779",
+        "description": "b7b4a3edeb5f195b1dca62fc5b152253f879e4e82a9b178e4a737d2b186e3965",
+        "keywords": "fb9ca01ea33ba263b683a3eb995faf8899bdd64b13208a838a9fc739a4ad2e26"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "zhuafan-balltv.com",
+      "field_hashes": {
+        "title": "b54d1d5414831a3bdeaf13052f3ade1126a021849bd0729ee064eecf352885a1",
+        "description": "f357139cef16a5fe2b90458dad9e87a982cc869ef7b1c26da6dbc01a1c53257b",
+        "keywords": "8a459c9e6a9bb86705cdd5ea3f41fae795b8caf01261d7e8692b9143af0f3a79"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "weilai-balltv.com",
+      "field_hashes": {
+        "title": "acc99781d026539fd9b06f92bdab508a88e980b9ab521a8c157ea12bee13a36e",
+        "description": "afd4e9499e632dfbbfedbdd8f208beed469b9f68fe4561469348653b19425fc7",
+        "keywords": "b5f4fc0baefcce15a542f0843ebcacbc2f7bcea8abfd8f0d9e85ec8ce1c4366b"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "833-balltv.com",
+      "field_hashes": {
+        "title": "c67ed4e1aca2606d11b17d6e1ab849abf9850708b71aa6c6bb8e5e82ece8ae5e",
+        "description": "6df24ae4dbf18a70f974c03ec0975a4ba25db062ebe3358da9205978a2b0da40",
+        "keywords": "b061265459fd9f4f8fb8b9dd86f97918d17586b7b136d217524664e166e8330a"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "kuaizhibo-balltv.com",
+      "field_hashes": {
+        "title": "97bb8a16dbea71ee41dfebdae3e9840f180bb5ec3fc806d13352c220e94f29d2",
+        "description": "89dea06b2085fd9e964bd17eae52141f33468bfbbee750a45cf19cec39ac9632",
+        "keywords": "5db5687f02d94fe95108e07d725f4a8f75b3e475ad4d90f9f84318cc03c1cb13"
+      }
+    },
+    {
+      "batch_id": "2026-09-19-pony-20-tdk-2026-09-21",
+      "domain": "857-balltv.com",
+      "field_hashes": {
+        "title": "ff5162cb76a1dd9844606b6dff88dbe037c00fe8ebe9853c1e8d45d7e23b0923",
+        "description": "63e7fac847711dac3bcd1416931583f6e4a74bf39263fc1e32cdd4deb6d9b379",
+        "keywords": "23847044334734914ca029485e9a2e4a23a6c2e883d4e9a6c84c29cd94b48d70"
+      }
     }
   ]
 }

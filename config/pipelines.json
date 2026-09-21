@@ -39,13 +39,15 @@
     "site-launch": {
       "state": "documented_only_requires_separate_explicit_task",
       "steps": [
-        "verify purchase and transfer to launch sheet",
-        "prepare TDK from assigned keyword research",
-        "verify generated launch script",
-        "authorized backend execution",
-        "read back deployed state"
+        "after purchase-pending sheet write, draft unique TDK from assigned keyword and current research",
+        "verify dated Pony domain and keyword appear uniquely in Bing launch sheet; pending-sheet deletion is not purchase proof",
+        "re-read current Pony available template range in Bing keyword workbook, choose one eligible template, and review its actual capabilities; no fixed r62 default",
+        "write only matching Pony row E:H after conflict checks; read back and preserve A:D and I:P",
+        "after verified TDK write, future robot notifies user in work platform for manual copying",
+        "future robot backend stage checks each row M ServerName against selected backend URL before opening or submitting"
       ],
-      "enabled_in_current_task": false
+      "enabled_in_current_task": false,
+      "robot_integration": "reserved_disabled"
     },
     "git-delivery": {
       "state": "documented_only_disabled_in_current_task",
