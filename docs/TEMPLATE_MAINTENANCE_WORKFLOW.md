@@ -48,3 +48,5 @@
 ## 6. 个人模板复用
 
 个人模板与当前上站模板分开管理。个人模板测试可借用已确认的 z1 真实页面路径，因为后端路由和数据服务共用；仍须确认响应确实加载目标模板的静态资源。测试结果只证明该提交的本地模板，不证明线上已部署或可用于上站。
+
+完整可执行清单见 [模板通用测试用例](TEMPLATE_TEST_CASES.md)，每次测试以 [测试报告模板](TEMPLATE_TEST_REPORT_TEMPLATE.md) 交付；后端问题使用 [Rechard 问题交接模板](TEMPLATE_ISSUE_HANDOFF_TEMPLATE.md)。
