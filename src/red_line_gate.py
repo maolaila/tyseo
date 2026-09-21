@@ -253,6 +253,7 @@ def main():
     parser.add_argument('--contract-run', default='runs/z-v2-recheck-20260919/contracts')
     parser.add_argument('--borrow', default='z1', help='没有页面契约的模板借用哪一套的样例地址')
     parser.add_argument('--skip-browser', action='store_true', help='只查链接，不查手机端菜单（开发试跑用；结果不能算通过）')
+    parser.add_argument('--skip-links', action='store_true', help='只查手机端菜单，不查链接（开发试跑用；结果不能算通过）')
     parser.add_argument('--max-pages', type=int, default=0, help='手机端菜单最多查多少个样例页（开发试跑用；没查的页记为未覆盖，不能算通过）')
     args = parser.parse_args()
 
@@ -260,7 +261,8 @@ def main():
     ids = template_ids(args.ids)
     if args.changed_since:
         ids = sorted(set(ids) | set(changed_ids(repo, args.changed_since)))
-    output = (ROOT / args.output).resolve()
+    # {now} 换成当前时间，方便从别的程序（机器人的执行器）固定写一条命令
+    output = (ROOT / args.output.replace('{now}', datetime.now().strftime('%Y%m%d-%H%M%S'))).resolve()
     if not output.is_relative_to(ROOT / 'runs') or output.exists():
         raise SystemExit('输出目录必须是 runs/ 下还不存在的新目录')
     output.mkdir(parents=True)
@@ -297,7 +299,11 @@ def main():
             continue
         samples, missing, source = samples_for(repo, contracts, number, args.borrow)
         entry['sample_source'] = source
-        links = audit_links(number, base, samples, repo, register, out)
+        if args.skip_links:
+            links = {'sample_pages': len(samples), 'link_targets': 0, 'failures': [], 'bad_sample_pages': []}
+            entry['reasons'].append('没查链接（--skip-links），不能算通过')
+        else:
+            links = audit_links(number, base, samples, repo, register, out)
         entry['links'] = {k: links[k] for k in ('sample_pages', 'link_targets')} | {'failed': len(links['failures']), 'blocking': sum(f['blocking'] for f in links['failures'])}
         kinds = defaultdict(int)
         for failure in links['failures']:

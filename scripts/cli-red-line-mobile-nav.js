@@ -68,6 +68,19 @@ async (page) => {
         out.results.push(rec);continue;}
       const layer=opened.sort((a,b)=>b.links-a.links)[0];rec.layer={cls:layer.cls,rect:layer.rect,links:layer.links};
       if(!layer.firstLinkHit)rec.reasons.push('抽屉里的链接被别的东西盖住，点不到');
+      // Leo 2026-09-21："點一下菜單就會跳出新的頁面"——当时的菜单是一整屏不透明的面板，地址没变但看起来就是新页面。
+      // 抽屉 / 浮层要只盖住一部分，其余地方是半透明遮罩或原页面：取左中、右中、下方三个点，全都落在不透明的菜单面板上就不合格
+      rec.coverage=await page.evaluate(id=>{
+        const layer=document.querySelector('[data-redline-layer="'+id+'"]');if(!layer)return null;
+        const alpha=el=>{const m=getComputedStyle(el).backgroundColor.match(/rgba?\(([^)]+)\)/);if(!m)return 0;const p=m[1].split(',').map(Number);return p.length>3?p[3]:1;};
+        // 这个点上菜单本身有多不透明：从点到的元素一路往上到菜单层，把每一层的背景不透明度叠起来（1 - Π(1 - a)）
+        const pts=[[innerWidth*0.08,innerHeight*0.5],[innerWidth*0.92,innerHeight*0.5],[innerWidth*0.5,innerHeight*0.93]];
+        return pts.map(([x,y])=>{const hit=document.elementFromPoint(x,y);const at={x:Math.round(x),y:Math.round(y)};
+          if(!hit||!(layer===hit||layer.contains(hit)))return {...at,menu:false};
+          let clear=1;for(let n=hit;n;n=n.parentElement){clear*=1-alpha(n);if(n===layer)break;}
+          return {...at,menu:true,alpha:Math.round((1-clear)*100)/100};});
+      },layer.id);
+      if(rec.coverage&&rec.coverage.every(p=>p.menu&&p.alpha>=0.95))rec.reasons.push('菜单是一整屏不透明的面板，看起来就像跳到了新页面（要的是侧边抽屉或浮层：只盖住一部分，背后页面半透明变暗还能看见）');
       rec.scroll_locked=await page.evaluate(()=>{const b=getComputedStyle(document.body),h=getComputedStyle(document.documentElement);return /hidden|clip/.test(b.overflowY)||/hidden|clip/.test(h.overflowY)||b.position==='fixed';});
       if(shots<1&&!rec.reasons.length){const f=`${folder}/${name}-mobile-nav-open.png`;await page.screenshot({path:f,animations:'disabled'}).catch(()=>{});out.screenshots.push(f);shots++;}
       // 关闭：Esc → 点抽屉外面 → 再点一次按钮 / 关闭按钮，任一种能关掉即可
