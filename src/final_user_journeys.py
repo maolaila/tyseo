@@ -39,10 +39,13 @@ def run_one(name, output, cli, repo, contract_root, cases, base):
               ROOT/'config/final-user-cases.json', ROOT/'config/acceptance-policy.json',
               contract_root/name/'page-contract.json', repo/'run.py', repo/'config.py', repo/'.env',
               repo/'static/js/jquery.min.js', repo/'static/js/ajs.js',
+              *(repo/'templates'/'r62').rglob('*.html'),
+              *(p for p in (repo/'static'/'r62').rglob('*') if p.is_file()),
               *(repo/'templates'/name).rglob('*.html'),
               *(p for p in (repo/'static'/name).rglob('*') if p.is_file())]
     identity = {'template': name, 'base_url': base, 'commit': git(repo, 'rev-parse', 'HEAD'),
-                'cli': '0.1.20', 'cases': cases['version']}
+                'cli': '0.1.20', 'cases': cases['version'],
+                'reference_template': cases['reference_template_id']}
     before = fingerprint(identity, inputs)
 
     def fetch(item):

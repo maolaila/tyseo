@@ -27,50 +27,41 @@ async (page) => {
   }
   for(const width of [390,1280]){
     await page.setViewportSize({width,height:900});
-    for(const theme of ['light','dark']){
-      try{
-        await open('/');
-        await page.evaluate(t=>document.documentElement.setAttribute('data-theme',t),theme);
-        await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-        const background=await page.evaluate(()=>getComputedStyle(document.body).backgroundColor);
-        const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
-        record(out.common,'HOME-RESPONSIVE-THEME',overflow<=2?'pass':'fail',{width,theme,background,overflow},{path:'/',width,theme});
-        const filename=`${folder}/${name}-home-${width}-${theme}.png`;
-        await page.screenshot({path:filename,animations:'disabled'});out.screenshots.push(filename);
-      }catch(error){record(out.common,'HOME-RESPONSIVE-THEME','blocked',short(error),{path:'/',width,theme});}
-    }
+    try{
+      await open('/');
+      const background=await page.evaluate(()=>getComputedStyle(document.body).backgroundColor);
+      const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+      record(out.common,'HOME-RESPONSIVE',overflow<=2?'pass':'fail',{width,background,overflow},{path:'/',width});
+      const filename=`${folder}/${name}-home-${width}.png`;
+      await page.screenshot({path:filename,animations:'disabled'});out.screenshots.push(filename);
+    }catch(error){record(out.common,'HOME-RESPONSIVE','blocked',short(error),{path:'/',width});}
   }
   await page.setViewportSize({width:390,height:900});
   try{
     await open('/');
-    const menu=page.locator('[data-nav-toggle],[data-z7-more],.z1-mobile-menu,.z2-mobile-menu,.z3-mobile-menu,.z4-rail-toggle,.z5-rail-toggle,.z6-rail-toggle,.z8-nav-toggle,.z9-mobile-menu-toggle,.z10-mobile-menu-toggle,.z11-mobile-menu-toggle,.z12-mobile-menu-toggle,.z13-nav-toggle,.z14-mobile-menu-toggle,.z15-mobile-menu-toggle,.z16-mobile-menu-toggle,.z17-mobile-menu-toggle').filter({visible:true}).first();
-    if(!await menu.count())record(out.common,'MOBILE-MENU','needs_review','No recognized visible menu control',{path:'/',width:390});
+    const menu=page.locator('[data-nav-toggle],[data-z7-more],.mobilemenu,.z1-mobile-menu,.z2-mobile-menu,.z3-mobile-menu,.z4-rail-toggle,.z5-rail-toggle,.z6-rail-toggle,.z8-nav-toggle,.z9-mobile-menu-toggle,.z10-mobile-menu-toggle,.z11-mobile-menu-toggle,.z12-mobile-menu-toggle,.z13-nav-toggle,.z14-mobile-menu-toggle,.z15-mobile-menu-toggle,.z16-mobile-menu-toggle,.z17-mobile-menu-toggle,.z18-mobile-menu-toggle').filter({visible:true}).first();
+    if(!await menu.count())record(out.common,'MOBILE-MENU','fail','Required mobile drawer control absent',{path:'/',width:390});
     else{
-      const before=await menu.getAttribute('aria-expanded');await menu.click({timeout:3500});
-      const after=await menu.getAttribute('aria-expanded');
-      const shown=await page.locator('nav a[href]').filter({visible:true}).count();
-      await page.keyboard.press('Escape');
-      record(out.common,'MOBILE-MENU',before!==after&&shown>0?'pass':'needs_review',{before,after,visible_nav_links:shown},{path:'/',width:390});
+      const beforeUrl=page.url(),beforeExpanded=await menu.getAttribute('aria-expanded');
+      const beforeLinks=await page.locator('nav a[href]').filter({visible:true}).count();
+      await menu.click({timeout:3500});
+      const afterUrl=page.url(),afterExpanded=await menu.getAttribute('aria-expanded');
+      const openLinks=await page.locator('nav a[href]').filter({visible:true}).count();
+      await page.keyboard.press('Escape');await page.waitForTimeout(100);
+      let closedExpanded=await menu.getAttribute('aria-expanded');
+      let closedLinks=await page.locator('nav a[href]').filter({visible:true}).count();
+      const opened=afterExpanded==='true'||openLinks>beforeLinks;
+      if(opened&&closedExpanded!=='false'&&closedLinks>=openLinks){
+        await menu.click({timeout:3500});await page.waitForTimeout(100);
+        closedExpanded=await menu.getAttribute('aria-expanded');
+        closedLinks=await page.locator('nav a[href]').filter({visible:true}).count();
+      }
+      const closed=closedExpanded==='false'||closedLinks<openLinks;
+      record(out.common,'MOBILE-MENU',beforeUrl===afterUrl&&opened&&closed&&openLinks>0?'pass':'fail',
+        {before_url:beforeUrl,after_url:afterUrl,before_expanded:beforeExpanded,after_expanded:afterExpanded,
+          closed_expanded:closedExpanded,before_links:beforeLinks,open_links:openLinks,closed_links:closedLinks},{path:'/',width:390});
     }
   }catch(error){record(out.common,'MOBILE-MENU','blocked',short(error),{path:'/',width:390});}
-  try{
-    await open('/');
-    const toggle=page.locator('[data-theme-toggle],[class*="theme-toggle"],[class*="theme-btn"],.sl-theme,.ps-theme-btn,.z11-tool-theme,.z12-tool-theme').filter({visible:true}).first();
-    if(!await toggle.count())record(out.common,'THEME-TOGGLE','needs_review','No recognized visible theme toggle',{path:'/'});
-    else{
-      const before=await page.locator('html').getAttribute('data-theme');
-      const appearance=()=>page.evaluate(()=>[...document.querySelectorAll('body,body *')].filter(x=>x.getClientRects().length).slice(0,120).map(x=>{
-        const s=getComputedStyle(x);return [s.backgroundColor,s.color,s.borderTopColor].join('|');}).join(';'));
-      const appearanceBefore=await appearance();
-      await toggle.click({timeout:3500});
-      const after=await page.locator('html').getAttribute('data-theme');
-      const appearanceAfter=await appearance();
-      await page.reload({waitUntil:'domcontentloaded'});
-      const persisted=await page.locator('html').getAttribute('data-theme');
-      record(out.common,'THEME-TOGGLE',before===after||after!==persisted?'fail':appearanceBefore===appearanceAfter?'needs_review':'pass',
-        {before,after,persisted,computed_appearance_changed:appearanceBefore!==appearanceAfter},{path:'/'});
-    }
-  }catch(error){record(out.common,'THEME-TOGGLE','blocked',short(error),{path:'/'});}
   try{
     await page.setViewportSize({width:1280,height:900});await open('/');
     const target=page.locator('a[href="/zuqiu"]').filter({visible:true}).first();
@@ -82,39 +73,29 @@ async (page) => {
       record(out.common,'NAV-CLICK',status===200&&page.url()===base+'/zuqiu'?'pass':status===null?'needs_review':'fail',
         {url:page.url(),http:status},{path:'/',width:1280});}
   }catch(error){record(out.common,'NAV-CLICK','blocked',short(error),{path:'/',width:1280});}
-  await page.setViewportSize({width:390,height:900});
-  for(const mode of ['enter','button']){
-    try{
-      await open('/');
-      let input=page.locator('form[action="/search"] input[name="q"]').filter({visible:true}).first();
-      if(!await input.count()){
-        const opener=page.locator('#mobile-search-icon,button[aria-label*="搜索"]').filter({visible:true}).first();
-        if(await opener.count())await opener.click({timeout:3000});
-        input=page.locator('form[action="/search"] input[name="q"]').filter({visible:true}).first();
-      }
-      if(!await input.count()){record(out.common,'SITE-SEARCH','needs_review','No visible site search input',{path:'/',mode});continue;}
-      await input.fill(mode==='enter'?'英超':'NBA');
-      if(mode==='enter')await input.press('Enter',{timeout:4000});
-      else{
-        const submit=input.locator('xpath=ancestor::form').locator('button[type="submit"],input[type="submit"]').first();
-        if(!await submit.count()){record(out.common,'SITE-SEARCH','needs_review','No submit button',{path:'/',mode});continue;}
-        await submit.click({timeout:4000});
-      }
-      const url=page.url(),body=await page.locator('body').innerText();
-      record(out.common,'SITE-SEARCH',/\/search(?:\?|$)/.test(url)&&body.trim().length>20?'pass':'fail',{url,body_chars:body.trim().length},{path:'/',mode});
-    }catch(error){record(out.common,'SITE-SEARCH','blocked',short(error),{path:'/',mode});}
-  }
+  await page.setViewportSize({width:1280,height:900});
   try{
     await open('/');
-    await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';scrollTo(0,document.body.scrollHeight)});
-    const before=await page.evaluate(()=>scrollY);
-    await page.waitForTimeout(250);
-    const top=page.locator('#scroll-to-top,.z1-back-top,[data-back-top],[class*="scroll-top"],[class*="back-top"]').filter({visible:true}).first();
-    if(before<100)record(out.common,'GOTO-TOP','not_applicable','Home page does not scroll',{path:'/'});
-    else if(!await top.count())record(out.common,'GOTO-TOP','needs_review','No recognized visible control',{path:'/'});
-    else{await top.click({timeout:3500});await page.waitForFunction(()=>scrollY<5,null,{timeout:4000}).catch(()=>{});const after=await page.evaluate(()=>scrollY);
-      record(out.common,'GOTO-TOP',after<5?'pass':'fail',{before,after},{path:'/'});}
-  }catch(error){record(out.common,'GOTO-TOP','blocked',short(error),{path:'/'});}
+    const more=page.locator('.header_menu_more_btn').filter({visible:true}).first();
+    if(!await more.count())record(out.common,'MORE-EVENTS-MENU','blocked','r62-aligned more-events control absent',{path:'/',width:1280});
+    else{
+      await more.click({timeout:3500});
+      const expanded=await more.getAttribute('aria-expanded');
+      const links=await page.locator('.header_menu_more .header_menu_item_item a[href]').filter({visible:true}).count();
+      record(out.common,'MORE-EVENTS-MENU',expanded==='true'&&links>0?'pass':'fail',{expanded,visible_links:links},{path:'/',width:1280});
+    }
+  }catch(error){record(out.common,'MORE-EVENTS-MENU','blocked',short(error),{path:'/',width:1280});}
+  try{
+    const playback=[];
+    for(const item of paths){
+      await open(item.path);
+      const links=page.locator('a[href^="/play/"],a[onclick*="/play/"]');
+      for(let i=0;i<await links.count();i++)playback.push({path:item.path,rel:await links.nth(i).getAttribute('rel')||''});
+    }
+    const missing=playback.filter(x=>!x.rel.split(/\s+/).includes('nofollow'));
+    record(out.common,'LIVE-DETAIL-PLAYBACK-NOFOLLOW',missing.length?'fail':playback.length?'pass':'not_applicable',
+      {links:playback.length,missing_nofollow:missing},{path:'all-sampled-pages'});
+  }catch(error){record(out.common,'LIVE-DETAIL-PLAYBACK-NOFOLLOW','blocked',short(error),{path:'all-sampled-pages'});}
   try{
     await open(spec.path);
     const buttons=page.locator(spec.selector),count=await buttons.count();

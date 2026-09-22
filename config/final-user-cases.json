@@ -1,6 +1,7 @@
 {
-  "version": 1,
-  "common": ["existing-page-http-and-readable-html", "mobile-desktop-layout-and-theme", "search-button-and-enter", "mobile-menu-open-close", "goto-top", "real-link-destination"],
+  "version": 2,
+  "reference_template_id": "r62",
+  "common": ["existing-page-http-and-readable-html", "mobile-desktop-layout", "mobile-menu-open-close", "desktop-navigation", "more-events-menu", "home-match-tabs", "real-link-destination", "live-detail-playback-link-nofollow"],
   "specific": {
     "z1": {"path": "/", "type": "expand", "selector": ".header_menu_more_btn", "target": ".header_menu_more .header_menu_item_item"},
     "z2": {"path": "/", "type": "numbered-tabs", "selector": "#match_filter_top [data-tab]"},
