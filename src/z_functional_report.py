@@ -3,7 +3,7 @@ import argparse
 from collections import Counter,defaultdict
 from pathlib import Path
 
-from core import ROOT,fingerprint,git,read_json,save_json
+from core import resolve_repo_root, ROOT,fingerprint,git,read_json,save_json
 
 
 def report(http_run,overrides,browser_runs,output):
@@ -13,7 +13,7 @@ def report(http_run,overrides,browser_runs,output):
     for path in [*overrides,*browser_runs]:
         if not (ROOT/path).resolve().is_relative_to(ROOT/'runs'):raise ValueError('Evidence only under runs/')
     out.mkdir(parents=True)
-    repo=Path(read_json(ROOT/'tasks/bootstrap.json')['repo_root'])
+    repo=resolve_repo_root()
     docs=read_json(source/'pages.json')
     expected={(d['template'],d['path'],width) for d in docs if d['status']==200 for width in (390,1280)}
     checks=defaultdict(list)

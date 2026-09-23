@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from acceptance import collect_http
-from core import ROOT, fingerprint, git, read_json, save_json
+from core import resolve_repo_root, ROOT, fingerprint, git, read_json, save_json
 
 
 def run(output, base, browser_name='chrome'):
@@ -21,7 +21,7 @@ def run(output, base, browser_name='chrome'):
     cli = shutil.which('playwright-cli.cmd') or shutil.which('playwright-cli')
     if not cli or subprocess.check_output([cli, '--version'], text=True).strip() != '0.1.20':
         raise RuntimeError('playwright-cli 0.1.20 is required')
-    repo = Path(read_json(ROOT / 'tasks/bootstrap.json')['repo_root'])
+    repo = resolve_repo_root()
     script = ROOT / 'scripts/cli-z16-leo-regression.js'
     inputs = [script, Path(__file__), ROOT/'config/acceptance-policy.json',
               *(repo/'templates/z16').rglob('*.html'),

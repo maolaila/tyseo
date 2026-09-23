@@ -8,12 +8,12 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from core import ROOT, fingerprint, git, read_json, save_json
+from core import resolve_repo_root, ROOT, fingerprint, git, read_json, save_json
 
 
 def capture(number, output):
     name = f"z{number}"
-    repo = Path(read_json(ROOT / "tasks/bootstrap.json")["repo_root"])
+    repo = resolve_repo_root()
     out = output / name
     out.mkdir(parents=True, exist_ok=True)
     inputs = [repo / "run.py", repo / "config.py", repo / "cache/cache_data.py",

@@ -7,7 +7,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from core import ROOT, fingerprint, git, read_json, save_json
+from core import resolve_repo_root, ROOT, fingerprint, git, read_json, save_json
 
 
 def run(input_dir, output, ids, max_pages=None):
@@ -19,7 +19,7 @@ def run(input_dir, output, ids, max_pages=None):
     if not cli or subprocess.check_output([cli,'--version'],text=True).strip()!='0.1.20':
         raise RuntimeError('playwright-cli 0.1.20 required')
     pages = read_json(source/'pages.json')
-    repo = Path(read_json(ROOT/'tasks/bootstrap.json')['repo_root'])
+    repo = resolve_repo_root()
     script = (ROOT/'scripts/cli-z-page-actions.js').read_text(encoding='utf-8')
     out.mkdir(parents=True)
     summary = []

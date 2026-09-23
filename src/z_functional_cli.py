@@ -11,7 +11,7 @@ from pathlib import Path
 
 import requests
 
-from core import ROOT, fingerprint, git, read_json, save_json
+from core import resolve_repo_root, ROOT, fingerprint, git, read_json, save_json
 
 
 def run_one(number, root, cli, repo):
@@ -85,6 +85,6 @@ if __name__ == "__main__":
     cli = shutil.which("playwright-cli.cmd") or shutil.which("playwright-cli")
     if not cli or subprocess.check_output([cli, "--version"], text=True).strip() != "0.1.20":
         raise RuntimeError("playwright-cli 0.1.20 required")
-    repo = Path(read_json(ROOT / "tasks/bootstrap.json")["repo_root"])
+    repo = resolve_repo_root()
     for number in args.ids:
         run_one(number, root, cli, repo)

@@ -1,17 +1,29 @@
 {
-  "note": "已经查明属于后端、模板侧改不了的问题登记在这里。红线门槛（src/red_line_gate.py）只对登记在案、且 owner_notified_at 有值（已经把带图报告交给负责人 Pony）的后端问题放行；页面上它们仍然点不通，要等后端修。path / exception 是正则。查不清原因的不许登记。",
-  "issues": [
-    {
-      "id": "tags-offsetnum-typeerror",
-      "path": "^/(tags/\\d+|tag/\\d+(-\\d+)?\\.html|\\w+-tag/\\d+(-\\d+)?\\.html)$",
-      "exception": "TypeError",
-      "cause": "run.py tag_list（第 4732 行 if recovery_id <= 0）：cache/cache_data.py 的 recovery_id_offset(id) 在站点 OffsetNum 为空/0 时把 URL 里的字符串 id 原样返回，与 0 比较抛 TypeError: '<=' not supported between instances of 'str' and 'int'。所有模板一样；模板里的链接写法（/tags/{{ item.id }}）与其他模板族一致。",
-      "templates": "全部",
-      "report": "runs/backend-issues-20260921/（tags-500-1-z2-click-here.png、tags-500-2-error-page.png）",
-      "owner_notified_at": "2026-09-21T15:50:00+09:00",
-      "backend_owner": "Rechard",
-      "backend_notified_at": null,
-      "production": "未查（线上站点对脚本请求返回 403）；站点配了 OffsetNum 时不会触发"
-    }
-  ]
+ "note": "已经查明属于后端、模板侧改不了的问题登记在这里。红线门槛（src/red_line_gate.py）只对登记在案、且 owner_notified_at 有值（已经把带图报告交给负责人 Pony）的后端问题放行；页面上它们仍然点不通，要等后端修。path / exception 是正则。查不清原因的不许登记。",
+ "issues": [
+  {
+   "id": "tags-offsetnum-typeerror",
+   "path": "^/(tags/\\d+|tag/\\d+(-\\d+)?\\.html|\\w+-tag/\\d+(-\\d+)?\\.html)$",
+   "exception": "TypeError",
+   "cause": "run.py tag_list（第 4732 行 if recovery_id <= 0）：cache/cache_data.py 的 recovery_id_offset(id) 在站点 OffsetNum 为空/0 时把 URL 里的字符串 id 原样返回，与 0 比较抛 TypeError: '<=' not supported between instances of 'str' and 'int'。所有模板一样；模板里的链接写法（/tags/{{ item.id }}）与其他模板族一致。",
+   "templates": "全部",
+   "report": "runs/backend-issues-20260921/（tags-500-1-z2-click-here.png、tags-500-2-error-page.png）",
+   "owner_notified_at": "2026-09-21T15:50:00+09:00",
+   "backend_owner": "Rechard",
+   "backend_notified_at": null,
+   "production": "已查：线上同一路径 HTTP 404（cn-360zhibo8-mgtv.com，2026-09-23T21:37Z，3 个 id 均为 404，非 500）；线上未复现本地的 TypeError"
+  },
+  {
+   "id": "teaminfo-pre1970-transfertime-oserror",
+   "path": "^/[a-z]+/teams/teaminfo-\\d+\\.html$",
+   "exception": "OSError",
+   "cause": "run.py:2960 team_info 把 item['transfer_time'] 交给 utility/date_helper.py:51 get_time_span_to_date_only，里面 time.localtime(time_span) 在 Windows 上不接受 1970 年以前的负时间戳，抛 OSError [Errno 22] Invalid argument。已在本机复现：time.localtime(-1) 即报错，time.localtime(0) 正常。触发数据为已解散球队（如 42313 巴尔的摩子弹 1944-1954）的转会时间。模板链接写法与其他模板族一致，模板侧改不了。",
+   "templates": "全部",
+   "report": "runs/z2-claude-20260923/backend-issue/（1-nba-winner-link.png 圈出入口、2-error-page.png 报错页）、runs/z2-claude-20260923/REPORT.md",
+   "owner_notified_at": "2026-09-23T21:30:00+00:00",
+   "backend_owner": "Rechard",
+   "backend_notified_at": null,
+   "production": "已查：线上同一路径 HTTP 200，页面正常（cn-360zhibo8-mgtv.com/nba/teams/teaminfo-42313.html，2026-09-23T21:37Z）。生产跑 Linux，localtime 接受负时间戳，因此不触发；这是本机 Windows 专有故障，不是线上事故"
+  }
+ ]
 }

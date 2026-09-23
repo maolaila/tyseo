@@ -12,7 +12,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from core import ROOT, fingerprint, git, read_json, save_json
+from core import resolve_repo_root, ROOT, fingerprint, git, read_json, save_json
 from z_manual_preview import existing_pages
 
 
@@ -138,7 +138,7 @@ def main():
     cli=shutil.which('playwright-cli.cmd') or shutil.which('playwright-cli')
     if not cli or subprocess.check_output([cli,'--version'], text=True).strip()!='0.1.20':
         raise RuntimeError('playwright-cli 0.1.20 required')
-    repo=Path(read_json(ROOT/'tasks/bootstrap.json')['repo_root'])
+    repo=resolve_repo_root()
     cases=read_json(ROOT/'config/final-user-cases.json')
     names=args.ids or sorted(cases['specific'], key=lambda x:int(re.search(r'\d+$',x).group()))
     if any(name not in cases['specific'] or not re.fullmatch(r'[a-z]+\d+',name) for name in names):

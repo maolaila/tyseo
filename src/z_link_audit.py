@@ -8,11 +8,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit, urldefrag
 
+import time
 import requests
 from bs4 import BeautifulSoup
 
 from acceptance import collect_http
-from core import ROOT, fingerprint, git, read_json, save_json
+from core import (ROOT, fingerprint, git, preview_source_check, read_json,
+                  repo_provenance, resolve_repo_root, save_json)
 from z_manual_preview import existing_pages
 
 
@@ -29,7 +31,25 @@ def local_path(base, source, href):
     return urlsplit(urldefrag(target).url).path + (('?' + urlsplit(target).query) if urlsplit(target).query else ''), 'local'
 
 
-def link_head(base, path):
+def link_head(base, path, _retries=1):
+    """5xx 复查一次再下结论。
+
+    本地预览第一次访问某个分页时会现算缓存，偶尔超时抛 500；单独复测又是 200。
+    这种一次性的假阳性会让整份报告失去可信度，所以 5xx 隔一会儿重试一次，
+    仍然 5xx 才算数（结果里记 retried，便于回看）。
+    """
+    result = _link_head_once(base, path)
+    status = result.get('status')
+    if _retries and isinstance(status, int) and status >= 500:
+        time.sleep(1.5)
+        again = _link_head_once(base, path)
+        again['retried'] = True
+        again['first_status'] = status
+        return again
+    return result
+
+
+def _link_head_once(base, path):
     url = base + path
     try:
         response = requests.head(url, timeout=12, allow_redirects=False)
@@ -51,17 +71,25 @@ def link_head(base, path):
         return {'status': 'blocked', 'reason': type(error).__name__}
 
 
-def run(ids, contract_run, output):
+def run(ids, contract_run, output, repo_root=None):
     output = (ROOT / output).resolve()
     contracts = (ROOT / contract_run).resolve()
     if not output.is_relative_to(ROOT / 'runs') or output.exists() or not contracts.is_relative_to(ROOT / 'runs'):
         raise ValueError('Use new output and existing contracts under external runs/')
     output.mkdir(parents=True)
-    repo = Path(read_json(ROOT / 'tasks/bootstrap.json')['repo_root'])
+    repo = resolve_repo_root(repo_root)
     inputs = [Path(__file__), ROOT/'config/acceptance-policy.json',
               *(p for number in ids for p in (repo/'templates'/f'z{number}').rglob('*.html')),
               *(p for number in ids for p in (repo/'static'/f'z{number}').rglob('*') if p.is_file())]
-    identity = {'commit':git(repo,'rev-parse','HEAD'),'ids':ids,'policy':'2.3'}
+    provenance = repo_provenance(repo)
+    source_checks = {}
+    for number in ids:
+        name = f'z{number}'
+        ok, note = preview_source_check(repo, name, f'http://127.0.0.1:{6300 + int(number)}')
+        source_checks[name] = note
+        if not ok:
+            raise SystemExit(f'{name}: {note}')
+    identity = {'commit':provenance['commit'],'ids':ids,'policy':'2.3'}
     before = fingerprint(identity, inputs)
     samples = defaultdict(list)
     blocked = []
@@ -134,7 +162,8 @@ def run(ids, contract_run, output):
         severity='P1',owner_layer='unknown: template or backend',
         evidence_paths=['links.json']) for x in failures])
     save_json(output / 'unverified.json', unverified)
-    summary = {'finished_at': datetime.now(timezone.utc).isoformat(), 'commit': git(repo, 'rev-parse', 'HEAD'),
+    summary = {'finished_at': datetime.now(timezone.utc).isoformat(), **provenance,
+               'source_checks': source_checks,
                'input_hash':before,'source_fresh':before==fingerprint(identity,inputs),
                'ids': ids, 'existing_page_samples': sum(map(len, samples.values())), 'unique_documents':len(samples),
                'current_http_200':sum(x['status']==200 for x in documents), 'link_targets':len(checks),
@@ -151,6 +180,8 @@ if __name__ == '__main__':
     parser.add_argument('--ids', nargs='+', type=int, default=list(range(1,18)))
     parser.add_argument('--contract-run', default='runs/z-v2-recheck-20260919/contracts')
     parser.add_argument('--output', required=True)
+    parser.add_argument('--repo-root', help='预览实际跑的业务检出（worktree 就填 worktree 路径）；'
+                                            '不填则用 PONY_REPO_ROOT，再不填才回落 tasks/bootstrap.json')
     args = parser.parse_args()
     if any(i < 1 or i > 17 for i in args.ids): raise ValueError('Only confirmed z1..z17')
-    run(args.ids, args.contract_run, args.output)
+    run(args.ids, args.contract_run, args.output, args.repo_root)

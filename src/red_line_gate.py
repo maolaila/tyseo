@@ -35,7 +35,8 @@ from urllib.parse import urljoin, urlsplit, urldefrag
 import requests
 from bs4 import BeautifulSoup
 
-from core import ROOT, git, read_json, save_json
+from core import (ROOT, git, preview_source_check, read_json, repo_provenance,
+                  resolve_repo_root, save_json)
 
 OK = (200, 301, 302, 303, 307, 308)
 
@@ -79,9 +80,18 @@ def samples_for(repo, contracts, number, borrow):
                 missing.append({'page_type': page['page_type_id'], 'reason': f'templates/{name}/{entry} 不存在（{source} 有这一页）'})
             continue
         sample = next((s['path'] for s in page.get('http_samples', []) if s['status'] == 200), None)
+        if not sample:
+            # 契约是靠爬站内链接生成的，站内没入口的页面会永远没样例；
+            # config/extra-page-samples.json 里是人工按 run.py 路由核实过的真实地址
+            sample = extra_samples().get(page['page_type_id'])
         if sample and not sample.startswith('/play/'):
             samples[sample].append(page['page_type_id'])
     return samples, missing, source
+
+
+def extra_samples():
+    path = ROOT / 'config/extra-page-samples.json'
+    return read_json(path).get('samples', {}) if path.is_file() else {}
 
 
 def internal(base, source, href):
@@ -250,6 +260,8 @@ def main():
     parser.add_argument('--ids', nargs='*', default=[], help='模板编号，如 1 2 z10 18')
     parser.add_argument('--changed-since', help='只查这个提交之后改动过的 z 模板（加上未提交的改动）；给执行器的 verify 用')
     parser.add_argument('--output', required=True)
+    parser.add_argument('--repo-root', help='预览实际跑的业务检出（worktree 就填 worktree 路径）；'
+                                            '不填则用 PONY_REPO_ROOT，再不填才回落 tasks/bootstrap.json')
     parser.add_argument('--contract-run', default='runs/z-v2-recheck-20260919/contracts')
     parser.add_argument('--borrow', default='z1', help='没有页面契约的模板借用哪一套的样例地址')
     parser.add_argument('--skip-browser', action='store_true', help='只查链接，不查手机端菜单（开发试跑用；结果不能算通过）')
@@ -257,7 +269,7 @@ def main():
     parser.add_argument('--max-pages', type=int, default=0, help='手机端菜单最多查多少个样例页（开发试跑用；没查的页记为未覆盖，不能算通过）')
     args = parser.parse_args()
 
-    repo = Path(read_json(ROOT / 'tasks/bootstrap.json')['repo_root'])
+    repo = resolve_repo_root(args.repo_root)
     ids = template_ids(args.ids)
     if args.changed_since:
         ids = sorted(set(ids) | set(changed_ids(repo, args.changed_since)))
@@ -277,8 +289,8 @@ def main():
     if not cli and not args.skip_browser:
         raise SystemExit('需要 playwright-cli 0.1.20')
 
-    gate = {'policy': '2.5', 'started_at': datetime.now(timezone.utc).isoformat(), 'commit': git(repo, 'rev-parse', 'HEAD'),
-            'dirty': bool(git(repo, 'status', '--porcelain').strip()), 'templates': []}
+    gate = {'policy': '2.5', 'started_at': datetime.now(timezone.utc).isoformat(),
+            **repo_provenance(repo), 'templates': []}
     for number in ids:
         name, base = f'z{number}', f'http://127.0.0.1:{6300 + number}'
         out = output / name
@@ -296,6 +308,13 @@ def main():
             entry.update(status='blocked', reasons=[f'{why}，没法验'])
             gate['templates'].append(entry)
             print(f'{name}: 没法验——{why}', flush=True)
+            continue
+        source_ok, source_note = preview_source_check(repo, name, base)
+        entry['source_check'] = source_note
+        if not source_ok:
+            entry.update(status='blocked', reasons=[source_note])
+            gate['templates'].append(entry)
+            print(f'{name}: 没法验——{source_note}', flush=True)
             continue
         samples, missing, source = samples_for(repo, contracts, number, args.borrow)
         entry['sample_source'] = source
@@ -347,7 +366,8 @@ def main():
         if file.is_file():
             problems += [f for f in read_json(file)['failures'] if f['kind'] in ('backend_code', 'server_error_unknown', 'not_found', 'timeout')]
     save_json(output / 'backend-problems.json', problems)
-    lines = ['# 红线门槛结果（政策 2.5）', '', f"业务仓库提交 {gate['commit'][:9]}{'（有未提交改动）' if gate['dirty'] else ''}；结论只对这一刻的代码有效，改了要重跑。", '']
+    lines = ['# 红线门槛结果（政策 2.5）', '', f"业务检出 {gate['repo_root']}，分支 {gate['branch']}，提交 {gate['commit'][:9]}"
+             f"{'（有未提交改动）' if gate['dirty'] else ''}；结论只对这一刻的代码有效，改了要重跑。", '']
     for t in gate['templates']:
         lines.append(f"- **{t['template']}**：{'通过' if t['status'] == 'pass' else '不通过' if t['status'] == 'fail' else '没法验'}"
                      + (f"（查了 {t['links']['sample_pages']} 个样例页、{t['links']['link_targets']} 个链接目标" + (f"、{t['mobile_nav']['pages']} 个页面的手机菜单" if t.get('mobile_nav') else '') + '）' if t.get('links') else ''))

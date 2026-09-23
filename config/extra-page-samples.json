@@ -1,0 +1,16 @@
+{
+ "note": "2026-09-19 那份页面契约靠爬链接生成，有几类页面站内没有任何入口链过去，于是被记成『没有真实样例』长期 blocked。这里补上人工按 run.py 路由核实过的真实地址，工具会并进契约一起测。加条目前必须自己访问过并拿到 HTTP 200，并写清核实时间。",
+ "verified_at": "2026-09-24",
+ "verified_on": "本地预览 z2（127.0.0.1:6302），全部 HTTP 200 且各有 1 个 h1；同样的路由对 z1-z17 通用（后端数据和路由是同一份）",
+ "samples": {
+  "five_leagues": "/fiveleagues",
+  "league_jifen": "/yingchao/jifen",
+  "league_paihangbang": "/yingchao/paihangbang",
+  "team_player_honor_list": "/nba/teams/playerhonor-11118.html",
+  "team_player_rank": "/nba/teams/playerrank-10114.html"
+ },
+ "still_blocked": {
+  "tag_list": "/tags/<id> 本地 500，已登记后端问题 tags-offsetnum-typeerror；线上同路径是 404",
+  "hot_tag_detail_pinyin": "路由是 /<key>_<拼音>，站内没有任何页面链过去，也没有可用的真实拼音样例；按『只修各套已有页面、不新增入口』保持 blocked"
+ }
+}

@@ -1,6 +1,7 @@
 """Serve a manual review index for existing z1-z17 pages and original Flask apps."""
 import json
 import os
+import sys
 import socket
 import subprocess
 import time
@@ -10,7 +11,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import requests
-from core import ROOT, git, read_json, save_json
+from core import resolve_repo_root, ROOT, git, read_json, save_json
 
 OUT = ROOT / 'runs/z-manual-preview'
 CONTRACTS = ROOT / 'runs/z-review-final-9415e-20260919'
@@ -31,6 +32,14 @@ PAGE_NAMES = {
 }
 
 
+def business_python(repo):
+    """worktree 里没有 .venv，回落到主检出那份；再不行用当前解释器。"""
+    local = repo / '.venv/Scripts/python.exe'
+    if local.is_file():
+        return str(local)
+    fallback = Path(read_json(ROOT / 'tasks/bootstrap.json')['repo_root']) / '.venv/Scripts/python.exe'
+    return str(fallback if fallback.is_file() else Path(sys.executable))
+
 def existing_pages(repo, template, contract):
     return [p for p in contract['pages']
             if p['entry_template'].startswith(template + '/')
@@ -39,7 +48,7 @@ def existing_pages(repo, template, contract):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    repo = Path(read_json(ROOT / 'tasks/bootstrap.json')['repo_root'])
+    repo = resolve_repo_root()
     state = {'mode': 'z_manual_review', 'scope': 'z1-z17 existing pages only',
              'commit': git(repo, 'rev-parse', 'HEAD'), 'templates': []}
     processes = []
@@ -70,7 +79,7 @@ def main():
             env.update(DEV_MasterID=name, APP_ENV='development', FLASK_HOST='127.0.0.1',
                        FLASK_PORT=str(6300 + number), PYTHONDONTWRITEBYTECODE='1')
             with (OUT / f'{name}.log').open('a', encoding='utf-8') as log:
-                process = subprocess.Popen([str(repo / '.venv/Scripts/python.exe'), '-B', '-u', 'run.py'],
+                process = subprocess.Popen([business_python(repo), '-B', '-u', 'run.py'],
                     cwd=repo, env=env, stdout=log, stderr=subprocess.STDOUT,
                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
             processes.append(process); item['pid'] = process.pid

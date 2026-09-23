@@ -41,6 +41,83 @@ def digest(path):
 def git(repo, *args):
     return subprocess.check_output(['git', '-C', str(repo), *args]).decode('utf-8', 'replace').strip()
 
+def resolve_repo_root(explicit=None):
+    """预览服务跑的是哪个检出，证据就该记哪个。
+
+    以前这里写死读 tasks/bootstrap.json 的 repo_root，于是在 worktree 里改代码、
+    用 worktree 起预览时，落盘的 commit / dirty / input_hash 全是主检出的，
+    等于给错代码盖了章。优先级：显式参数 > 环境变量 PONY_REPO_ROOT > bootstrap.json。
+    """
+    local = ROOT / 'tasks/local.json'
+    fallback = local if local.is_file() else ROOT / 'tasks/bootstrap.json'
+    raw = explicit or os.environ.get('PONY_REPO_ROOT') or read_json(fallback)['repo_root']
+    repo = Path(raw).resolve()
+    if not (repo / 'run.py').is_file():
+        raise ValueError(f'{repo} 不像业务检出：里面没有 run.py')
+    return repo
+
+def repo_provenance(repo):
+    """证据里要能看出测的是哪个检出、哪个分支、干不干净。"""
+    return {'repo_root': str(repo),
+            'commit': git(repo, 'rev-parse', 'HEAD'),
+            'branch': git(repo, 'branch', '--show-current') or '(detached HEAD)',
+            'dirty': bool(git(repo, 'status', '--porcelain').strip())}
+
+def preview_source_check(repo, name, base, timeout=30):
+    """核对"预览真正跑的检出"是不是 repo_root。
+
+    对不上就说明测的检出和记的检出不是同一个（最常见是在 worktree 里改代码、
+    用 worktree 起预览，工具却在给主检出盖章）。返回 (ok, 说明)，
+    调用方据此判 blocked，不让盖错章的证据悄悄变成 pass。
+
+    两道校验：
+    1) 该模板 static 下所有 css/js 与磁盘逐字节比对——静态资源改了就能发现；
+    2) 磁盘上 master.html 里写的静态资源引用（含 ?v= 版本号）必须原样出现在
+       预览返回的首页 HTML 里——这把"服务端用的模板"也绑上了，
+       光比静态文件抓不到只改模板的情况。
+    """
+    import urllib.request
+    import urllib.error
+
+    def fetch(url, binary=True):
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            raw = response.read()
+        return raw if binary else raw.decode('utf-8', 'replace')
+
+    static_dir = repo / 'static' / name
+    assets = sorted(p for p in static_dir.rglob('*') if p.is_file() and p.suffix.lower() in ('.css', '.js'))
+    checked = 0
+    for asset in assets:
+        url = f"{base}/static/{name}/{asset.relative_to(static_dir).as_posix()}"
+        try:
+            served = fetch(url)
+        except (urllib.error.URLError, OSError) as error:
+            return False, f'取不到预览的 {url}：{error}'
+        if hashlib.sha256(served).hexdigest() != digest(asset):
+            return False, (f'预览 {base} 提供的 {url} 与 {repo} 里的同名文件不一致：'
+                           f'预览跑的不是这个检出，证据会盖错提交号。'
+                           f'用 --repo-root 或 PONY_REPO_ROOT 指到预览实际使用的目录再跑')
+        checked += 1
+
+    master = repo / 'templates' / name / 'master.html'
+    refs = []
+    if master.is_file():
+        pattern = re.escape(f'/static/{name}/') + r'[^"\'\s>]+'
+        refs = sorted(set(re.findall(pattern, master.read_text(encoding='utf-8'))))
+    if refs:
+        try:
+            home = fetch(f'{base}/', binary=False)
+        except (urllib.error.URLError, OSError) as error:
+            return False, f'取不到预览首页 {base}/：{error}'
+        missing = [ref for ref in refs if ref not in home]
+        if missing:
+            return False, (f'{repo} 的 {name}/master.html 里写着 {missing[0]}，'
+                           f'但预览 {base} 返回的首页里没有：服务端用的模板不是这个检出的，'
+                           f'证据会盖错提交号。用 --repo-root 或 PONY_REPO_ROOT 指到预览实际使用的目录再跑')
+    if not checked and not refs:
+        return True, f'{name} 没有可比对的静态资源或母版引用，跳过来源校验'
+    return True, f'来源已核对：{checked} 个 css/js 与磁盘一致，母版 {len(refs)} 处静态引用在预览首页里都能对上'
+
 def inside(child, parent):
     return Path(child).resolve().is_relative_to(Path(parent).resolve())
 

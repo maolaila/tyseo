@@ -7,14 +7,14 @@ from types import SimpleNamespace
 from jinja2 import Environment, FileSystemLoader
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from core import ROOT, read_json
+from core import resolve_repo_root, ROOT, read_json
 
 
 class ZEmptyStates(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         task = ROOT / "tasks/local.json"
-        repo = Path(read_json(task if task.exists() else ROOT / "tasks/bootstrap.json")["repo_root"])
+        repo = resolve_repo_root()
         cls.env = Environment(loader=FileSystemLoader(str(repo / "templates")))
 
     def test_football_widgets_have_honest_empty_states(self):

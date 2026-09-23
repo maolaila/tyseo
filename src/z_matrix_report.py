@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 from html import escape
 from pathlib import Path
 
-from core import ROOT, fingerprint, git, read_json, save_json
+from core import resolve_repo_root, ROOT, fingerprint, git, read_json, save_json
 from acceptance import make_plan
 from z_manual_preview import existing_pages
 
@@ -24,7 +24,7 @@ def build(run, contract_run=None, reuse_run=None, reuse_commit=None):
     reuse_pairs = [((ROOT / old).resolve(), old_commit) for old, old_commit in zip(reuse_runs, reuse_commits)]
     if any(not old.is_relative_to(ROOT / "runs") or not old.is_dir() for old, _ in reuse_pairs):
         raise ValueError("Reused runs must be existing directories under external runs/")
-    repo = Path(read_json(ROOT / "tasks/bootstrap.json")["repo_root"])
+    repo = resolve_repo_root()
     commit = git(repo, "rev-parse", "HEAD")
     rows = []
     findings = []

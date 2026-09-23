@@ -1,7 +1,11 @@
 import json
 import re
+import sys
 import unittest
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
+from core import resolve_repo_root
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,7 +29,7 @@ class R62AlignedCases(unittest.TestCase):
         self.assertIn('MORE-EVENTS-MENU', runner)
 
     def test_r62_and_pony_templates_mark_playback_links_nofollow(self):
-        repo = Path(json.loads((ROOT / 'tasks/bootstrap.json').read_text(encoding='utf-8'))['repo_root'])
+        repo = resolve_repo_root()
         template_ids = ['r62', *[f'z{i}' for i in range(1, 19)]]
         for template_id in template_ids:
             path = repo / 'templates' / template_id / 'detail_zb.html'

@@ -5,14 +5,14 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from core import ROOT, read_json
+from core import resolve_repo_root, ROOT, read_json
 
 
 class ZTemplateContract(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         task = ROOT / "tasks/local.json"
-        cls.repo = Path(read_json(task if task.exists() else ROOT / "tasks/bootstrap.json")["repo_root"])
+        cls.repo = resolve_repo_root()
 
     def test_dynamic_injections_and_app_scripts(self):
         for number in range(1, 18):

@@ -10,7 +10,7 @@ from pathlib import Path
 import requests
 
 from browser_checks import execute_matrix
-from core import ROOT, fingerprint, git, read_json, save_json
+from core import resolve_repo_root, ROOT, fingerprint, git, read_json, save_json
 from z_manual_preview import existing_pages
 
 
@@ -53,7 +53,7 @@ def decorate_failures(records, contract):
 
 def run_one(number, output, page_types=None, widths=None, no_js_widths=None, contract_root=None):
     name = f"z{number}"
-    repo = Path(read_json(ROOT / "tasks/bootstrap.json")["repo_root"])
+    repo = resolve_repo_root()
     out = output / name
     out.mkdir(parents=True, exist_ok=True)
     contract_run = contract_root or ROOT / "runs" / ("z-review-fake-free-20260918" if 14 <= number <= 20 else "z-review-final-20260918")
