@@ -8,7 +8,7 @@
 ```powershell
 $env:PONY_REPO_ROOT = 'C:/tyseo/cms-sport-tpl-bing-z1-verify'
 .\.venv\Scripts\python.exe -B src\z_manual_preview.py            # 预览也从这个检出起
-.\.venv\Scripts\python.exe -B srced_line_gate.py --ids 2 --output runs/z2-gate-<时间>
+.\.venv\Scripts\python.exe -B src\red_line_gate.py --ids 2 --output runs/z2-gate-<时间>
 ```
 
 红线门槛和链接审计每套都会调 `core.preview_source_check()`：把预览真吐出来的 css/js 与磁盘逐字节比对，
