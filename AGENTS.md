@@ -1,5 +1,28 @@
 # Pony 模板工作流：Codex执行规则
 
+## 工具怎么知道"测的是哪个检出"（2026-09-24 修复）
+
+在 worktree 里改模板、用 worktree 起预览时，必须让工具也指向同一个检出，否则证据会盖错提交号。
+优先级：命令行 `--repo-root` > 环境变量 `PONY_REPO_ROOT` > `tasks/local.json` > `tasks/bootstrap.json`。
+
+```powershell
+$env:PONY_REPO_ROOT = 'C:/tyseo/cms-sport-tpl-bing-z1-verify'
+.\.venv\Scripts\python.exe -B src\z_manual_preview.py            # 预览也从这个检出起
+.\.venv\Scripts\python.exe -B srced_line_gate.py --ids 2 --output runs/z2-gate-<时间>
+```
+
+红线门槛和链接审计每套都会调 `core.preview_source_check()`：把预览真吐出来的 css/js 与磁盘逐字节比对，
+再要求磁盘 `master.html` 里的静态引用（含 `?v=`）原样出现在预览首页里。对不上就判 blocked 或直接中止，
+不让盖错章的证据变成 pass。`gate.md` 抬头现在会打印检出路径、分支和提交。
+
+渲染后的内容有独立的确定性检查 `src/z_content_rules.py`：页面上不该出现 None/undefined/NaN、
+简介不该留 Markdown 原文（该用共享过滤器 `|rich_text` 而不是 `|safe`）、每页正好一个 h1。
+这三条以前都靠人看页面才发现，现在改模板后随手跑一遍即可。
+
+页面契约（`runs/z-v2-recheck-20260919/contracts`）是靠爬站内链接生成的，站内没有入口的页面
+会永远记成"没有真实样例"而从不检查。人工按 `run.py` 路由核实过的补充地址放在
+`config/extra-page-samples.json`，门槛和内容检查都会并进去测；往里加条目前必须自己访问过并拿到 200。
+
 ## 功能以 r62 为基线，直播跳转 nofollow（用户 2026-09-22 新增）
 
 所有模板的通用功能范围先对照业务仓库当前 r62 的真实页面、链接与控件。r62 没有的搜索、主题切换、回顶等不再作为通用必备功能或公共测试失败；目标模板自行增加的功能仍作为该模板自有用例验证。**手机抽屉是明确保留的强制例外**：390 宽必须在当前页面打开可关闭、内部链接可点击的抽屉或浮层。现行布局、可达性、无 404/500、实际点击结果和证据要求不因缩小功能分母而放宽。每次测试记录 r62 基线提交，避免基线变化后沿用旧用例。
