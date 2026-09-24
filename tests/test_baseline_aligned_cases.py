@@ -11,22 +11,29 @@ from core import resolve_repo_root
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class R62AlignedCases(unittest.TestCase):
-    def test_common_cases_match_r62_baseline(self):
+class BaselineAlignedCases(unittest.TestCase):
+    """功能基线 2026-09-24 由 r62 改为 z18 / z22（用户明确）。"""
+
+    def test_common_cases_match_the_new_baseline(self):
         cases = json.loads((ROOT / 'config/final-user-cases.json').read_text(encoding='utf-8'))
-        self.assertEqual(cases['reference_template_id'], 'r62')
+        self.assertEqual(cases['reference_template_id'], ['z18', 'z22'])
         self.assertIn('live-detail-playback-link-nofollow', cases['common'])
         self.assertIn('mobile-menu-open-close', cases['common'])
         self.assertTrue({'desktop-navigation', 'more-events-menu', 'home-match-tabs'} <= set(cases['common']))
-        self.assertFalse({'search-button-and-enter', 'goto-top'} & set(cases['common']))
+        # z18 / z22 这三项都有，所以重新是必备
+        self.assertTrue({'site-search', 'theme-toggle-and-persist', 'goto-top'} <= set(cases['common']))
 
-    def test_runner_does_not_require_features_absent_from_r62(self):
+    def test_runner_checks_the_features_the_baseline_has(self):
         runner = (ROOT / 'scripts/cli-final-user-journeys.js').read_text(encoding='utf-8')
-        for removed_rule in ('SITE-SEARCH', 'THEME-TOGGLE', 'GOTO-TOP'):
-            self.assertNotIn(removed_rule, runner)
-        self.assertIn('MOBILE-MENU', runner)
-        self.assertIn('LIVE-DETAIL-PLAYBACK-NOFOLLOW', runner)
-        self.assertIn('MORE-EVENTS-MENU', runner)
+        for rule in ('SITE-SEARCH', 'THEME-TOGGLE', 'GOTO-TOP',
+                     'MOBILE-MENU', 'LIVE-DETAIL-PLAYBACK-NOFOLLOW', 'MORE-EVENTS-MENU'):
+            self.assertIn(rule, runner)
+
+    def test_runner_recognises_the_baseline_control_names(self):
+        runner = (ROOT / 'scripts/cli-final-user-journeys.js').read_text(encoding='utf-8')
+        # z22 的回顶叫 ar-totop / #ar-top，不是 scroll-to-top；选择器要认得出来
+        self.assertIn('data-ar-totop', runner)
+        self.assertIn('#ar-top', runner)
 
     def test_r62_and_pony_templates_mark_playback_links_nofollow(self):
         repo = resolve_repo_root()

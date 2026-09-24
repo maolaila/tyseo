@@ -72,7 +72,60 @@ async (page) => {
       page.on('response',listener);await target.click({timeout:4000});await page.waitForTimeout(200);page.off('response',listener);
       record(out.common,'NAV-CLICK',status===200&&page.url()===base+'/zuqiu'?'pass':status===null?'needs_review':'fail',
         {url:page.url(),http:status},{path:'/',width:1280});}
+  try{
+    await open('/');
+    const toggle=page.locator('[data-theme-toggle],[class*="theme-toggle"],[class*="theme-btn"],.sl-theme,.ps-theme-btn,.z11-tool-theme,.z12-tool-theme,[data-ar-theme],.ar-theme,[class*="theme-switch"]').filter({visible:true}).first();
+    if(!await toggle.count())record(out.common,'THEME-TOGGLE','fail','基线 z18/z22 有主题切换，这里找不到可见的切换控件',{path:'/'});
+    else{
+      const before=await page.locator('html').getAttribute('data-theme');
+      const appearance=()=>page.evaluate(()=>[...document.querySelectorAll('body,body *')].filter(x=>x.getClientRects().length).slice(0,120).map(x=>{
+        const s=getComputedStyle(x);return [s.backgroundColor,s.color,s.borderTopColor].join('|');}).join(';'));
+      const appearanceBefore=await appearance();
+      await toggle.click({timeout:3500});
+      const after=await page.locator('html').getAttribute('data-theme');
+      const appearanceAfter=await appearance();
+      await page.reload({waitUntil:'domcontentloaded'});
+      const persisted=await page.locator('html').getAttribute('data-theme');
+      record(out.common,'THEME-TOGGLE',before===after||after!==persisted?'fail':appearanceBefore===appearanceAfter?'needs_review':'pass',
+        {before,after,persisted,computed_appearance_changed:appearanceBefore!==appearanceAfter},{path:'/'});
+    }
+  }catch(error){record(out.common,'THEME-TOGGLE','blocked',short(error),{path:'/'});}
   }catch(error){record(out.common,'NAV-CLICK','blocked',short(error),{path:'/',width:1280});}
+  /* 基线从 r62 改为 z18/z22（用户 2026-09-24）：这两套都有主题切换、站内搜索、回到顶部，
+     所以这三项重新成为必备，找不到控件按 fail 记，不再是 needs_review。 */
+  await page.setViewportSize({width:390,height:900});
+  for(const mode of ['enter','button']){
+    try{
+      await open('/');
+      let input=page.locator('form[action="/search"] input[name="q"]').filter({visible:true}).first();
+      if(!await input.count()){
+        const opener=page.locator('#mobile-search-icon,button[aria-label*="搜索"]').filter({visible:true}).first();
+        if(await opener.count())await opener.click({timeout:3000});
+        input=page.locator('form[action="/search"] input[name="q"]').filter({visible:true}).first();
+      }
+      if(!await input.count()){record(out.common,'SITE-SEARCH','fail','基线 z18/z22 有站内搜索，这里找不到可见的搜索框',{path:'/',mode});continue;}
+      await input.fill(mode==='enter'?'英超':'NBA');
+      if(mode==='enter')await input.press('Enter',{timeout:4000});
+      else{
+        const submit=input.locator('xpath=ancestor::form').locator('button[type="submit"],input[type="submit"]').first();
+        if(!await submit.count()){record(out.common,'SITE-SEARCH','needs_review','No submit button',{path:'/',mode});continue;}
+        await submit.click({timeout:4000});
+      }
+      const url=page.url(),body=await page.locator('body').innerText();
+      record(out.common,'SITE-SEARCH',/\/search(?:\?|$)/.test(url)&&body.trim().length>20?'pass':'fail',{url,body_chars:body.trim().length},{path:'/',mode});
+    }catch(error){record(out.common,'SITE-SEARCH','blocked',short(error),{path:'/',mode});}
+  }
+  try{
+    await open('/');
+    await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';scrollTo(0,document.body.scrollHeight)});
+    const before=await page.evaluate(()=>scrollY);
+    await page.waitForTimeout(250);
+    const top=page.locator('#scroll-to-top,.z1-back-top,[data-back-top],[class*="scroll-top"],[class*="back-top"],[data-ar-totop],[class*="totop"],#ar-top').filter({visible:true}).first();
+    if(before<100)record(out.common,'GOTO-TOP','not_applicable','Home page does not scroll',{path:'/'});
+    else if(!await top.count())record(out.common,'GOTO-TOP','fail','基线 z18/z22 有回到顶部，这里找不到可见的控件',{path:'/'});
+    else{await top.click({timeout:3500});await page.waitForFunction(()=>scrollY<5,null,{timeout:4000}).catch(()=>{});const after=await page.evaluate(()=>scrollY);
+      record(out.common,'GOTO-TOP',after<5?'pass':'fail',{before,after},{path:'/'});}
+  }catch(error){record(out.common,'GOTO-TOP','blocked',short(error),{path:'/'});}
   await page.setViewportSize({width:1280,height:900});
   try{
     await open('/');
