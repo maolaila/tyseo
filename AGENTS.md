@@ -67,6 +67,31 @@ $env:PONY_REPO_ROOT = 'C:/tyseo/cms-sport-tpl-bing-z1-verify'
 
 用户明确：说“上站”时若未提供新分配词，默认沿用前一天的有效分配词；提供了新词就用最新一批。2026-09-19 沿用并由用户重新列明的 27 个词见 `docs/SITE_LAUNCH_RUNBOOK.md`。域名后缀仅限 `.com`、`.cn`、`.com.cn`。不因在线轮换表未列 Pony 而自行换词或阻断已明确分配词。每日域名、TDK 均须重新准备且不得重复。域名写入前同时对当前批次、待购买表、上站历史及本地历史记录查重，并重新查询注册状态。每批 Title、Description、Keywords 按实际站点能力与当次竞品研究重新撰写，逐字段对本批及历史查重，不能只换标点、空格或域名。关键词池继续有效不等于允许复用旧文案。数量未建立固定日配额，不能由关键词数或模板数推断。现有采购、提交、上线边界不变。
 
+## 固定解法：欧联杯链接把 oulianbei 换成 oulian（用户 2026-09-24 定为固定做法）
+
+后端数据里欧联杯的 `pinyin` 是 `oulianbei`，但联赛页地址在后端改名后是 `/oulian`。
+照数据拼链接就会 404。**只在拼 URL 的地方做别名替换，联赛名称照常显示「欧联杯」**：
+
+```jinja
+{# 欧联杯数据里的拼音是 oulianbei，但联赛页地址是 oulian（后端改名特例） #}
+<a href="/{{ 'oulian' if item.pinyin == 'oulianbei' else item.pinyin }}" title="{{ item.name }}直播">
+```
+
+模板里有统一的 URL 宏就放进宏里（z18、z22 的 `macros/ar.html` 即如此）：
+
+```jinja
+{%- set lp = 'oulian' if (m.pinyin or '')|lower == 'oulianbei' else m.pinyin -%}
+```
+
+出处：Rechard 2026-09-19 在 TG 确认，原话「这个联赛 好像改名了」「换成 oulian也可以~」，
+并给了线上示例 `https://cn-360zhibo8-mgtv.com/oulian`；记录在业务仓库
+`.local-records/tg/2026-09-19.md` 的 S13 段。
+
+**边界**：同一次对话里 Rechard 明确说「改名这种情况 很少」，否定了"其他 404 照地址对照替换"。
+所以这只是这一个联赛的特例，**遇到别的 404 不得照猜路由或自动替换**，逐条保留 URL
+和来源页交用户去问。`src/z_content_rules.py` 会在渲染结果里检查还有没有指向
+`/oulianbei` 的链接。
+
 ## 修复范围更正：z1–z21（用户 2026-09-24）
 
 用户明确指出 **z19–z21 也是本人负责修复的旧模板**，修复范围是 **z1–z21 共 21 套**，

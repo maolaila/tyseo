@@ -35,6 +35,10 @@ CONTENT_BLOCK = re.compile(
     r'class="[^"]*(?:custom-league-intro|info-desc-value|article_content|news_content|content_detail)[^"]*"[^>]*>(.{0,8000}?)</div>',
     re.S)
 MARKDOWN = re.compile(r'(?m)^\s{0,3}#{2,6}\s|\*\*[^*\n]{1,40}\*\*|(?m)^\s*\|.+\|\s*$')
+# 欧联杯数据里的拼音是 oulianbei，但联赛页地址在后端改名后是 oulian；照数据拼链接必 404。
+# 固定解法是在拼 URL 的地方换成 oulian（Rechard 2026-09-19 确认，细节见 AGENTS.md）。
+# 注意这是这一个联赛的特例，别的 404 不能照猜路由。
+RENAMED_LEAGUE = re.compile(r'href="[^"]*/oulianbei(?:[/"?#]|$)')
 
 
 def sample_urls(contracts, repo, name):
@@ -79,6 +83,9 @@ def check(base, page_type, path, timeout=120):
         if MARKDOWN.search(block.group(1)):
             findings.append('简介/正文里留着 Markdown 原文，应当用 |rich_text 而不是 |safe')
             break
+    renamed = RENAMED_LEAGUE.findall(text)
+    if renamed:
+        findings.append(f'还有 {len(renamed)} 条链接指向 /oulianbei（该联赛已改名，拼 URL 时要换成 oulian）')
     return {'page_type': page_type, 'path': path, 'status': status, 'h1': h1,
             'none_hits': len(none_hits), 'findings': findings}
 

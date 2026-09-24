@@ -70,6 +70,15 @@ class ContentRules(unittest.TestCase):
     def test_rendered_html_is_not_reported_as_markdown(self):
         self.assertIsNone(z_content_rules.MARKDOWN.search('<h3>现任教练</h3><strong>队史得分王</strong>'))
 
+    def test_renamed_league_link_is_reported(self):
+        for raw in ('<a href="/oulianbei">', '<a href="/zuqiu/oulianbei" title="x">',
+                    '<a href="/oulianbei/10015.html">'):
+            self.assertTrue(z_content_rules.RENAMED_LEAGUE.search(raw), raw)
+
+    def test_corrected_league_link_is_not_reported(self):
+        for raw in ('<a href="/oulian">', '<a href="/zuqiu/oulian" title="x">'):
+            self.assertIsNone(z_content_rules.RENAMED_LEAGUE.search(raw), raw)
+
 
 if __name__ == '__main__':
     unittest.main()
