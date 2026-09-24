@@ -85,6 +85,11 @@ def preview_source_check(repo, name, base, timeout=30):
         return raw if binary else raw.decode('utf-8', 'replace')
 
     static_dir = repo / 'static' / name
+    if not static_dir.is_dir() and not (repo / 'templates' / name).is_dir():
+        # repo_root 里压根没有这套模板：多半是 --repo-root / PONY_REPO_ROOT 指错了检出。
+        # 这种情况不能当"没东西可比，跳过"，否则会静悄悄地查 0 个页面。
+        return False, (f'{repo} 里没有 templates/{name} 或 static/{name}：'
+                       f'repo_root 指错了检出，用 --repo-root 或 PONY_REPO_ROOT 指到预览实际使用的目录')
     assets = sorted(p for p in static_dir.rglob('*') if p.is_file() and p.suffix.lower() in ('.css', '.js'))
     checked = 0
     for asset in assets:

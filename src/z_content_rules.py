@@ -41,9 +41,15 @@ MARKDOWN = re.compile(r'(?m)^\s{0,3}#{2,6}\s|\*\*[^*\n]{1,40}\*\*|(?m)^\s*\|.+\|
 RENAMED_LEAGUE = re.compile(r'href="[^"]*/oulianbei(?:[/"?#]|$)')
 
 
-def sample_urls(contracts, repo, name):
-    """页面契约里的真实样例，加上 config/extra-page-samples.json 里人工核实过的补充地址。"""
+def sample_urls(contracts, repo, name, borrow='z1'):
+    """页面契约里的真实样例，加上 config/extra-page-samples.json 里人工核实过的补充地址。
+
+    新模板（z18、z22 这种）没有自己的页面契约，借用 borrow 那套的样例地址——
+    后端数据和路由是同一份，页面类型也一一对应。和红线门槛的 --borrow 同一个做法。
+    """
     contract_path = contracts / name / 'page-contract.json'
+    if not contract_path.is_file():
+        contract_path = contracts / borrow / 'page-contract.json'
     if not contract_path.is_file():
         return []
     extra_path = ROOT / 'config/extra-page-samples.json'
@@ -90,7 +96,7 @@ def check(base, page_type, path, timeout=120):
             'none_hits': len(none_hits), 'findings': findings}
 
 
-def run(ids, contract_run, output, repo_root=None):
+def run(ids, contract_run, output, repo_root=None, borrow='z1'):
     output = (ROOT / output).resolve()
     if not output.is_relative_to(ROOT / 'runs') or output.exists():
         raise SystemExit('输出目录必须是 runs/ 下还不存在的新目录')
@@ -110,7 +116,7 @@ def run(ids, contract_run, output, repo_root=None):
             result['templates'].append(entry)
             print(f'{name}: 没法验——{note}', flush=True)
             continue
-        for page_type, path in sample_urls(contracts, repo, name):
+        for page_type, path in sample_urls(contracts, repo, name, borrow):
             row = check(base, page_type, path)
             entry['pages'].append(row)
             if row['findings']:
@@ -142,8 +148,9 @@ def main():
     parser.add_argument('--output', required=True)
     parser.add_argument('--contract-run', default='runs/z-v2-recheck-20260919/contracts')
     parser.add_argument('--repo-root', help='预览实际跑的业务检出；不填则用 PONY_REPO_ROOT')
+    parser.add_argument('--borrow', default='z1', help='没有页面契约的新模板借用哪一套的样例地址')
     args = parser.parse_args()
-    return run(args.ids, args.contract_run, args.output, args.repo_root)
+    return run(args.ids, args.contract_run, args.output, args.repo_root, args.borrow)
 
 
 if __name__ == '__main__':
