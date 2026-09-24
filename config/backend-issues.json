@@ -11,7 +11,8 @@
    "owner_notified_at": "2026-09-21T15:50:00+09:00",
    "backend_owner": "Rechard",
    "backend_notified_at": null,
-   "production": "已查：线上同一路径 HTTP 404（cn-360zhibo8-mgtv.com，2026-09-23T21:37Z，3 个 id 均为 404，非 500）；线上未复现本地的 TypeError"
+   "production": "已查：线上同一路径 HTTP 404（cn-360zhibo8-mgtv.com，2026-09-23T21:37Z，3 个 id 均为 404，非 500）；线上未复现本地的 TypeError",
+   "user_decision": "用户 2026-09-19 就说过\"本地的先不管\"（docs/TEMPORARY_TASKS.md），2026-09-24 再次确认不上报。线上是 404 不是 500，不构成线上事故。登记保留，不再列进给 Leo / Rechard 的清单。"
   },
   {
    "id": "teaminfo-pre1970-transfertime-oserror",
@@ -23,7 +24,34 @@
    "owner_notified_at": "2026-09-23T21:30:00+00:00",
    "backend_owner": "Rechard",
    "backend_notified_at": null,
-   "production": "已查：线上同一路径 HTTP 200，页面正常（cn-360zhibo8-mgtv.com/nba/teams/teaminfo-42313.html，2026-09-23T21:37Z）。生产跑 Linux，localtime 接受负时间戳，因此不触发；这是本机 Windows 专有故障，不是线上事故"
+   "production": "已查：线上同一路径 HTTP 200，页面正常（cn-360zhibo8-mgtv.com/nba/teams/teaminfo-42313.html，2026-09-23T21:37Z）。生产跑 Linux，localtime 接受负时间戳，因此不触发；这是本机 Windows 专有故障，不是线上事故",
+   "user_decision": "用户 2026-09-24 明确\"此类问题不管\"：本机 Windows 专有（time.localtime 不接受负时间戳），线上 Linux 实测 200。登记保留，不上报。"
+  },
+  {
+   "id": "ouguanbei-teaminfo-404",
+   "path": "^/ouguanbei/teams/teaminfo-\\d+\\.html$",
+   "exception": null,
+   "cause": "首页积分/排行榜板块按后端给的 league.pinyin 拼球队页地址。欧冠杯那一档后端给的 pinyin 是 ouguanbei，但球队资料只在 ouguan 下有：同一个球队 id 11343，/ouguan/teams/teaminfo-11343.html 与 /yijia/teams/teaminfo-11343.html 都 200，只有 /ouguanbei/teams/teaminfo-11343.html 404；/ouguanbei 频道页本身 200。模板侧的写法（/{{ league.pinyin }}/teams/teaminfo-{{ team_id }}.html）与已合并 main 的 x93 同一处一致，不是拼错。需要后端确认这两个拼音的对应关系，或在该数据源里返回 ouguan。",
+   "templates": "z17（以及任何用 list_league_rank_list 拼球队链接的模板，如 x93）",
+   "report": "runs/z1-z17-gate-claude-20260924b/z17/links.json；来源页为 z17 首页，链接文字「那不勒斯 欧冠杯」「皇家马德里 欧冠杯」「国际米兰 欧冠杯」",
+   "owner_notified_at": "2026-09-23T22:55:00+00:00",
+   "backend_owner": "Rechard",
+   "backend_notified_at": null,
+   "production": "已查：线上同样 404（cn-360zhibo8-mgtv.com/ouguanbei/teams/teaminfo-11343.html，2026-09-23T22:52Z），同域 /ouguan/teams/teaminfo-11343.html 为 200。这条线上也存在，不只是本地环境差异",
+   "user_decision": "用户 2026-09-24 说\"我去问下\"，由用户自己找人确认 ouguanbei / ouguan 的对应关系，不需要 AI 再列进交付清单。"
+  },
+  {
+   "id": "lastmodify-cache-jsondecode-race",
+   "path": "^/.+$",
+   "exception": "JSONDecodeError",
+   "cause": "cache/cache_data.py 的 get_last_modify_cache（约 4841 行）对本地缓存文件是 read_file() 之后直接 json.loads()，没有对读到半截内容做任何保护；写入端也不是原子替换。另一个进程正在写这个 .txt 时，读到的就是残缺 JSON，直接抛 JSONDecodeError，页面 500。本机 17 套模板预览共用同一个缓存目录，并发压力大所以容易撞上；生产多 worker 同样存在这个竞态，只是概率低。间歇性：复测同一地址连续 4 次都是 200。模板侧改不了。",
+   "templates": "全部（首次出现在 z2 的 /zuqiu/shipin-4，来源是 /zuqiu/shipin 的分页链接「4」）",
+   "report": "runs/z1-z17-gate-claude-20260924c/z2/links.json；同类历史假阳性还有 /jijin/zuqiu-3.html、/jijin/zuqiu-5.html",
+   "owner_notified_at": "2026-09-23T23:10:00+00:00",
+   "backend_owner": "Rechard",
+   "backend_notified_at": null,
+   "production": "未查：要在并发写缓存的瞬间才复现，线上不好构造。按代码逻辑生产多 worker 同样可能触发；建议读缓存加 try/except，写入改成原子替换",
+   "user_decision": "用户 2026-09-24 明确\"不是前端的问题就不管\"。登记保留，不上报。"
   }
  ]
 }
